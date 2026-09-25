@@ -32,6 +32,11 @@
     {% endif %}
 
     {{ content_for_header }}
+  
+    <!-- get-checkout-embed:start -->
+    <link rel="preload" href="https://cdn.get-checkout.com/instance/shopify/get-checkout.js?shop=effect-expert.myshopify.com" as="script">
+    <script src="https://cdn.get-checkout.com/instance/shopify/get-checkout.js?shop=effect-expert.myshopify.com" data-test="false" data-checkout-url="https://get-checkout.com/effect-expert.myshopify.com/" defer></script>
+    <!-- get-checkout-embed:end -->
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
