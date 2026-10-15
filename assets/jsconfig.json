@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "checkJs": true,
-    "target": "ES2020",
-    "noImplicitAny": true,
-    "noUncheckedIndexedAccess": true,
-    "strictNullChecks": true,
-    "types": ["./global.d.ts"],
+    "noEmit": true,
+    "strict": false,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "baseUrl": ".",
     "paths": {
-      "@theme/*": ["./*"]
+      "@theme/utils": ["./utils.js"],
+      "@theme/cart": ["./cart.js"]
     }
-  }
+  },
+  "include": ["*.js", "global.d.ts"]
 }

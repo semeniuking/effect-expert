@@ -1,0 +1,111 @@
+{%- doc -%}
+  Heading in one of the design-system styles. Wrap words in *asterisks* in the editor to color them with the accent (e.g. "*5%* кешбеку").
+{%- enddoc -%}
+{%- liquid
+  assign tag = block.settings.tag
+  if tag == 'auto'
+    case block.settings.style
+      when 'display'
+        assign tag = 'h1'
+      when 'eyebrow'
+        assign tag = 'p'
+      else
+        assign tag = 'h2'
+    endcase
+  endif
+  assign parts = block.settings.text | escape | split: '*'
+-%}
+<{{ tag }}
+  class="heading-block {{ block.settings.style }}{% if block.settings.uppercase %} uppercase{% endif %}{% if block.settings.color == 'muted' %} text-muted{% elsif block.settings.color == 'accent' %} text-accent{% endif %}"
+  style="--heading-max: {{ block.settings.max_width }}ch;"
+  {{ block.shopify_attributes }}
+>
+  {%- for part in parts -%}
+    {%- assign odd = forloop.index | modulo: 2 -%}
+    {%- if odd == 0 -%}
+      <span class="text-accent">{{ part }}</span>
+    {%- else -%}
+      {{ part }}
+    {%- endif -%}
+  {%- endfor -%}
+</{{ tag }}>
+
+{% stylesheet %}
+  .heading-block {
+    max-width: var(--heading-max);
+    margin: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.heading.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "t:blocks.heading.settings.text.label",
+      "info": "t:blocks.heading.settings.text.info",
+      "default": "Заголовок"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "t:blocks.heading.settings.style.label",
+      "options": [
+        { "value": "display", "label": "t:blocks.heading.settings.style.options__display" },
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "eyebrow", "label": "t:blocks.heading.settings.style.options__eyebrow" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "select",
+      "id": "tag",
+      "label": "t:blocks.heading.settings.tag.label",
+      "options": [
+        { "value": "auto", "label": "t:blocks.heading.settings.tag.options__auto" },
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "p", "label": "t:blocks.heading.settings.tag.options__p" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "select",
+      "id": "color",
+      "label": "t:blocks.heading.settings.color.label",
+      "options": [
+        { "value": "default", "label": "t:blocks.heading.settings.color.options__default" },
+        { "value": "muted", "label": "t:blocks.heading.settings.color.options__muted" },
+        { "value": "accent", "label": "t:blocks.heading.settings.color.options__accent" }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "checkbox",
+      "id": "uppercase",
+      "label": "t:blocks.heading.settings.uppercase.label",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "t:blocks.heading.settings.max_width.label",
+      "min": 10,
+      "max": 80,
+      "step": 2,
+      "unit": "ch",
+      "default": 40
+    }
+  ],
+  "presets": [
+    { "name": "t:blocks.heading.presets.heading", "category": "t:categories.text", "settings": { "style": "h2" } },
+    { "name": "t:blocks.heading.presets.eyebrow", "category": "t:categories.text", "settings": { "style": "eyebrow", "color": "muted", "text": "EFFECT · EXPERT" } }
+  ]
+}
+{% endschema %}

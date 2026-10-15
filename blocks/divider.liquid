@@ -1,0 +1,43 @@
+{%- doc -%}
+  Horizontal hairline.
+{%- enddoc -%}
+<hr
+  class="divider-block divider-block--{{ block.settings.weight }}"
+  style="--divider-width: {{ block.settings.width }}%;"
+  {{ block.shopify_attributes }}
+>
+
+{% stylesheet %}
+  .divider-block {
+    width: var(--divider-width);
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--color-line);
+    align-self: stretch;
+  }
+
+  .divider-block--strong {
+    border-top-color: var(--color-text);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.divider.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "weight",
+      "label": "t:blocks.divider.settings.weight.label",
+      "options": [
+        { "value": "light", "label": "t:blocks.divider.settings.weight.options__light" },
+        { "value": "strong", "label": "t:blocks.divider.settings.weight.options__strong" }
+      ],
+      "default": "light"
+    },
+    { "type": "range", "id": "width", "label": "t:blocks.divider.settings.width.label", "min": 10, "max": 100, "step": 5, "unit": "%", "default": 100 }
+  ],
+  "presets": [{ "name": "t:blocks.divider.name", "category": "t:categories.layout" }]
+}
+{% endschema %}

@@ -1,0 +1,34 @@
+{%- doc -%}
+  Social profile links from Theme settings → Social media. Empty profiles are skipped.
+
+  @param {boolean} [show_labels] - show the network handle text next to the icon
+  @param {string} [class] - extra classes on the list
+
+  @example
+  {% render 'social-icons' %}
+{%- enddoc -%}
+{%- assign networks = 'instagram,telegram,viber,tiktok,facebook,youtube' | split: ',' -%}
+<ul class="social-icons{% if class %} {{ class }}{% endif %}" role="list">
+  {%- for network in networks -%}
+    {%- assign key = 'social_' | append: network -%}
+    {%- assign url = settings[key] -%}
+    {%- if url != blank -%}
+      <li>
+        <a
+          href="{{ url }}"
+          class="social-icons__link{% unless show_labels %} icon-button{% endunless %}"
+          target="_blank"
+          rel="noopener"
+          {% unless show_labels %}
+            aria-label="{{ network | capitalize }}"
+          {% endunless %}
+        >
+          {% render 'icon', name: network %}
+          {%- if show_labels -%}
+            <span>{{ url | split: '?' | first | remove: 'https://' | remove: 'www.' | split: '/' | last | default: network }}</span>
+          {%- endif -%}
+        </a>
+      </li>
+    {%- endif -%}
+  {%- endfor -%}
+</ul>

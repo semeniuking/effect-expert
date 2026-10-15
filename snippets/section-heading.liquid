@@ -1,0 +1,28 @@
+{%- doc -%}
+  Section heading row: eyebrow + title on the left, "see all" link on the right.
+  Expects section settings `subheading`, `heading`, `link_label`, `link_url` (any may be blank).
+
+  @param {object} settings - usually section.settings
+  @param {string} [tag] - heading tag, default 'h2'
+  @param {string} [class] - extra classes
+  @param {boolean} [center] - center everything
+
+  @example
+  {% render 'section-heading', settings: section.settings %}
+{%- enddoc -%}
+{%- if settings.heading != blank or settings.subheading != blank or settings.link_label != blank -%}
+  {%- assign heading_tag = tag | default: 'h2' -%}
+  <div class="section-header{% if center %} section-header--center{% endif %}{% if class %} {{ class }}{% endif %}">
+    <div class="section-header__titles">
+      {%- if settings.subheading != blank -%}
+        <p class="eyebrow text-muted">{{ settings.subheading | escape }}</p>
+      {%- endif -%}
+      {%- if settings.heading != blank -%}
+        <{{ heading_tag }} class="h2">{{ settings.heading | escape }}</{{ heading_tag }}>
+      {%- endif -%}
+    </div>
+    {%- if settings.link_label != blank and settings.link_url != blank -%}
+      <a class="link-arrow" href="{{ settings.link_url }}">{{ settings.link_label | escape }} →</a>
+    {%- endif -%}
+  </div>
+{%- endif -%}

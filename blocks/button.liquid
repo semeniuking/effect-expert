@@ -1,115 +1,92 @@
+{%- doc -%}
+  Link styled as a button.
+{%- enddoc -%}
+{%- liquid
+  assign classes = 'button'
+  case block.settings.style
+    when 'secondary'
+      assign classes = classes | append: ' button--secondary'
+    when 'accent'
+      assign classes = classes | append: ' button--accent'
+    when 'link'
+      assign classes = 'link-arrow'
+  endcase
+  if block.settings.full_width
+    assign classes = classes | append: ' button--full'
+  endif
+-%}
+<a
+  class="button-block {{ classes }}{% if block.settings.full_width_mobile %} button-block--full-mobile{% endif %}"
+  {% if block.settings.link != blank %}
+    href="{{ block.settings.link }}"
+  {% else %}
+    role="link" aria-disabled="true"
+  {% endif %}
+  {% if block.settings.new_tab %}
+    target="_blank" rel="noopener"
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  {{- block.settings.label | escape -}}
+  {%- if block.settings.style == 'link' %} →{% endif -%}
+</a>
 
-{% render 'button', link: block.settings.link %}
+{% stylesheet %}
+  @media (max-width: 749px) {
+    .button-block--full-mobile.button {
+      width: 100%;
+      min-height: 52px;
+    }
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:names.button",
+  "name": "t:blocks.button.name",
   "tag": null,
   "settings": [
     {
       "type": "text",
       "id": "label",
-      "label": "t:settings.label",
-      "default": "t:text_defaults.button_label"
+      "label": "t:blocks.button.settings.label.label",
+      "default": "До шопінгу"
     },
     {
       "type": "url",
       "id": "link",
-      "label": "t:settings.link"
+      "label": "t:blocks.button.settings.link.label"
     },
     {
       "type": "checkbox",
-      "id": "open_in_new_tab",
-      "label": "t:settings.open_new_tab",
+      "id": "new_tab",
+      "label": "t:blocks.button.settings.new_tab.label",
       "default": false
     },
     {
       "type": "select",
-      "id": "style_class",
-      "label": "t:settings.style",
+      "id": "style",
+      "label": "t:blocks.button.settings.style.label",
       "options": [
-        {
-          "value": "button",
-          "label": "t:options.primary"
-        },
-        {
-          "value": "button-secondary",
-          "label": "t:options.secondary"
-        },
-        {
-          "value": "link",
-          "label": "t:options.link"
-        }
+        { "value": "primary", "label": "t:blocks.button.settings.style.options__primary" },
+        { "value": "secondary", "label": "t:blocks.button.settings.style.options__secondary" },
+        { "value": "accent", "label": "t:blocks.button.settings.style.options__accent" },
+        { "value": "link", "label": "t:blocks.button.settings.style.options__link" }
       ],
-      "default": "button"
+      "default": "primary"
     },
     {
-      "type": "header",
-      "content": "t:content.size"
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "t:blocks.button.settings.full_width.label",
+      "default": false
     },
     {
-      "type": "select",
-      "id": "width",
-      "label": "t:settings.width_desktop",
-      "options": [
-        {
-          "value": "fit-content",
-          "label": "t:options.fit_content"
-        },
-        {
-          "value": "custom",
-          "label": "t:options.custom"
-        }
-      ],
-      "default": "fit-content"
-    },
-    {
-      "type": "range",
-      "id": "custom_width",
-      "label": "t:settings.custom_width",
-      "min": 0,
-      "max": 100,
-      "step": 1,
-      "unit": "%",
-      "default": 100,
-      "visible_if": "{{ block.settings.width == \"custom\" }}"
-    },
-    {
-      "type": "select",
-      "id": "width_mobile",
-      "label": "t:settings.width_mobile",
-      "options": [
-        {
-          "value": "fit-content",
-          "label": "t:options.fit_content"
-        },
-        {
-          "value": "custom",
-          "label": "t:options.custom"
-        }
-      ],
-      "default": "fit-content"
-    },
-    {
-      "type": "range",
-      "id": "custom_width_mobile",
-      "label": "t:settings.custom_width",
-      "min": 0,
-      "max": 100,
-      "step": 1,
-      "unit": "%",
-      "default": 100,
-      "visible_if": "{{ block.settings.width_mobile == \"custom\" }}"
+      "type": "checkbox",
+      "id": "full_width_mobile",
+      "label": "t:blocks.button.settings.full_width_mobile.label",
+      "default": true
     }
   ],
-  "presets": [
-    {
-      "name": "t:names.button",
-      "category": "t:categories.basic",
-      "settings": {
-        "link": "shopify://collections/all"
-      }
-    }
-  ]
+  "presets": [{ "name": "t:blocks.button.name", "category": "t:categories.links" }]
 }
 {% endschema %}

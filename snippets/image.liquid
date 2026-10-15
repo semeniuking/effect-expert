@@ -1,32 +1,35 @@
 {%- doc -%}
-  Renders the <img> element using provided image object
+  Responsive image with srcset. Renders a placeholder SVG when the image is blank.
 
-  @param {object} image - image object
-  @param {number} [height] - custom image height
-  @param {string} [class] - additional classes
-  @param {string} [text_fallback] - text to display if image is blank
-  @param {boolean} [unset_image_tag] - if true, ignores the image focal point
-  @param {string} [style] - additional styles
+  @param {image} image - the image object
+  @param {string} [sizes] - sizes attribute, default '100vw'
+  @param {string} [widths] - comma-separated widths, default '360, 540, 720, 900, 1100, 1400, 1800, 2200'
+  @param {string} [class] - classes on the img
+  @param {string} [alt] - alt text override
+  @param {boolean} [priority] - true for the LCP image (eager + fetchpriority=high)
+  @param {string} [placeholder] - placeholder name for blank images, e.g. 'product-1', 'collection-1', 'lifestyle-1', 'image'
+  @param {number} [max_width] - maximum rendered width (limits srcset)
 
   @example
-  {% render 'image', image: product.featured_image, height: 300, class: 'product-image' %}
+  {% render 'image', image: section.settings.image, sizes: '(min-width: 750px) 50vw, 100vw', priority: true %}
 {%- enddoc -%}
-{% if image != blank %}
-  {% assign image_height = height | default: image.height %}
-  {% assign image_height_2x = height | default: image_height | times: 2 %}
-  {% assign image_height_3x = height | default: image_height | times: 3 %}
-
-  {% capture image_srcset -%}
-    {{ image | image_url: height: image_height }} 1x, {{ image | image_url: height: image_height_2x }} 2x, {{ image | image_url: height: image_height_3x }} 3x
-  {%- endcapture %}
-
-  {% assign style_value = style | default: '' %}
-
-  {% if unset_image_tag %}
-    {% assign style_value = style_value | append: 'object-position: inherit;' %}
-  {% endif %}
-
-  {{ image | image_url: height: image_height | image_tag: class: class, srcset: image_srcset, style: style_value }}
-{% elsif text_fallback %}
-  {{ text_fallback }}
-{% endif %}
+{%- liquid
+  assign widths_list = widths | default: '360, 540, 720, 900, 1100, 1400, 1800, 2200'
+  assign size_attr = sizes | default: '100vw'
+  assign loading = 'lazy'
+  assign fetch_priority = 'auto'
+  if priority
+    assign loading = 'eager'
+    assign fetch_priority = 'high'
+  endif
+  assign alt_text = alt | default: image.alt | escape
+-%}
+{%- if image != blank -%}
+  {%- if max_width -%}
+    {{ image | image_url: width: max_width | image_tag: widths: widths_list, sizes: size_attr, loading: loading, fetchpriority: fetch_priority, class: class, alt: alt_text }}
+  {%- else -%}
+    {{ image | image_url: width: 2200 | image_tag: widths: widths_list, sizes: size_attr, loading: loading, fetchpriority: fetch_priority, class: class, alt: alt_text }}
+  {%- endif -%}
+{%- else -%}
+  {{ placeholder | default: 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+{%- endif -%}

@@ -1,0 +1,75 @@
+{%- doc -%}
+  Outputs global design tokens (fonts, type scale, layout, radii) and one class per color scheme.
+  The first scheme is also applied to :root so pages default to it.
+
+  @example
+  {% render 'theme-styles' %}
+{%- enddoc -%}
+{%- liquid
+  assign display_font = settings.type_display_font
+  assign body_font = settings.type_body_font
+  assign body_font_bold = body_font | font_modify: 'weight', '600'
+  assign display_font_medium = display_font | font_modify: 'weight', '500'
+  assign display_font_semibold = display_font | font_modify: 'weight', '600'
+-%}
+{% style %}
+  {{ display_font | font_face: font_display: 'swap' }}
+  {{ display_font_medium | font_face: font_display: 'swap' }}
+  {{ display_font_semibold | font_face: font_display: 'swap' }}
+  {{ body_font | font_face: font_display: 'swap' }}
+  {{ body_font_bold | font_face: font_display: 'swap' }}
+
+  :root {
+    --font-display: {{ display_font.family }}, {{ display_font.fallback_families }};
+    --font-display-weight: {{ display_font.weight }};
+    --font-display-style: {{ display_font.style }};
+    --font-body: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --font-body-weight: {{ body_font.weight }};
+    --font-body-weight-bold: {{ body_font_bold.weight | default: 600 }};
+
+    --text-display: {{ settings.type_display_size }}px;
+    --text-h1: {{ settings.type_h1_size }}px;
+    --text-h2: {{ settings.type_h2_size }}px;
+    --text-h3: {{ settings.type_h3_size }}px;
+    --text-body: {{ settings.type_body_size }}px;
+    --display-case: {% if settings.type_display_uppercase %}uppercase{% else %}none{% endif %};
+
+    --page-width: {{ settings.page_width }}px;
+    --gutter-desktop: {{ settings.gutter }}px;
+    --gutter-mobile: {{ settings.gutter_mobile }}px;
+    --grid-gap: {{ settings.grid_gap }}px;
+
+    --radius-button: {{ settings.radius_button }}px;
+    --radius-card: {{ settings.radius_card }}px;
+    --radius-media: {{ settings.radius_media }}px;
+
+    --card-ratio: {{ settings.card_image_ratio | default: '1/1' }};
+    --hover-zoom: {% if settings.animations_hover_zoom %}1.04{% else %}1{% endif %};
+
+    --logo-height: {{ settings.logo_height }}px;
+    --logo-height-mobile: {{ settings.logo_height_mobile }}px;
+  }
+
+  {% for scheme in settings.color_schemes -%}
+    {%- if forloop.first %}:root, {% endif -%}
+    .color-{{ scheme.id }} {
+      --color-bg: {{ scheme.settings.background }};
+      --color-surface: {{ scheme.settings.surface }};
+      --color-surface-alt: {{ scheme.settings.surface_alt }};
+      --color-text: {{ scheme.settings.text }};
+      --color-text-muted: {{ scheme.settings.text_muted }};
+      --color-accent: {{ scheme.settings.accent }};
+      --color-on-accent: {{ scheme.settings.on_accent }};
+      --color-line: {{ scheme.settings.line }};
+      --color-line-strong: {{ scheme.settings.line_strong }};
+      --color-button: {{ scheme.settings.button }};
+      --color-button-text: {{ scheme.settings.button_text }};
+      --color-button-hover: {{ scheme.settings.button_hover }};
+      --color-button-hover-text: {{ scheme.settings.button_hover_text }};
+      --color-sale: {{ scheme.settings.sale }};
+      --color-success: {{ scheme.settings.success }};
+      --color-focus: {{ scheme.settings.accent }};
+      --color-shadow: {% if scheme.settings.background.lightness < 30 %}rgb(0 0 0 / 0.5){% else %}rgb(20 20 20 / 0.08){% endif %};
+    }
+  {% endfor %}
+{% endstyle %}

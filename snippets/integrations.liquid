@@ -1,0 +1,52 @@
+{%- doc -%}
+  Third-party integrations carried over from the previous theme, toggled in Theme settings → Integrations.
+  Chat widgets are loaded after the first user interaction (or when the browser is idle) so they do not
+  compete with the page's critical resources.
+
+  @param {string} position - 'head' or 'body'
+
+  @example
+  {% render 'integrations', position: 'head' %}
+{%- enddoc -%}
+{%- if position == 'head' -%}
+  {%- if settings.integration_get_checkout -%}
+    <script
+      src="https://cdn.get-checkout.com/instance/shopify/get-checkout.js?shop={{ shop.permanent_domain }}"
+      data-test="false"
+      data-checkout-url="https://get-checkout.com/{{ shop.permanent_domain }}/"
+      defer
+    ></script>
+  {%- endif -%}
+  {{ settings.custom_head_code }}
+{%- else -%}
+  {%- if settings.integration_keycrm_token != blank or settings.integration_ai_assistant -%}
+    <script>
+      (() => {
+        const load = () => {
+          {%- if settings.integration_keycrm_token != blank %}
+          const s = document.createElement('script');
+          s.src = 'https://chat.key.live/bundles/widget.min.js';
+          s.async = true;
+          s.onload = () => window.KeyCRM && window.KeyCRM.render({ token: {{ settings.integration_keycrm_token | json }} });
+          document.body.appendChild(s);
+          {%- endif %}
+          {%- if settings.integration_ai_assistant %}
+          const a = document.createElement('script');
+          a.src = 'https://api.effect-expert.com/widget.js';
+          a.async = true;
+          document.body.appendChild(a);
+          {%- endif %}
+        };
+        let done = false;
+        const once = () => {
+          if (done) return;
+          done = true;
+          ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach((e) => removeEventListener(e, once));
+          load();
+        };
+        ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach((e) => addEventListener(e, once, { passive: true, once: true }));
+        addEventListener('load', () => setTimeout(once, 3500));
+      })();
+    </script>
+  {%- endif -%}
+{%- endif -%}

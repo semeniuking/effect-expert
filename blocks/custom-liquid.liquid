@@ -1,26 +1,21 @@
-
-
-<div>
+{%- doc -%}
+  Custom Liquid / HTML snippet.
+{%- enddoc -%}
+<div class="custom-liquid-block" {{ block.shopify_attributes }}>
   {{ block.settings.custom_liquid }}
 </div>
 
 {% schema %}
 {
-  "name": "t:names.custom_liquid",
+  "name": "t:blocks.custom_liquid.name",
   "tag": null,
   "settings": [
     {
       "type": "liquid",
       "id": "custom_liquid",
-      "label": "t:settings.custom_liquid",
-      "info": "t:info.custom_liquid"
+      "label": "t:blocks.custom_liquid.settings.custom_liquid.label"
     }
   ],
-  "presets": [
-    {
-      "name": "t:names.custom_liquid",
-      "category": "t:categories.custom"
-    }
-  ]
+  "presets": [{ "name": "t:blocks.custom_liquid.name", "category": "t:categories.advanced" }]
 }
 {% endschema %}
