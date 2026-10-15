@@ -5,8 +5,7 @@ compatibility_date = "2025-09-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "ghost-hunt"
-# Replace with the id printed by `npx wrangler d1 create ghost-hunt`.
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "ceb964e8-72b2-4ad7-acf6-43a4529ad38d"
 
 [vars]
 # Storefront used to read the product/collection pool (public /products.json, /collections.json).

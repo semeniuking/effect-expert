@@ -12,6 +12,8 @@ It isn't a Shopify app or an embed. It's a standalone Worker URL that the theme 
 | "Golden ghost already caught" for everyone | D1 table `golden` (row `live`; debug uses row `test`) |
 | On/off, Worker URL, golden ghost spot, texts, ghost size | Theme editor → Theme settings → **Ghost Hunt** |
 
+Deployed at **https://ghost-hunt.ghost-hunt-worker.workers.dev** (D1 `ghost-hunt`, id in `wrangler.toml`).
+
 ## One-time setup
 
 ```bash
