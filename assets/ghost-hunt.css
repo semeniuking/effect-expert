@@ -88,7 +88,8 @@
   position: fixed;
   left: max(16px, env(safe-area-inset-left));
   /* Clears the loyalty (cashback) bar; the offset is a theme setting. */
-  bottom: calc(var(--ghost-hunt-offset, 16px) + env(safe-area-inset-bottom, 0px));
+  bottom: calc(var(--ghost-hunt-offset, 16px) + var(--sticky-atc-offset, 0px) + env(safe-area-inset-bottom, 0px));
+  transition: bottom 0.2s ease;
   z-index: 20;
   display: inline-flex;
   align-items: center;

@@ -32,6 +32,9 @@ class StickyAtc extends HTMLElement {
     this.classList.toggle('is-visible', show);
     this.inert = !show;
     this.setAttribute('aria-hidden', String(!show));
+    // Lets other floating UI (e.g. the Ghost Hunt counter) move above the bar while it is visible.
+    const bar = /** @type {HTMLElement | null} */ (this.firstElementChild);
+    document.documentElement.style.setProperty('--sticky-atc-offset', show && bar ? `${bar.offsetHeight}px` : '0px');
   }
 
   /** @param {MouseEvent} event */

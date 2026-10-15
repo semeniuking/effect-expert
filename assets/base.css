@@ -374,8 +374,22 @@ a:hover {
 }
 
 /* Product grid: columns from --cols / --cols-mobile, horizontal rail on mobile with .grid--rail-mobile */
+/* List-item wrappers (ul > li) pass the row height on to the card inside. */
+.grid > li {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.grid > li > * {
+  flex: 1 1 auto;
+}
+
 .grid {
   display: grid;
+  margin: 0;
+  list-style: none;
+  padding-left: 0;
   gap: var(--grid-row-gap, 32px) var(--grid-gap);
   grid-template-columns: repeat(var(--cols-mobile, 2), minmax(0, 1fr));
 }
@@ -385,7 +399,7 @@ a:hover {
     column-gap: 12px;
   }
 
-  .grid--rail-mobile {
+  .grid.grid--rail-mobile {
     display: flex;
     gap: 12px;
     overflow-x: auto;
@@ -393,7 +407,6 @@ a:hover {
     scrollbar-width: none;
     margin-inline: calc(var(--gutter) * -1);
     padding-inline: var(--gutter);
-    scroll-padding-inline: var(--gutter);
   }
 
   .grid--rail-mobile::-webkit-scrollbar {
@@ -403,7 +416,17 @@ a:hover {
   .grid--rail-mobile > * {
     flex: 0 0 var(--rail-item, 42%);
     scroll-snap-align: start;
+    /* scroll-margin instead of the container's scroll-padding: iOS Safari ignores scroll-padding
+       when snapping, which made items snap flush to the screen edge. */
+    scroll-margin-inline: var(--gutter);
     min-width: 0;
+  }
+
+  /* Trailing gutter: browsers drop the end padding of a flex scroll container. */
+  .grid--rail-mobile::after {
+    content: '';
+    flex: 0 0 1px;
+    margin-left: calc(var(--gutter) - 13px);
   }
 }
 
@@ -917,8 +940,10 @@ input:checked + .pill.is-unavailable {
   text-decoration: none;
 }
 
-.product-card__title:hover {
-  color: var(--color-accent);
+@media (hover: hover) {
+  .product-card__title:hover {
+    color: var(--color-accent);
+  }
 }
 
 .product-card__title::after {
