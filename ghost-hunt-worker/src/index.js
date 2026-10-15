@@ -5,7 +5,9 @@
  * POST /catch {n}           -> {digit} for white ghost n
  * POST /verify {code}       -> {ok, discount_code} when the 5-digit code is right (rate limited)
  * POST /golden/claim {...}  -> first valid claim wins (200), everyone after gets 409
+ * POST /event {type}        -> client funnel events (tracker_open, promo_copy, promo_apply, golden_found)
  * GET  /admin               -> winner + stats (Authorization: Bearer ADMIN_TOKEN)
+ * GET  /admin/dashboard     -> the same stats as an HTML page (?token=ADMIN_TOKEN works in a browser)
  * POST /admin/golden/reset  -> {id: 'live' | 'test'} un-claims a golden ghost (admin only)
  *
  * Requests with `X-Debug-Key: DEBUG_KEY` ignore campaign dates, can preview other periods
@@ -16,6 +18,7 @@ import { buildLayout, seedFor } from './layout.js';
 const RATE_LIMIT_ATTEMPTS = 10;
 const RATE_LIMIT_WINDOW_S = 600;
 const MAX_FIELD_LENGTH = 200;
+const CLIENT_EVENTS = ['tracker_open', 'promo_copy', 'promo_apply', 'golden_found'];
 
 export default {
   /**
@@ -61,6 +64,8 @@ async function route(request, env, ctx) {
       return postVerify(request, env, ctx, debug);
     case 'POST /golden/claim':
       return postGoldenClaim(request, env, ctx, debug);
+    case 'POST /event':
+      return postEvent(request, env, ctx, debug);
     case 'POST /debug/reset':
       if (!debug) return json({ error: 'forbidden' }, 403);
       await env.DB.prepare('UPDATE golden SET claimed_at = NULL, data = NULL, ip = NULL, ua = NULL WHERE id = ?')
@@ -70,6 +75,9 @@ async function route(request, env, ctx) {
     case 'GET /admin':
       if (!isAdmin(request, env)) return json({ error: 'forbidden' }, 403);
       return getAdmin(env);
+    case 'GET /admin/dashboard':
+      if (!isAdmin(request, env)) return json({ error: 'forbidden' }, 403);
+      return getDashboard(env);
     case 'POST /admin/golden/reset': {
       if (!isAdmin(request, env)) return json({ error: 'forbidden' }, 403);
       const { id } = await readBody(request);
@@ -217,12 +225,16 @@ async function fetchPool(env) {
 async function postCatch(request, env, ctx, debug) {
   if (!debug && !campaignState(env).active) return json({ error: 'inactive' }, 403);
 
-  const { n } = await readBody(request);
+  const { n, player } = await readBody(request);
   const code = secretCode(env);
   const index = Number(n);
   if (!Number.isInteger(index) || index < 1 || index > code.length) return json({ error: 'bad_ghost' }, 400);
 
-  if (!debug) ctx.waitUntil(increment(env, `catch:${index}`));
+  if (!debug) {
+    ctx.waitUntil(
+      Promise.all([increment(env, `catch:${index}`), logCatch(env, playerId(player), index, code.length)])
+    );
+  }
   return json({ n: index, digit: code[index - 1] });
 }
 
@@ -249,10 +261,17 @@ async function postVerify(request, env, ctx, debug) {
     }
   }
 
-  const { code } = await readBody(request);
+  const { code, player } = await readBody(request);
   const ok = String(code ?? '').replace(/\D/g, '') === secretCode(env);
 
-  if (!debug) ctx.waitUntil(increment(env, ok ? 'verify:ok' : 'verify:fail'));
+  if (!debug) {
+    ctx.waitUntil(
+      Promise.all([
+        increment(env, ok ? 'verify:ok' : 'verify:fail'),
+        logEvent(env, ok ? 'verify_ok' : 'verify_fail', playerId(player)),
+      ])
+    );
+  }
   if (!ok) return json({ ok: false, error: 'wrong_code' });
 
   return json({ ok: true, discount_code: env.DISCOUNT_CODE || '' });
@@ -284,8 +303,13 @@ async function postGoldenClaim(request, env, ctx, debug) {
     )
     .run();
 
-  if (result.meta.changes !== 1) return json({ ok: false, error: 'taken' }, 409);
+  const player = playerId(body.player);
+  if (result.meta.changes !== 1) {
+    if (!debug) ctx.waitUntil(logEvent(env, 'golden_taken', player));
+    return json({ ok: false, error: 'taken' }, 409);
+  }
 
+  if (!debug) ctx.waitUntil(logEvent(env, 'golden_won', player));
   ctx.waitUntil(notifyTelegram(env, fields, debug));
   return json({ ok: true });
 }
@@ -302,8 +326,8 @@ function validateClaim(body, env) {
   const fields = {};
   const errors = [];
 
-  for (const [key, value] of Object.entries(body || {}).slice(0, 10)) {
-    if (!/^[a-z_]{1,32}$/.test(key)) continue;
+  for (const [key, value] of Object.entries(body || {}).slice(0, 11)) {
+    if (key === 'player' || !/^[a-z_]{1,32}$/.test(key)) continue;
     fields[key] = String(value ?? '').trim().slice(0, MAX_FIELD_LENGTH);
   }
 
@@ -352,10 +376,187 @@ async function getAdmin(env) {
       period: currentPeriod(env).period,
       golden: golden.results.map((row) => ({ ...row, data: row.data ? JSON.parse(row.data) : null })),
       counters: Object.fromEntries(counters.results.map((row) => [row.key, row.value])),
+      stats: await getStats(env),
     },
     200,
     { 'Cache-Control': 'no-store' }
   );
+}
+
+/* -------------------------------- Analytics -------------------------------- */
+
+/**
+ * Client-side funnel events that the Worker can't see by itself.
+ * @param {Request} request
+ * @param {Record<string, any>} env
+ * @param {ExecutionContext} ctx
+ * @param {boolean} debug
+ */
+async function postEvent(request, env, ctx, debug) {
+  const { type, player } = await readBody(request);
+  if (!CLIENT_EVENTS.includes(type)) return json({ error: 'bad_event' }, 400);
+  if (!debug && campaignState(env).active) ctx.waitUntil(logEvent(env, type, playerId(player)));
+  return json({ ok: true });
+}
+
+/**
+ * @param {Record<string, any>} env
+ * @param {string} type
+ * @param {string | null} player
+ * @param {number | null} [n]
+ */
+function logEvent(env, type, player, n = null) {
+  const now = new Date();
+  return env.DB.prepare('INSERT INTO events (ts, day, type, n, player) VALUES (?, ?, ?, ?, ?)')
+    .bind(Math.floor(now.getTime() / 1000), localDay(env, now), type, n, player)
+    .run()
+    .catch((error) => console.error('logEvent failed', error));
+}
+
+/**
+ * Logs a catch and, the first time a player has caught every ghost, a `complete` event.
+ * @param {Record<string, any>} env
+ * @param {string | null} player
+ * @param {number} n
+ * @param {number} total
+ */
+async function logCatch(env, player, n, total) {
+  await logEvent(env, 'catch', player, n);
+  if (!player) return;
+
+  const row = await env.DB.prepare(
+    `SELECT COUNT(DISTINCT CASE WHEN type = 'catch' THEN n END) AS found,
+            SUM(type = 'complete') AS completed
+       FROM events WHERE player = ? AND type IN ('catch', 'complete')`
+  )
+    .bind(player)
+    .first();
+  if (row && row.found >= total && !row.completed) await logEvent(env, 'complete', player);
+}
+
+/**
+ * @param {Record<string, any>} env
+ */
+async function getStats(env) {
+  const [byDay, byGhost, totals] = await Promise.all([
+    env.DB.prepare(
+      `SELECT day,
+              COUNT(DISTINCT CASE WHEN type = 'catch' THEN player END) AS players,
+              SUM(type = 'catch') AS catches,
+              SUM(type = 'complete') AS completed,
+              SUM(type = 'verify_ok') AS codes_ok,
+              SUM(type = 'verify_fail') AS codes_wrong,
+              SUM(type = 'promo_copy') AS promo_copies,
+              SUM(type = 'promo_apply') AS promo_applies,
+              SUM(type = 'tracker_open') AS tracker_opens,
+              SUM(type = 'golden_found') AS golden_found
+         FROM events GROUP BY day ORDER BY day DESC`
+    ).all(),
+    env.DB.prepare(
+      `SELECT n, COUNT(DISTINCT player) AS players FROM events WHERE type = 'catch' GROUP BY n ORDER BY n`
+    ).all(),
+    env.DB.prepare(
+      `SELECT COUNT(DISTINCT CASE WHEN type = 'catch' THEN player END) AS players,
+              COUNT(DISTINCT CASE WHEN type = 'complete' THEN player END) AS completed,
+              COUNT(DISTINCT CASE WHEN type = 'verify_ok' THEN player END) AS got_promo,
+              COUNT(DISTINCT CASE WHEN type = 'promo_apply' THEN player END) AS applied_promo
+         FROM events`
+    ).first(),
+  ]);
+
+  return { totals, by_day: byDay.results, by_ghost: byGhost.results };
+}
+
+/**
+ * Read-only stats page for the team (open /admin/dashboard?token=ADMIN_TOKEN in a browser).
+ * @param {Record<string, any>} env
+ */
+async function getDashboard(env) {
+  const [stats, golden] = await Promise.all([
+    getStats(env),
+    env.DB.prepare("SELECT claimed_at, data FROM golden WHERE id = 'live'").first(),
+  ]);
+  const esc = (/** @type {unknown} */ value) =>
+    String(value ?? '').replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
+  const totals = stats.totals || {};
+  const winner = golden?.claimed_at
+    ? `знайдено ${esc(golden.claimed_at)} — ${esc(
+        Object.entries(JSON.parse(golden.data || '{}'))
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(', ')
+      )}`
+    : 'ще не знайдено';
+
+  const dayRows = stats.by_day
+    .map(
+      (/** @type {any} */ row) =>
+        `<tr><td>${esc(row.day)}</td><td>${row.players}</td><td>${row.catches}</td><td>${row.completed}</td><td>${row.codes_ok}</td><td>${row.codes_wrong}</td><td>${row.promo_copies}</td><td>${row.promo_applies}</td><td>${row.golden_found}</td></tr>`
+    )
+    .join('');
+  const ghostRows = stats.by_ghost
+    .map((/** @type {any} */ row) => `<tr><td>#${row.n}</td><td>${row.players}</td></tr>`)
+    .join('');
+
+  const html = `<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Ghost Hunt — статистика</title>
+<style>
+  :root{color-scheme:light dark}
+  body{font:15px/1.5 system-ui,sans-serif;margin:0;padding:24px 16px;background:#faf8f5;color:#1b1325}
+  main{max-width:980px;margin:0 auto}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:16px 0 24px}
+  .card{background:#fff;border:1px solid #e6e0d8;border-radius:12px;padding:14px}
+  .card b{display:block;font-size:30px;font-variant-numeric:tabular-nums}
+  .scroll{overflow-x:auto;margin-bottom:28px}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e6e0d8}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid #f0ebe4;white-space:nowrap;font-variant-numeric:tabular-nums}
+  th:first-child,td:first-child{text-align:left}
+  @media (prefers-color-scheme:dark){body{background:#151019;color:#eee}.card,table{background:#1f1826;border-color:#33293d}th,td{border-color:#2a2232}}
+</style></head><body><main>
+<h1>👻 Ghost Hunt — статистика</h1>
+<div class="cards">
+  <div class="card"><b>${totals.players ?? 0}</b>гравців (впіймали хоч одного)</div>
+  <div class="card"><b>${totals.completed ?? 0}</b>знайшли всіх привидів</div>
+  <div class="card"><b>${totals.got_promo ?? 0}</b>отримали промокод</div>
+  <div class="card"><b>${totals.applied_promo ?? 0}</b>натиснули «Застосувати»</div>
+</div>
+<p><b>Золотий привид:</b> ${winner}</p>
+<h2>По днях (за Києвом)</h2>
+<div class="scroll"><table><tr><th>День</th><th>Гравці</th><th>Впіймано</th><th>Всі привиди</th><th>Код ✓</th><th>Код ✗</th><th>Скопіювали</th><th>Застосували</th><th>Золотий знайшли</th></tr>${
+    dayRows || '<tr><td colspan="9">Ще немає даних</td></tr>'
+  }</table></div>
+<h2>По привидах</h2>
+<div class="scroll"><table><tr><th>Привид</th><th>Гравців впіймало</th></tr>${
+    ghostRows || '<tr><td colspan="2">Ще немає даних</td></tr>'
+  }</table></div>
+<p>Замовлення з промокодом — у Shopify: Знижки або Аналітика → Звіти. Тестова гра (debug) не рахується.</p>
+</main></body></html>`;
+
+  return new Response(html, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' },
+  });
+}
+
+/**
+ * Calendar day in the store's time zone, for daily stats.
+ * @param {Record<string, any>} env
+ * @param {Date} date
+ */
+function localDay(env, date) {
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: env.TIMEZONE || 'Europe/Kyiv' }).format(date);
+  } catch {
+    return date.toISOString().slice(0, 10);
+  }
+}
+
+/**
+ * Random per-browser id sent by the theme, so stats can count people rather than clicks.
+ * @param {unknown} value
+ * @returns {string | null}
+ */
+function playerId(value) {
+  const id = String(value ?? '');
+  return /^[a-zA-Z0-9-]{8,64}$/.test(id) ? id : null;
 }
 
 /* --------------------------------- Helpers --------------------------------- */
@@ -394,8 +595,10 @@ function isDebug(request, env) {
  * @param {Record<string, any>} env
  */
 function isAdmin(request, env) {
+  if (!env.ADMIN_TOKEN) return false;
   const header = request.headers.get('Authorization') || '';
-  return !!env.ADMIN_TOKEN && safeEqual(header, `Bearer ${env.ADMIN_TOKEN}`);
+  const token = new URL(request.url).searchParams.get('token') || '';
+  return safeEqual(header, `Bearer ${env.ADMIN_TOKEN}`) || safeEqual(token, env.ADMIN_TOKEN);
 }
 
 /**

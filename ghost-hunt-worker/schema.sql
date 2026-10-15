@@ -24,6 +24,18 @@ CREATE TABLE IF NOT EXISTS attempts (
 );
 CREATE INDEX IF NOT EXISTS attempts_ip_ts ON attempts (ip, ts);
 
+-- Analytics: one row per game event (debug play is never logged). `player` is a random id kept in the
+-- visitor's browser, `day` is the Kyiv calendar date.
+CREATE TABLE IF NOT EXISTS events (
+  ts INTEGER NOT NULL,
+  day TEXT NOT NULL,
+  type TEXT NOT NULL,
+  n INTEGER,
+  player TEXT
+);
+CREATE INDEX IF NOT EXISTS events_day_type ON events (day, type);
+CREATE INDEX IF NOT EXISTS events_player ON events (player, type);
+
 -- Simple counters for campaign stats (catch:1..5, verify:ok, verify:fail).
 CREATE TABLE IF NOT EXISTS counters (
   key TEXT PRIMARY KEY,

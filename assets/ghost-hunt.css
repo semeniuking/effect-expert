@@ -95,7 +95,8 @@
 .ghost-hunt__tracker {
   position: fixed;
   left: max(16px, env(safe-area-inset-left));
-  bottom: max(16px, env(safe-area-inset-bottom));
+  /* Sits above the loyalty (cashback) bar; the offset is a theme setting. */
+  bottom: calc(var(--ghost-hunt-offset, 16px) + env(safe-area-inset-bottom, 0px));
   z-index: 9;
   display: inline-flex;
   align-items: center;
@@ -295,7 +296,7 @@
 .ghost-hunt__toast {
   position: fixed;
   left: 50%;
-  bottom: 80px;
+  bottom: calc(var(--ghost-hunt-offset, 16px) + 64px + env(safe-area-inset-bottom, 0px));
   z-index: 20;
   max-width: calc(100vw - 32px);
   margin: 0;

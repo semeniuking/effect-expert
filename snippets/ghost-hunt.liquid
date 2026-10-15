@@ -87,7 +87,10 @@
   </script>
 
   <template id="GhostHuntTemplate">
-    <ghost-hunt-app class="ghost-hunt">
+    <ghost-hunt-app
+      class="ghost-hunt"
+      style="--ghost-hunt-offset: {{ settings.ghost_hunt_tracker_offset | default: 56 }}px;"
+    >
       <button
         type="button"
         ref="tracker"
@@ -191,6 +194,7 @@
             <a
               class="button ghost-hunt__apply"
               ref="applyLink"
+              on:click="/applyPromo"
               href="{{ routes.cart_url }}"
             >
               {{- 'ghost_hunt.apply' | t -}}

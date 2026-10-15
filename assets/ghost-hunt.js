@@ -89,6 +89,65 @@ function sessionSet(key, value) {
   }
 }
 
+/* --------------------------------- Analytics -------------------------------- */
+
+const PLAYER_KEY = 'ghostHunt:player';
+
+/** Random id for this browser, so the Worker's stats count people rather than clicks. */
+const player = (() => {
+  try {
+    let id = localStorage.getItem(PLAYER_KEY);
+    if (!id) {
+      id = crypto.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+      localStorage.setItem(PLAYER_KEY, id);
+    }
+    return id;
+  } catch {
+    return null;
+  }
+})();
+
+/**
+ * Publishes a game event to Shopify customer events (for custom pixels, e.g. GA4), to `dataLayer` (GTM)
+ * and to `gtag` when present. Debug play is only logged to the console so it never pollutes reports.
+ *
+ * @param {string} name - e.g. ghost_hunt_catch
+ * @param {Record<string, string | number | boolean>} [data]
+ */
+function track(name, data = {}) {
+  if (debugKey) {
+    console.debug('[Ghost Hunt] event', name, data);
+    return;
+  }
+  const win = /** @type {any} */ (window);
+  try {
+    win.Shopify?.analytics?.publish?.(name, data);
+  } catch {}
+  try {
+    (win.dataLayer = win.dataLayer || []).push({ event: name, ...data });
+  } catch {}
+  try {
+    if (typeof win.gtag === 'function') win.gtag('event', name, data);
+  } catch {}
+}
+
+/**
+ * Funnel step the Worker can't see on its own. Fire-and-forget, survives navigation.
+ * Sent as text/plain so it needs no CORS preflight.
+ * @param {string} type - tracker_open | promo_copy | promo_apply | golden_found
+ */
+function beacon(type) {
+  if (debugKey) return;
+  try {
+    fetch(`${String(config.api).replace(/\/+$/, '')}/event`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ type, player }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {}
+}
+
 /* ------------------------------------ API ----------------------------------- */
 
 /**
@@ -105,7 +164,7 @@ async function api(path, body) {
   const response = await fetch(`${String(config.api).replace(/\/+$/, '')}${path}`, {
     method: body ? 'POST' : 'GET',
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? JSON.stringify({ ...body, player }) : undefined,
   });
   const data = await response.json().catch(() => ({}));
   return { status: response.status, data };
@@ -464,6 +523,8 @@ class GhostHuntApp extends DialogComponent {
     const { n, golden } = /** @type {CustomEvent} */ (event).detail;
 
     if (golden) {
+      beacon('golden_found');
+      track('ghost_hunt_golden_found');
       this.#openPanel('golden');
       return;
     }
@@ -478,6 +539,13 @@ class GhostHuntApp extends DialogComponent {
       }
       this.state.found[n] = data.digit;
       saveState(this.state);
+
+      const found = Object.keys(this.state.found).length;
+      const total = this.layout?.total || 5;
+      if (found === 1) track('ghost_hunt_start');
+      track('ghost_hunt_catch', { ghost_number: n, found_count: found, total });
+      if (found === total) track('ghost_hunt_complete', { total });
+
       this.#vanish(`n${n}`);
       this.#render();
       this.#toast(format(config.strings.caught, { n, digit: data.digit }));
@@ -490,6 +558,8 @@ class GhostHuntApp extends DialogComponent {
   /* -------------------------------- Dialog -------------------------------- */
 
   openProgress() {
+    beacon('tracker_open');
+    track('ghost_hunt_open', { found_count: Object.keys(this.state.found).length });
     this.#openPanel('progress');
   }
 
@@ -545,9 +615,11 @@ class GhostHuntApp extends DialogComponent {
     codeMessage.textContent = '';
     try {
       const { status, data } = await api('/verify', { code });
+      track('ghost_hunt_code_submit', { success: !!data.ok });
       if (data.ok && data.discount_code) {
         this.state.promo = data.discount_code;
         saveState(this.state);
+        track('ghost_hunt_promo_revealed', { discount_code: data.discount_code });
         this.#render();
         return;
       }
@@ -563,6 +635,8 @@ class GhostHuntApp extends DialogComponent {
   async copyPromo(event) {
     if (!this.state.promo) return;
     const button = /** @type {HTMLElement} */ (event.target);
+    beacon('promo_copy');
+    track('ghost_hunt_promo_copy', { discount_code: this.state.promo });
     try {
       await navigator.clipboard.writeText(this.state.promo);
       // The toast sits behind the modal, so confirm on the button itself.
@@ -572,6 +646,12 @@ class GhostHuntApp extends DialogComponent {
     } catch {
       // Clipboard can be blocked; the code is still visible to copy by hand.
     }
+  }
+
+  /** Tracks the "apply to cart" click; the link itself navigates as usual. */
+  applyPromo() {
+    beacon('promo_apply');
+    track('ghost_hunt_promo_apply', { discount_code: this.state.promo || '' });
   }
 
   /* -------------------------------- Golden -------------------------------- */
@@ -652,6 +732,7 @@ class GhostHuntApp extends DialogComponent {
   /** @param {'won' | 'taken'} outcome */
   #finishGolden(outcome) {
     const { goldenForm, goldenSuccess, goldenTaken } = this.refs;
+    track('ghost_hunt_golden_claim', { result: outcome });
     this.state.golden = outcome;
     saveState(this.state);
     sessionSet(LAYOUT_KEY, null);

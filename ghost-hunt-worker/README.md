@@ -64,6 +64,52 @@ curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: applicati
   -d '{"id":"live"}' https://ghost-hunt.<account>.workers.dev/admin/golden/reset
 ```
 
+## Analytics
+
+**Built-in stats page** (no setup): open `https://ghost-hunt.<account>.workers.dev/admin/dashboard?token=ADMIN_TOKEN` in a browser. It shows:
+- players, how many found all ghosts, got the promo code, and clicked "Застосувати"
+- a per-day table (Kyiv time): players, catches, codes right/wrong, copies, applies, golden ghost found
+- how many players caught each ghost
+- the golden ghost winner
+
+A "player" is one browser, identified by a random id kept in localStorage. Debug play is never counted. The same numbers are in `GET /admin` under `stats`.
+
+**Orders with the promo code:** Shopify admin → Discounts → `GHOSTHUNT10`, or Analytics → Reports → Sales by discount.
+
+**Shopify customer events / Google Analytics.** The theme publishes these events through `Shopify.analytics.publish`, and also pushes them to `dataLayer` and `gtag` when present:
+
+| Event | Data |
+|---|---|
+| `ghost_hunt_start` | first ghost caught in this browser |
+| `ghost_hunt_catch` | `ghost_number`, `found_count`, `total` |
+| `ghost_hunt_complete` | `total`; all ghosts found |
+| `ghost_hunt_open` | `found_count`; tracker opened |
+| `ghost_hunt_code_submit` | `success` |
+| `ghost_hunt_promo_revealed` | `discount_code` |
+| `ghost_hunt_promo_copy` / `ghost_hunt_promo_apply` | `discount_code` |
+| `ghost_hunt_golden_found` | golden ghost clicked |
+| `ghost_hunt_golden_claim` | `result`: `won` or `taken` |
+
+To send them to GA4, add a custom pixel in Shopify admin → Settings → Customer events → Add custom pixel. Paste this, set your GA4 ID, then Save and Connect:
+
+```js
+const GA_ID = 'G-XXXXXXXXXX';
+const script = document.createElement('script');
+script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+script.async = true;
+document.head.appendChild(script);
+window.dataLayer = window.dataLayer || [];
+function gtag() { dataLayer.push(arguments); }
+gtag('js', new Date());
+gtag('config', GA_ID, { send_page_view: false });
+
+[
+  'ghost_hunt_start', 'ghost_hunt_catch', 'ghost_hunt_complete', 'ghost_hunt_open',
+  'ghost_hunt_code_submit', 'ghost_hunt_promo_revealed', 'ghost_hunt_promo_copy',
+  'ghost_hunt_promo_apply', 'ghost_hunt_golden_found', 'ghost_hunt_golden_claim',
+].forEach((name) => analytics.subscribe(name, (event) => gtag('event', name, event.customData || {})));
+```
+
 ## Local development
 
 ```bash
@@ -81,7 +127,10 @@ curl localhost:8787/layout
 | `POST /catch {n}` | `{digit}` |
 | `POST /verify {code}` | `{ok, discount_code}`. 10 attempts per IP per 10 min. |
 | `POST /golden/claim {name, phone, email, …}` | 200 for the first valid claim, 409 after that. Required fields come from `GOLDEN_REQUIRED`. |
+| `POST /event {type}` | Client funnel step: `tracker_open`, `promo_copy`, `promo_apply`, `golden_found` |
 | `POST /debug/reset` | Debug only: un-claims the `test` golden ghost |
-| `GET /admin`, `POST /admin/golden/reset` | `Authorization: Bearer ADMIN_TOKEN` |
+| `GET /admin`, `GET /admin/dashboard`, `POST /admin/golden/reset` | `Authorization: Bearer ADMIN_TOKEN` (the dashboard also accepts `?token=`) |
+
+All `POST` bodies may include `player` (the per-browser id) for stats.
 
 To change the golden ghost form, edit `GOLDEN_FIELDS` in `assets/ghost-hunt.js` (plus a label in `locales/*.json` → `ghost_hunt`) and `GOLDEN_REQUIRED` here.
