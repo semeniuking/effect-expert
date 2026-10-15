@@ -1,13 +1,14 @@
 {%- comment -%}
   /cart page: line items on the left, a summary card (free shipping, note, discount, total, checkout) on the right.
-  The <cart-items> root carries data-cart-section="main-cart", so assets/cart.js re-renders it after every change.
+  The <cart-items> root carries data-cart-section="{{ section.id }}" (a JSON-template section must be requested by its id,
+  not its file name, to keep its settings), so assets/cart.js re-renders it after every change.
 {%- endcomment -%}
 <div
   class="section color-{{ section.settings.color_scheme }}"
   style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
 >
   <div class="section__inner">
-    <cart-items class="main-cart" data-cart-section="main-cart">
+    <cart-items class="main-cart" data-cart-section="{{ section.id }}">
       <h1 class="h1 main-cart__title">
         {{- 'cart.title' | t -}}
         {%- if cart.item_count > 0 %}

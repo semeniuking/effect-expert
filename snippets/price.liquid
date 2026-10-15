@@ -32,7 +32,8 @@
   {%- else -%}
     <span class="price__regular">
       {%- if is_range -%}
-        {{ 'products.price.from_price' | t: price: price | money }}
+        {%- assign price_money = price | money -%}
+        {{ 'products.price.from_price' | t: price: price_money }}
       {%- else -%}
         {{ price | money }}
       {%- endif -%}

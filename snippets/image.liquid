@@ -22,7 +22,10 @@
     assign loading = 'eager'
     assign fetch_priority = 'high'
   endif
-  assign alt_text = alt | default: image.alt | escape
+  assign alt_text = image.alt | escape
+  unless alt == nil
+    assign alt_text = alt | escape
+  endunless
 -%}
 {%- if image != blank -%}
   {%- if max_width -%}

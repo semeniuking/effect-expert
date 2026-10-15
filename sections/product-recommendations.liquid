@@ -19,7 +19,7 @@
   data-intent="{{ section.settings.intent }}"
   data-fallback="{{ fallback }}"
 >
-  {%- if recommendations.performed and recommendations.products_count > 0 -%}
+  {%- if recommendations.performed? and recommendations.products_count > 0 -%}
     <div
       class="section product-recommendations__inner"
       style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"

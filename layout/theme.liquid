@@ -57,7 +57,7 @@
       {% section 'cart-drawer' %}
     {%- endif -%}
 
-    {%- if settings.card_quick_add -%}
+    {%- if settings.card_quick_add or settings.cart_show_upsell -%}
       {% render 'quick-add-dialog' %}
     {%- endif -%}
 

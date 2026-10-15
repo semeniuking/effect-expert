@@ -5,8 +5,6 @@
   assign tag = block.settings.tag
   if tag == 'auto'
     case block.settings.style
-      when 'display'
-        assign tag = 'h1'
       when 'eyebrow'
         assign tag = 'p'
       else

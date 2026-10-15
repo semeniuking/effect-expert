@@ -1,8 +1,15 @@
 {%- doc -%}
   Newsletter signup (adds the email to Shopify customers with marketing consent).
 {%- enddoc -%}
+{%- liquid
+  assign signup_form_id = 'EmailSignup-' | append: block.id
+  assign signup_placeholder = block.settings.placeholder
+  if signup_placeholder == blank
+    assign signup_placeholder = 'newsletter.label' | t
+  endif
+-%}
 <div class="email-signup" {{ block.shopify_attributes }}>
-  {%- form 'customer', id: 'EmailSignup-{{ block.id }}', class: 'email-signup__form' -%}
+  {%- form 'customer', id: signup_form_id, class: 'email-signup__form' -%}
     <input type="hidden" name="contact[tags]" value="newsletter">
     {%- if form.posted_successfully? -%}
       <p class="form-message form-message--success" role="status" tabindex="-1" autofocus>
@@ -18,7 +25,7 @@
           name="contact[email]"
           autocomplete="email"
           required
-          placeholder="{{ block.settings.placeholder | default: 'newsletter.label' | t | escape }}"
+          placeholder="{{ signup_placeholder | escape }}"
           {% if form.errors %}
             aria-invalid="true" aria-describedby="EmailSignupError-{{ block.id }}"
           {% endif %}

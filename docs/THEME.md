@@ -99,7 +99,7 @@ Breakpoints: mobile is up to 749px, tablet starts at 750px, desktop starts at 11
   - `cart:open`
   - `cart:error`
   - `variant:change`
-- `cart.js` re-renders every element that has a `data-cart-section="<section-file-name>"` attribute. It sends those names as the `sections` parameter, and the matching `cart:updated` listener swaps in the HTML.
+- `cart.js` re-renders every element that has a `data-cart-section` attribute: use `{{ section.id }}` for sections placed in JSON templates (so their saved settings are used) and the file name for static sections rendered with `{% section %}`. Those values are sent as the `sections` parameter, and the matching `cart:updated` listener swaps in the HTML.
 - `window.Theme` holds the routes, `cartType`, `moneyFormat` and a few strings.
 - The page must work without JS where possible: real forms, links, and `<details>` elements.
 
