@@ -1,0 +1,31 @@
+{%- doc -%}
+  One announcement-bar message: short text with an optional link.
+{%- enddoc -%}
+<div class="announcement" data-announcement {{ block.shopify_attributes }}>
+  {%- if block.settings.link != blank -%}
+    <a class="announcement__text announcement__link" href="{{ block.settings.link }}">{{ block.settings.text | escape }}</a>
+  {%- else -%}
+    <p class="announcement__text">{{ block.settings.text | escape }}</p>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:blocks.announcement.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "t:blocks.announcement.settings.text.label",
+      "default": "Безкоштовна доставка від 3000 грн"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:shared.link.label"
+    }
+  ],
+  "presets": [{ "name": "t:blocks.announcement.name" }]
+}
+{% endschema %}

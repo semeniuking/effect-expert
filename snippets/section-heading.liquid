@@ -6,12 +6,14 @@
   @param {string} [tag] - heading tag, default 'h2'
   @param {string} [class] - extra classes
   @param {boolean} [center] - center everything
+  @param {string} [link_url] - overrides settings.link_url (e.g. a collection URL fallback)
 
   @example
   {% render 'section-heading', settings: section.settings %}
 {%- enddoc -%}
 {%- if settings.heading != blank or settings.subheading != blank or settings.link_label != blank -%}
   {%- assign heading_tag = tag | default: 'h2' -%}
+  {%- assign heading_link = link_url | default: settings.link_url -%}
   <div class="section-header{% if center %} section-header--center{% endif %}{% if class %} {{ class }}{% endif %}">
     <div class="section-header__titles">
       {%- if settings.subheading != blank -%}
@@ -21,8 +23,8 @@
         <{{ heading_tag }} class="h2">{{ settings.heading | escape }}</{{ heading_tag }}>
       {%- endif -%}
     </div>
-    {%- if settings.link_label != blank and settings.link_url != blank -%}
-      <a class="link-arrow" href="{{ settings.link_url }}">{{ settings.link_label | escape }} →</a>
+    {%- if settings.link_label != blank and heading_link != blank -%}
+      <a class="link-arrow" href="{{ heading_link }}">{{ settings.link_label | escape }} →</a>
     {%- endif -%}
   </div>
 {%- endif -%}

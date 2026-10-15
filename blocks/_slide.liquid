@@ -1,0 +1,235 @@
+{%- doc -%}
+  One slideshow slide: desktop image, optional mobile image (served through <picture>), a link covering the
+  whole slide and optional overlaid content made of nested theme blocks (off by default).
+{%- enddoc -%}
+{%- liquid
+  assign block_index = section.blocks | find_index: 'id', block.id
+  assign slide_number = block_index | plus: 1
+  assign total = section.blocks.size
+
+  assign desktop_image = block.settings.image | default: block.settings.image_mobile
+  assign mobile_image = block.settings.image_mobile
+  assign has_mobile_source = false
+  if block.settings.image != blank and mobile_image != blank
+    assign has_mobile_source = true
+  endif
+
+  assign priority = false
+  if block_index == 0 and section.index <= 2
+    assign priority = true
+  endif
+
+  assign slide_label = 'sections.slideshow.slide' | t: number: slide_number
+  assign link_label = block.settings.link_label | default: desktop_image.alt | default: slide_label
+-%}
+<div
+  class="slide"
+  data-slide
+  role="group"
+  aria-roledescription="slide"
+  aria-label="{{ 'sections.slideshow.slide_of' | t: number: slide_number, total: total | escape }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="slide__media media">
+    {%- if desktop_image != blank -%}
+      <picture>
+        {%- if has_mobile_source -%}
+          {%- capture mobile_srcset -%}
+            {%- for w in (1..5) -%}
+              {%- assign width = w | times: 375 -%}
+              {%- if width <= mobile_image.width or forloop.first -%}
+                {%- unless forloop.first %}, {% endunless -%}
+                {{ mobile_image | image_url: width: width }} {{ width }}w
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endcapture -%}
+          <source
+            media="(max-width: 749px)"
+            srcset="{{ mobile_srcset | strip }}"
+            sizes="100vw"
+            width="{{ mobile_image.width }}"
+            height="{{ mobile_image.height }}"
+          >
+        {%- endif -%}
+        {% render 'image',
+          image: desktop_image,
+          sizes: '(min-width: 1440px) 1440px, 100vw',
+          widths: '750, 1100, 1440, 1800, 2200, 2880',
+          priority: priority,
+          class: 'slide__image'
+        %}
+      </picture>
+    {%- else -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+  </div>
+
+  {%- if block.settings.link != blank -%}
+    <a class="full-width-link slide__link" href="{{ block.settings.link }}" aria-label="{{ link_label | escape }}"></a>
+  {%- endif -%}
+
+  {%- if block.settings.show_content -%}
+    <div class="slide__content slide__content--{{ block.settings.content_position }} color-{{ block.settings.color_scheme }}">
+      <div class="slide__content-inner">
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .slide {
+    position: relative;
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .slide__media {
+    --ratio: var(--ratio-desktop, 12 / 5);
+  }
+
+  .section--full .slide__media {
+    border-radius: 0;
+  }
+
+  .slide__media > picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide__content {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    padding: clamp(24px, 5vw, 72px);
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .slide__content a,
+  .slide__content button,
+  .slide__content input,
+  .slide__content select,
+  .slide__content textarea {
+    pointer-events: auto;
+  }
+
+  .slide__content-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: min(560px, 100%);
+  }
+
+  .slide__content--top_left {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .slide__content--middle_left {
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .slide__content--bottom_left {
+    align-items: flex-end;
+    justify-content: flex-start;
+  }
+
+  .slide__content--middle_center {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .slide__content--bottom_center {
+    align-items: flex-end;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .slide__content--middle_right {
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .slide__content--middle_center .slide__content-inner,
+  .slide__content--bottom_center .slide__content-inner {
+    align-items: center;
+  }
+
+  @media (max-width: 749px) {
+    .slide__media {
+      --ratio: var(--ratio-mobile, 4 / 5);
+    }
+
+    .slide__content {
+      padding: 20px 20px 56px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.slide.name",
+  "tag": null,
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:blocks.slide.settings.image.label",
+      "info": "t:blocks.slide.settings.image.info"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "t:blocks.slide.settings.image_mobile.label",
+      "info": "t:blocks.slide.settings.image_mobile.info"
+    },
+    { "type": "url", "id": "link", "label": "t:blocks.slide.settings.link.label" },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "t:shared.link_label.label",
+      "info": "t:blocks.slide.settings.link_label.info",
+      "visible_if": "{{ block.settings.link != blank }}"
+    },
+    { "type": "header", "content": "t:blocks.slide.settings.header_content.content" },
+    {
+      "type": "checkbox",
+      "id": "show_content",
+      "label": "t:blocks.slide.settings.show_content.label",
+      "info": "t:blocks.slide.settings.show_content.info",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "t:blocks.slide.settings.content_position.label",
+      "options": [
+        { "value": "top_left", "label": "t:blocks.slide.settings.content_position.options__top_left" },
+        { "value": "middle_left", "label": "t:blocks.slide.settings.content_position.options__middle_left" },
+        { "value": "bottom_left", "label": "t:blocks.slide.settings.content_position.options__bottom_left" },
+        { "value": "middle_center", "label": "t:blocks.slide.settings.content_position.options__middle_center" },
+        { "value": "bottom_center", "label": "t:blocks.slide.settings.content_position.options__bottom_center" },
+        { "value": "middle_right", "label": "t:blocks.slide.settings.content_position.options__middle_right" }
+      ],
+      "default": "bottom_left",
+      "visible_if": "{{ block.settings.show_content }}"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:shared.color_scheme.label",
+      "default": "scheme-1",
+      "visible_if": "{{ block.settings.show_content }}"
+    }
+  ],
+  "presets": [{ "name": "t:blocks.slide.name" }]
+}
+{% endschema %}

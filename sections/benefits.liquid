@@ -1,0 +1,69 @@
+{%- comment -%}
+  Benefits strip: short title + text per block. Desktop: columns between a strong top rule and a light bottom rule,
+  with dividers between columns. Mobile: one row per benefit (title left, text right).
+{%- endcomment -%}
+<div
+  class="section section--{{ section.settings.width }} color-{{ section.settings.color_scheme }} benefits"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="section__inner">
+    <ul class="benefits__list" role="list" style="--cols: {{ section.blocks.size | at_least: 1 }};">
+      {% content_for 'blocks' %}
+    </ul>
+  </div>
+</div>
+
+{% stylesheet %}
+  .benefits__list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-text);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  @media (min-width: 750px) {
+    .benefits__list {
+      display: grid;
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.benefits.name",
+  "class": "shopify-section--benefits",
+  "blocks": [{ "type": "_benefit" }],
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:shared.section_width.label",
+      "options": [
+        { "value": "page", "label": "t:shared.section_width.options__page" },
+        { "value": "narrow", "label": "t:shared.section_width.options__narrow" }
+      ],
+      "default": "page"
+    },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 40 }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.benefits.presets.name",
+      "category": "t:categories.text",
+      "blocks": {
+        "shipping": { "type": "_benefit", "settings": { "title": "Відправка", "text": "В день замовлення, пн–пт" } },
+        "delivery": { "type": "_benefit", "settings": { "title": "Доставка", "text": "Безкоштовно від 3000 грн" } },
+        "cashback": { "type": "_benefit", "settings": { "title": "Кешбек", "text": "5% бонусами з кожного замовлення" } }
+      },
+      "block_order": ["shipping", "delivery", "cashback"]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,87 @@
+{%- comment -%}
+  Collection list ("Каталог"): heading row + collection tiles.
+  Desktop: grid with N columns. Mobile: swipe rail of 148px tiles, or a grid.
+{%- endcomment -%}
+{%- liquid
+  assign rail = false
+  if section.settings.mobile_layout == 'rail'
+    assign rail = true
+  endif
+  assign cols_tablet = section.settings.columns | at_most: 4
+-%}
+<div
+  class="section section--page color-{{ section.settings.color_scheme }} collection-list"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="section__inner">
+    {% render 'section-heading', settings: section.settings %}
+    <div
+      class="grid collection-list__grid{% if rail %} grid--rail-mobile{% endif %}"
+      style="--cols: {{ section.settings.columns }}; --cols-tablet: {{ cols_tablet }}; --cols-mobile: {{ section.settings.columns_mobile }}; --rail-item: 148px; --grid-gap: 16px; --grid-row-gap: 24px;"
+    >
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .collection-list__grid > * {
+    min-width: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.collection_list.name",
+  "class": "shopify-section--collection-list",
+  "blocks": [{ "type": "collection-tile" }],
+  "max_blocks": 16,
+  "settings": [
+    { "type": "text", "id": "subheading", "label": "t:shared.subheading.label" },
+    { "type": "text", "id": "heading", "label": "t:shared.heading.label", "default": "Каталог" },
+    { "type": "text", "id": "link_label", "label": "t:shared.link_text.label", "default": "Усі товари" },
+    { "type": "url", "id": "link_url", "label": "t:shared.link.label", "default": "/collections/all" },
+    { "type": "header", "content": "t:shared.header_layout.content" },
+    { "type": "range", "id": "columns", "label": "t:shared.columns.label", "min": 2, "max": 8, "step": 1, "default": 6 },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "t:shared.mobile_layout.label",
+      "options": [
+        { "value": "rail", "label": "t:shared.mobile_layout.options__rail" },
+        { "value": "grid", "label": "t:shared.mobile_layout.options__grid" }
+      ],
+      "default": "rail"
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "t:shared.columns_mobile.label",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2,
+      "visible_if": "{{ section.settings.mobile_layout == 'grid' }}"
+    },
+    { "type": "header", "content": "t:shared.header_appearance.content" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 24 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 0 }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.collection_list.presets.name",
+      "category": "t:categories.collections",
+      "blocks": {
+        "eyelashes": { "type": "collection-tile", "settings": { "collection": "eyelashes", "label": "Вії" } },
+        "glue": { "type": "collection-tile", "settings": { "collection": "glue", "label": "Клей" } },
+        "pincety": { "type": "collection-tile", "settings": { "collection": "pincety", "label": "Пінцети" } },
+        "pre_care": { "type": "collection-tile", "settings": { "collection": "pre-care", "label": "Препарати" } },
+        "removers": { "type": "collection-tile", "settings": { "collection": "removers", "label": "Ремувери" } },
+        "rozhidnyky": { "type": "collection-tile", "settings": { "collection": "rozhidnyky", "label": "Розхідники" } }
+      },
+      "block_order": ["eyelashes", "glue", "pincety", "pre_care", "removers", "rozhidnyky"]
+    }
+  ]
+}
+{% endschema %}

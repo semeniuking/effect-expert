@@ -1,0 +1,64 @@
+{%- doc -%}
+  Collection tile: 4:5 image (custom image or the collection's own) with an uppercase label below.
+  Shows a placeholder image and label until a collection is chosen.
+{%- enddoc -%}
+{%- liquid
+  assign tile_collection = block.settings.collection
+  assign tile_image = block.settings.image | default: tile_collection.featured_image
+  assign tile_label = block.settings.label | default: tile_collection.title
+  if tile_label == blank
+    assign tile_label = 'sections.collection_list.tile_placeholder' | t
+  endif
+
+  assign cols = section.settings.columns | default: 4
+  assign desktop_size = 100 | divided_by: cols
+  assign mobile_size = '148px'
+  if section.settings.mobile_layout == 'grid'
+    assign mobile_cols = section.settings.columns_mobile | default: 2
+    assign mobile_size = 100 | divided_by: mobile_cols | append: 'vw'
+  endif
+  assign sizes = '(min-width: 1100px) ' | append: desktop_size | append: 'vw, (min-width: 750px) 25vw, ' | append: mobile_size
+-%}
+{%- if tile_collection != blank -%}
+  <a class="tile collection-tile" href="{{ tile_collection.url }}" {{ block.shopify_attributes }}>
+{%- else -%}
+  <div class="tile collection-tile" {{ block.shopify_attributes }}>
+{%- endif -%}
+<div class="tile__media media">
+  {% render 'image',
+    image: tile_image,
+    sizes: sizes,
+    widths: '160, 240, 320, 480, 640',
+    alt: '',
+    placeholder: 'collection-1'
+  %}
+</div>
+<span class="tile__label">{{ tile_label | escape }}</span>
+{%- if tile_collection != blank -%}
+  </a>
+{%- else -%}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:blocks.collection_tile.name",
+  "tag": null,
+  "settings": [
+    { "type": "collection", "id": "collection", "label": "t:shared.collection.label" },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:blocks.collection_tile.settings.image.label",
+      "info": "t:blocks.collection_tile.settings.image.info"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:blocks.collection_tile.settings.label.label",
+      "info": "t:blocks.collection_tile.settings.label.info"
+    }
+  ],
+  "presets": [{ "name": "t:blocks.collection_tile.name", "category": "t:categories.collections" }]
+}
+{% endschema %}

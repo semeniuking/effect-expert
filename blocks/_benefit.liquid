@@ -1,0 +1,86 @@
+{%- doc -%}
+  One benefit in the benefits strip: a short uppercase title and a line of text.
+{%- enddoc -%}
+<li class="benefit" {{ block.shopify_attributes }}>
+  {%- if block.settings.title != blank -%}
+    <p class="benefit__title">{{ block.settings.title | escape }}</p>
+  {%- endif -%}
+  {%- if block.settings.text != blank -%}
+    <p class="benefit__text">{{ block.settings.text }}</p>
+  {%- endif -%}
+</li>
+
+{% stylesheet %}
+  .benefit {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 16px 0;
+  }
+
+  .benefit + .benefit {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .benefit__title {
+    font-family: var(--font-display);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    flex: none;
+  }
+
+  .benefit__text {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 20px;
+    text-align: right;
+  }
+
+  .benefit__text a {
+    color: inherit;
+  }
+
+  @media (min-width: 750px) {
+    .benefit {
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 6px;
+      padding: 24px;
+    }
+
+    .benefit:first-child {
+      padding-left: 0;
+    }
+
+    .benefit + .benefit {
+      border-top: 0;
+      border-left: 1px solid var(--color-line);
+    }
+
+    .benefit__title {
+      letter-spacing: 0.24em;
+    }
+
+    .benefit__text {
+      font-size: 15px;
+      line-height: 22px;
+      text-align: left;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.benefit.name",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "title", "label": "t:blocks.benefit.settings.title.label", "default": "Доставка" },
+    { "type": "inline_richtext", "id": "text", "label": "t:blocks.benefit.settings.text.label", "default": "Безкоштовно від 3000 грн" }
+  ],
+  "presets": [{ "name": "t:blocks.benefit.name" }]
+}
+{% endschema %}

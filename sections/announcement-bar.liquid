@@ -1,0 +1,137 @@
+{%- comment -%}
+  Announcement bar. Desktop: every message in one row, separated by dots.
+  Mobile: one message at a time, rotated by assets/announcement-bar.js (paused on hover/focus, off for reduced motion).
+{%- endcomment -%}
+{%- if section.blocks.size > 0 -%}
+  <announcement-bar
+    class="announcement-bar color-{{ section.settings.color_scheme }}"
+    data-interval="{{ section.settings.interval }}"
+    role="region"
+    aria-label="{{ 'header.announcements' | t }}"
+  >
+    <div class="announcement-bar__inner page-width">
+      {% content_for 'blocks' %}
+    </div>
+  </announcement-bar>
+  {%- if section.blocks.size > 1 -%}
+    <script type="module" src="{{ 'announcement-bar.js' | asset_url }}"></script>
+  {%- endif -%}
+{%- endif -%}
+
+{% stylesheet %}
+  .announcement-bar {
+    display: block;
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-bottom: 1px solid var(--color-line);
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .announcement-bar__inner {
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    height: 32px;
+    overflow: hidden;
+  }
+
+  .announcement {
+    grid-area: 1 / 1;
+    max-width: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.4s var(--ease),
+      visibility 0s linear 0.4s;
+  }
+
+  .announcement-bar:not(.is-ready) .announcement:first-child,
+  .announcement-bar.is-ready .announcement.is-active {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .announcement__text {
+    display: block;
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .announcement__link:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
+  @media (min-width: 750px) {
+    .announcement-bar {
+      font-size: 13px;
+    }
+
+    .announcement-bar__inner {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      height: 36px;
+      white-space: nowrap;
+    }
+
+    .announcement-bar .announcement {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      min-width: 0;
+      opacity: 1;
+      visibility: visible;
+      transition: none;
+    }
+
+    .announcement + .announcement::before {
+      content: '';
+      width: 3px;
+      height: 3px;
+      flex: none;
+      border-radius: 50%;
+      background: var(--color-line-strong);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.announcement_bar.name",
+  "class": "announcement-bar-section",
+  "enabled_on": { "groups": ["header"] },
+  "max_blocks": 6,
+  "blocks": [{ "type": "_announcement" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-2" },
+    {
+      "type": "range",
+      "id": "interval",
+      "label": "t:sections.announcement_bar.settings.interval.label",
+      "info": "t:sections.announcement_bar.settings.interval.info",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.announcement_bar.name",
+      "blocks": {
+        "a1": { "type": "_announcement", "settings": { "text": "Відправляємо в день замовлення, пн–пт" } },
+        "a2": { "type": "_announcement", "settings": { "text": "Безкоштовна доставка від 3000 грн" } }
+      },
+      "block_order": ["a1", "a2"]
+    }
+  ]
+}
+{% endschema %}

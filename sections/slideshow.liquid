@@ -1,0 +1,285 @@
+{%- comment -%}
+  Slideshow: full-width image banners (desktop + mobile image per slide), the whole slide is a link.
+  Track = CSS scroll-snap; assets/slideshow.js adds line indicators, autoplay and arrow keys.
+  Width "full" is capped at 1440px like the design.
+{%- endcomment -%}
+{%- liquid
+  assign slide_count = section.blocks.size
+  assign autoplay = false
+  if section.settings.autoplay and slide_count > 1
+    assign autoplay = true
+  endif
+-%}
+<div
+  class="section section--{{ section.settings.width }} color-{{ section.settings.color_scheme }} slideshow"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px; --ratio-desktop: {{ section.settings.ratio_desktop }}; --ratio-mobile: {{ section.settings.ratio_mobile }};"
+>
+  <div class="section__inner">
+    <slide-show
+      class="slideshow__viewport"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="{{ 'sections.slideshow.label' | t | escape }}"
+      data-autoplay="{{ autoplay }}"
+      data-interval="{{ section.settings.interval | times: 1000 }}"
+    >
+      <div class="slideshow__track" data-track>
+        {% content_for 'blocks' %}
+      </div>
+
+      {%- if slide_count > 1 -%}
+        <div class="slideshow__controls">
+          <div class="slideshow__dots" role="group" aria-label="{{ 'sections.slideshow.controls' | t | escape }}">
+            {%- for slide in section.blocks -%}
+              <button
+                type="button"
+                class="slideshow__dot"
+                data-dot="{{ forloop.index0 }}"
+                aria-label="{{ 'sections.slideshow.slide' | t: number: forloop.index | escape }}"
+                {% if forloop.first %}
+                  aria-current="true"
+                {% endif %}
+              ></button>
+            {%- endfor -%}
+          </div>
+          {%- if autoplay -%}
+            <button
+              type="button"
+              class="slideshow__toggle"
+              data-toggle
+              aria-label="{{ 'sections.slideshow.pause' | t | escape }}"
+              data-label-pause="{{ 'sections.slideshow.pause' | t | escape }}"
+              data-label-play="{{ 'sections.slideshow.play' | t | escape }}"
+            >
+              <svg class="slideshow__icon-pause" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                <rect x="2" y="1" width="2.5" height="10" fill="currentColor"/>
+                <rect x="7.5" y="1" width="2.5" height="10" fill="currentColor"/>
+              </svg>
+              <svg class="slideshow__icon-play" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                <path d="M3 1l8 5-8 5z" fill="currentColor"/>
+              </svg>
+            </button>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </slide-show>
+  </div>
+</div>
+
+{%- if slide_count > 1 -%}
+  <script type="module" src="{{ 'slideshow.js' | asset_url }}"></script>
+{%- endif -%}
+
+{% stylesheet %}
+  .slideshow.section--full > .section__inner {
+    max-width: 1440px;
+  }
+
+  .slideshow__viewport {
+    position: relative;
+    display: block;
+  }
+
+  .slideshow__track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .slideshow__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .slideshow__controls {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2px;
+  }
+
+  html.no-js .slideshow__controls {
+    visibility: hidden;
+  }
+
+  .slideshow__dots {
+    display: flex;
+    gap: 0;
+  }
+
+  .slideshow__dot {
+    --bar: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--bar) + 12px);
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+
+  .slideshow__dot::before {
+    content: '';
+    width: var(--bar);
+    height: 3px;
+    background: var(--color-line);
+    transition: background-color var(--duration) var(--ease);
+  }
+
+  .slideshow__dot:hover::before {
+    background: var(--color-text-muted);
+  }
+
+  .slideshow__dot[aria-current='true']::before {
+    background: var(--color-text);
+  }
+
+  .slideshow__toggle {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text-muted);
+  }
+
+  .slideshow__toggle:hover {
+    color: var(--color-text);
+  }
+
+  .slideshow__icon-play,
+  .slideshow__toggle.is-paused .slideshow__icon-pause {
+    display: none;
+  }
+
+  .slideshow__toggle.is-paused .slideshow__icon-play {
+    display: block;
+  }
+
+  .slideshow.section--full .slideshow__toggle {
+    right: var(--gutter);
+  }
+
+  @media (max-width: 749px) {
+    .slideshow__controls {
+      position: absolute;
+      right: 8px;
+      bottom: 4px;
+      z-index: 2;
+      padding: 0;
+      pointer-events: none;
+    }
+
+    .slideshow__controls > * {
+      pointer-events: auto;
+    }
+
+    .slideshow__dot {
+      --bar: 20px;
+      width: calc(var(--bar) + 8px);
+    }
+
+    .slideshow__dot::before {
+      background: var(--color-text-muted);
+    }
+
+    .slideshow__toggle,
+    .slideshow.section--full .slideshow__toggle {
+      position: static;
+      color: var(--color-text);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.slideshow.name",
+  "class": "shopify-section--slideshow",
+  "blocks": [{ "type": "_slide" }],
+  "max_blocks": 8,
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:shared.section_width.label",
+      "info": "t:sections.slideshow.settings.width.info",
+      "options": [
+        { "value": "page", "label": "t:shared.section_width.options__page" },
+        { "value": "full", "label": "t:shared.section_width.options__full" }
+      ],
+      "default": "full"
+    },
+    {
+      "type": "select",
+      "id": "ratio_desktop",
+      "label": "t:sections.slideshow.settings.ratio_desktop.label",
+      "options": [
+        { "value": "12/5", "label": "12:5" },
+        { "value": "3/1", "label": "3:1" },
+        { "value": "2/1", "label": "2:1" },
+        { "value": "16/9", "label": "16:9" },
+        { "value": "4/3", "label": "4:3" }
+      ],
+      "default": "12/5"
+    },
+    {
+      "type": "select",
+      "id": "ratio_mobile",
+      "label": "t:sections.slideshow.settings.ratio_mobile.label",
+      "options": [
+        { "value": "4/5", "label": "4:5" },
+        { "value": "1/1", "label": "1:1" },
+        { "value": "3/4", "label": "3:4" },
+        { "value": "9/16", "label": "9:16" },
+        { "value": "16/9", "label": "16:9" }
+      ],
+      "default": "4/5"
+    },
+    { "type": "header", "content": "t:sections.slideshow.settings.header_autoplay.content" },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:sections.slideshow.settings.autoplay.label",
+      "info": "t:sections.slideshow.settings.autoplay.info",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "interval",
+      "label": "t:sections.slideshow.settings.interval.label",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "unit": "s",
+      "default": 6,
+      "visible_if": "{{ section.settings.autoplay }}"
+    },
+    { "type": "header", "content": "t:shared.header_appearance.content" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 0 }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.slideshow.presets.name",
+      "category": "t:categories.banners",
+      "blocks": {
+        "slide_1": { "type": "_slide", "settings": { "link": "shopify://collections/all" } },
+        "slide_2": { "type": "_slide", "settings": { "link": "shopify://collections/best-sellers" } }
+      },
+      "block_order": ["slide_1", "slide_2"]
+    }
+  ]
+}
+{% endschema %}
