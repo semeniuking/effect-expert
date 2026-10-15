@@ -1,0 +1,39 @@
+name = "ghost-hunt"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ghost-hunt"
+# Replace with the id printed by `npx wrangler d1 create ghost-hunt`.
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[vars]
+# Storefront used to read the product/collection pool (public /products.json, /collections.json).
+SHOP_URL = "https://effect-expert.myshopify.com"
+# Comma-separated. "*.domain" allows any https subdomain.
+ALLOWED_ORIGINS = "https://effect-expert.com,https://www.effect-expert.com,https://effect-expert.myshopify.com,*.shopifypreview.com"
+# How often the ghosts move. 24 = once a day.
+SHUFFLE_HOURS = "24"
+# Shuffle at local midnight: Kyiv is +180 (summer) / +120 (winter).
+SHUFFLE_TZ_OFFSET_MIN = "120"
+# Where the 5 white ghosts go. Total must equal the length of SECRET_CODE.
+DISTRIBUTION = "home:1,collection:1,product:3"
+# Optional collection handle limiting which products can get a ghost (falls back to all products).
+POOL_COLLECTION = "ghost-hunt-pool"
+# Collection handles that never get a ghost.
+EXCLUDE_COLLECTIONS = ""
+# ISO dates (Kyiv time shown as +02:00/+03:00). Empty = always on.
+CAMPAIGN_START = ""
+CAMPAIGN_END = ""
+# Fields the golden ghost form must send.
+GOLDEN_REQUIRED = "name,phone,email"
+
+# Secrets: set with `npx wrangler secret put NAME` (for local dev, put them in .dev.vars):
+#   SECRET_CODE        5 digits, ghost N shows digit N
+#   DISCOUNT_CODE      Shopify discount code revealed for the correct code
+#   LAYOUT_SALT        any random string; changing it reshuffles everything
+#   DEBUG_KEY          key used in ?ghosthunt=<DEBUG_KEY> for internal testing
+#   ADMIN_TOKEN        for GET /admin (winner + stats)
+#   TELEGRAM_BOT_TOKEN optional, golden ghost alert
+#   TELEGRAM_CHAT_ID   optional

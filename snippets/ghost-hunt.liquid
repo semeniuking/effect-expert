@@ -1,0 +1,276 @@
+{%- doc -%}
+  Ghost Hunt game: config, loader and UI template.
+
+  Nothing is loaded for customers unless "Ghost Hunt" is enabled in theme settings. The team can test it on
+  the live store with ?ghosthunt=<DEBUG_KEY> (turn off with ?ghosthunt=off). Ghost placement, digits and the
+  promo code come from the Cloudflare Worker (see ghost-hunt-worker/README.md).
+{%- enddoc -%}
+
+{%- if settings.ghost_hunt_api_url != blank -%}
+  {%- liquid
+    assign golden_product = settings.ghost_hunt_golden_product
+    assign enabled = settings.ghost_hunt_enabled
+    if request.design_mode
+      assign enabled = true
+    endif
+  -%}
+  <script type="application/json" id="GhostHuntConfig">
+    {
+      "enabled": {{ enabled | json }},
+      "api": {{ settings.ghost_hunt_api_url | strip | json }},
+      "page": {
+        "type": {{ request.page_type | json }},
+        "product": {{ product.handle | default: '' | json }},
+        "collection": {{ collection.handle | default: '' | json }}
+      },
+      "size": {{ settings.ghost_hunt_size | json }},
+      "opacity": {{ settings.ghost_hunt_opacity | divided_by: 100.0 | json }},
+      "images": {
+        "white": {{ 'ghost-white.png' | asset_url | json }},
+        "gold": {{ 'ghost-gold.png' | asset_url | json }}
+      },
+      "golden": {
+        "enabled": {{ settings.ghost_hunt_golden_enabled | json }},
+        "product": {{ golden_product.handle | default: '' | json }},
+        "anchor": {{ settings.ghost_hunt_golden_image | minus: 1 | json }},
+        "x": {{ settings.ghost_hunt_golden_x | json }},
+        "y": {{ settings.ghost_hunt_golden_y | json }}
+      },
+      "routes": {
+        "root": {{ routes.root_url | json }},
+        "cart": {{ routes.cart_url | json }},
+        "collections": {{ routes.collections_url | json }}
+      },
+      "strings": {
+        "ghostLabel": {{ 'ghost_hunt.ghost_label' | t | json }},
+        "goldenLabel": {{ 'ghost_hunt.golden_label' | t | json }},
+        "caught": {{ 'ghost_hunt.caught' | t | json }},
+        "foundCount": {{ 'ghost_hunt.found_count' | t | json }},
+        "slot": {{ 'ghost_hunt.slot' | t | json }},
+        "wrongCode": {{ 'ghost_hunt.wrong_code' | t | json }},
+        "rateLimited": {{ 'ghost_hunt.rate_limited' | t | json }},
+        "inactive": {{ 'ghost_hunt.inactive' | t | json }},
+        "error": {{ 'ghost_hunt.error' | t | json }},
+        "copied": {{ 'ghost_hunt.copied' | t | json }},
+        "invalid": {{ 'ghost_hunt.invalid' | t | json }},
+        "name": {{ 'ghost_hunt.name' | t | json }},
+        "phone": {{ 'ghost_hunt.phone' | t | json }},
+        "email": {{ 'ghost_hunt.email' | t | json }},
+        "consent": {{ 'ghost_hunt.consent' | t | json }}
+      }
+    }
+  </script>
+
+  <script>
+    (() => {
+      const KEY = 'ghostHuntDebugKey';
+      const param = new URLSearchParams(location.search).get('ghosthunt');
+      let debugKey = null;
+      try {
+        if (param === 'off') localStorage.removeItem(KEY);
+        else if (param) localStorage.setItem(KEY, param);
+        debugKey = localStorage.getItem(KEY);
+      } catch (error) {
+        debugKey = param && param !== 'off' ? param : null;
+      }
+
+      const config = JSON.parse(document.getElementById('GhostHuntConfig').textContent);
+      if (!config.enabled && !debugKey) return;
+
+      window.GhostHunt = { debugKey };
+      const style = document.createElement('link');
+      style.rel = 'stylesheet';
+      style.href = {{ 'ghost-hunt.css' | asset_url | json }};
+      document.head.append(style);
+      import({{ 'ghost-hunt.js' | asset_url | json }});
+    })();
+  </script>
+
+  <template id="GhostHuntTemplate">
+    <ghost-hunt-app class="ghost-hunt">
+      <button
+        type="button"
+        ref="tracker"
+        class="ghost-hunt__tracker"
+        on:click="/openProgress"
+        aria-label="{{ 'ghost_hunt.tracker_label' | t }}"
+        hidden
+      >
+        <img
+          src="{{ 'ghost-white.png' | asset_url }}"
+          alt=""
+          width="28"
+          height="26"
+        >
+        <span ref="count">0/5</span>
+      </button>
+
+      <dialog
+        ref="dialog"
+        class="dialog-modal ghost-hunt__dialog color-{{ settings.popover_color_scheme }}"
+        scroll-lock
+        aria-labelledby="GhostHuntTitle"
+      >
+        <div
+          class="ghost-hunt__panel"
+          ref="progressPanel"
+        >
+          <h2
+            id="GhostHuntTitle"
+            class="ghost-hunt__title h3"
+          >
+            {{ settings.ghost_hunt_title }}
+          </h2>
+          <div class="ghost-hunt__text rte">{{ settings.ghost_hunt_intro }}</div>
+          <p
+            class="ghost-hunt__found"
+            ref="found"
+          ></p>
+          <ol
+            class="ghost-hunt__slots"
+            ref="slots"
+          ></ol>
+
+          <form
+            class="ghost-hunt__code-form"
+            ref="codeForm"
+            on:submit="/verifyCode"
+            novalidate
+          >
+            <label
+              class="ghost-hunt__label"
+              for="GhostHuntCode"
+            >
+              {{- 'ghost_hunt.code_label' | t -}}
+            </label>
+            <div class="ghost-hunt__row">
+              <input
+                id="GhostHuntCode"
+                class="ghost-hunt__input"
+                ref="codeInput"
+                name="code"
+                inputmode="numeric"
+                autocomplete="off"
+                maxlength="8"
+                placeholder="{{ 'ghost_hunt.code_placeholder' | t }}"
+                required
+              >
+              <button
+                type="submit"
+                class="button"
+              >
+                {{ 'ghost_hunt.check' | t }}
+              </button>
+            </div>
+            <p
+              class="ghost-hunt__message"
+              ref="codeMessage"
+              role="status"
+            ></p>
+          </form>
+
+          <div
+            class="ghost-hunt__result"
+            ref="result"
+            hidden
+          >
+            <div class="ghost-hunt__text rte">{{ settings.ghost_hunt_prize_text }}</div>
+            <div class="ghost-hunt__row">
+              <code
+                class="ghost-hunt__promo"
+                ref="promo"
+              ></code>
+              <button
+                type="button"
+                class="button button-secondary"
+                on:click="/copyPromo"
+              >
+                {{ 'ghost_hunt.copy' | t }}
+              </button>
+            </div>
+            <a
+              class="button ghost-hunt__apply"
+              ref="applyLink"
+              href="{{ routes.cart_url }}"
+            >
+              {{- 'ghost_hunt.apply' | t -}}
+            </a>
+          </div>
+        </div>
+
+        <div
+          class="ghost-hunt__panel"
+          ref="goldenPanel"
+          hidden
+        >
+          <img
+            class="ghost-hunt__golden-image"
+            src="{{ 'ghost-gold.png' | asset_url }}"
+            alt=""
+            width="96"
+            height="89"
+          >
+          <div
+            class="ghost-hunt__text rte"
+            ref="goldenIntro"
+          >
+            {{ settings.ghost_hunt_golden_text }}
+          </div>
+          <form
+            class="ghost-hunt__golden-form"
+            ref="goldenForm"
+            on:submit="/claimGolden"
+            novalidate
+          >
+            <div
+              class="ghost-hunt__fields"
+              ref="goldenFields"
+            ></div>
+            <button
+              type="submit"
+              class="button"
+            >
+              {{ 'ghost_hunt.submit' | t }}
+            </button>
+            <p
+              class="ghost-hunt__message"
+              ref="goldenMessage"
+              role="status"
+            ></p>
+          </form>
+          <div
+            class="ghost-hunt__text rte"
+            ref="goldenSuccess"
+            hidden
+          >
+            {{ settings.ghost_hunt_golden_success }}
+          </div>
+          <div
+            class="ghost-hunt__text rte"
+            ref="goldenTaken"
+            hidden
+          >
+            {{ settings.ghost_hunt_golden_taken }}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          on:click="/closeDialog"
+          class="button button-unstyled close-button ghost-hunt__close"
+          aria-label="{{ 'accessibility.close_dialog' | t }}"
+        >
+          {{- 'icon-close.svg' | inline_asset_content -}}
+        </button>
+      </dialog>
+
+      <p
+        class="ghost-hunt__toast"
+        ref="toast"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></p>
+    </ghost-hunt-app>
+  </template>
+{%- endif -%}

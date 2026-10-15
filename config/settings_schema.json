@@ -2284,5 +2284,135 @@
         "default": "equal-width-buttons"
       }
     ]
+  },
+  {
+    "name": "Ghost Hunt",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Гра «Полювання на привидів». Розміщення 5 білих привидів, цифри коду та промокод налаштовуються у Cloudflare Worker. Для внутрішнього тесту відкрийте сайт з ?ghosthunt=DEBUG_KEY — гра запрацює лише для вас, навіть коли вона вимкнена тут."
+      },
+      {
+        "type": "checkbox",
+        "id": "ghost_hunt_enabled",
+        "label": "Увімкнути гру для всіх відвідувачів",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "ghost_hunt_api_url",
+        "label": "URL Worker",
+        "placeholder": "https://ghost-hunt.example.workers.dev"
+      },
+      {
+        "type": "header",
+        "content": "Вигляд"
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_size",
+        "min": 24,
+        "max": 96,
+        "step": 2,
+        "label": "Розмір привида",
+        "default": 44,
+        "unit": "px"
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_opacity",
+        "min": 30,
+        "max": 100,
+        "step": 5,
+        "label": "Прозорість привида",
+        "default": 85,
+        "unit": "%"
+      },
+      {
+        "type": "header",
+        "content": "Золотий привид"
+      },
+      {
+        "type": "checkbox",
+        "id": "ghost_hunt_golden_enabled",
+        "label": "Показати золотого привида",
+        "default": false,
+        "info": "Можна увімкнути посеред акції після анонсу в Stories. Зникає для всіх, щойно хтось його впіймає."
+      },
+      {
+        "type": "product",
+        "id": "ghost_hunt_golden_product",
+        "label": "Товар із золотим привидом"
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_golden_image",
+        "min": 1,
+        "max": 8,
+        "step": 1,
+        "label": "Номер фото товару",
+        "default": 1
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_golden_x",
+        "min": 0,
+        "max": 90,
+        "step": 1,
+        "label": "Позиція по горизонталі",
+        "default": 70,
+        "unit": "%"
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_golden_y",
+        "min": 0,
+        "max": 90,
+        "step": 1,
+        "label": "Позиція по вертикалі",
+        "default": 20,
+        "unit": "%"
+      },
+      {
+        "type": "header",
+        "content": "Тексти"
+      },
+      {
+        "type": "inline_richtext",
+        "id": "ghost_hunt_title",
+        "label": "Заголовок",
+        "default": "Полювання на привидів"
+      },
+      {
+        "type": "richtext",
+        "id": "ghost_hunt_intro",
+        "label": "Опис гри",
+        "default": "<p>На нашому сайті оселилося 5 привидів. Кожен ховає одну цифру секретного коду. Знайди всіх — і отримай промокод!</p>"
+      },
+      {
+        "type": "richtext",
+        "id": "ghost_hunt_prize_text",
+        "label": "Текст після правильного коду",
+        "default": "<p>Твій промокод на −10% для замовлення від 1 500 грн:</p>"
+      },
+      {
+        "type": "richtext",
+        "id": "ghost_hunt_golden_text",
+        "label": "Золотий привид — текст форми",
+        "default": "<p>Ти знайшов(-ла) золотого привида! Залиш контакти, щоб забрати сертифікат на 5 000 грн.</p>"
+      },
+      {
+        "type": "richtext",
+        "id": "ghost_hunt_golden_success",
+        "label": "Золотий привид — успіх",
+        "default": "<p>Вітаємо! Сертифікат твій — ми зв'яжемося з тобою найближчим часом.</p>"
+      },
+      {
+        "type": "richtext",
+        "id": "ghost_hunt_golden_taken",
+        "label": "Золотий привид — вже впіймали",
+        "default": "<p>Ой! Золотого привида щойно впіймав хтось інший. Але 5 білих привидів досі чекають на тебе.</p>"
+      }
+    ]
   }
 ]
