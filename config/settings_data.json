@@ -14,6 +14,11 @@
       "integration_get_checkout": true,
       "integration_ai_assistant": true,
       "social_instagram": "https://www.instagram.com/effectexpert_official/",
+      "ghost_hunt_enabled": true,
+      "ghost_hunt_api_url": "https://ghost-hunt.ghost-hunt-worker.workers.dev",
+      "ghost_hunt_size": 96,
+      "ghost_hunt_golden_enabled": true,
+      "ghost_hunt_golden_product": "balance-mix-brown",
       "color_schemes": {
         "scheme-1": {
           "settings": {

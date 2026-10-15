@@ -118,3 +118,11 @@ Breakpoints: mobile is up to 749px, tablet starts at 750px, desktop starts at 11
 - **Fonts and sizes:** Theme settings → Typography.
 - **Rearranging:** add **Section** (the flexible one) and nest Group, Heading, Text, Button and Image blocks inside it in any order. The Hero, Text with buttons and Image with text presets are all built this way.
 - **Product page:** the info column is made of blocks that can be reordered or hidden. Apps such as reviews or Yotpo can be added as app blocks.
+
+## Ghost Hunt (Halloween game)
+
+- **Settings:** Theme settings → **Ghost Hunt** (on/off, Worker URL, color scheme, ghost size and opacity, tracker offset so it clears the Yotpo/cashback bar, golden ghost product/photo/position, texts).
+- **Files:** `snippets/ghost-hunt.liquid` (rendered from `layout/theme.liquid`) holds the config, a tiny loader and the UI `<template>`. `assets/ghost-hunt.css` and `assets/ghost-hunt.js` are injected only when the game is enabled or a debug key is present, so the game costs nothing when off.
+- **Anchors:** product ghosts go into the `media-gallery` slides, collection ghosts over `.product-card__media` in the collection grid, home ghosts over large images in `<main>`. Ghosts are re-placed when facets.js swaps the grid.
+- **Debug:** open any page with `?ghosthunt=<DEBUG_KEY>` (stored in localStorage; `?ghosthunt=off` clears it). The game then runs only for you, with a debug panel listing today's spots.
+- **Backend:** `ghost-hunt-worker/` (Cloudflare Worker + D1) decides placement, digits and the promo code. It is excluded from theme uploads (`.shopifyignore`) and deploys separately with `npx wrangler deploy` (see its README).

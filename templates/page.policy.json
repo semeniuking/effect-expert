@@ -3,11 +3,33 @@
     "main": {
       "type": "policy-page",
       "blocks": {
-        "stat_1": { "type": "_policy-stat", "settings": { "value": "14 днів", "label": "на обмін або повернення" } },
-        "stat_2": { "type": "_policy-stat", "settings": { "value": "3 робочі дні", "label": "на повернення коштів" } },
-        "stat_3": { "type": "_policy-stat", "settings": { "value": "Нова пошта", "label": "перевіряйте посилку у відділенні" } }
+        "stat_1": {
+          "type": "_policy-stat",
+          "settings": {
+            "value": "14 днів",
+            "label": "на обмін або повернення"
+          }
+        },
+        "stat_2": {
+          "type": "_policy-stat",
+          "settings": {
+            "value": "3 робочі дні",
+            "label": "на повернення коштів"
+          }
+        },
+        "stat_3": {
+          "type": "_policy-stat",
+          "settings": {
+            "value": "Нова пошта",
+            "label": "перевіряйте посилку у відділенні"
+          }
+        }
       },
-      "block_order": ["stat_1", "stat_2", "stat_3"],
+      "block_order": [
+        "stat_1",
+        "stat_2",
+        "stat_3"
+      ],
       "settings": {
         "menu": "footer",
         "subheading": "Правила магазину",
@@ -20,5 +42,8 @@
       }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }
+

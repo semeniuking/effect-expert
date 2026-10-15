@@ -12,7 +12,9 @@
           }
         }
       },
-      "block_order": ["contact_form"],
+      "block_order": [
+        "contact_form"
+      ],
       "settings": {
         "show_title": true,
         "subheading": "Зв’язок з нами",
@@ -24,5 +26,8 @@
       }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }
+

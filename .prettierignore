@@ -3,3 +3,4 @@ config/settings_data.json
 locales/*.json
 templates/*.json
 sections/*-group.json
+ghost-hunt-worker

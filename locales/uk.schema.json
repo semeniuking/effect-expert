@@ -1287,6 +1287,73 @@
           "label": "Власний код у head сторінки"
         }
       }
+    },
+    "ghost_hunt": {
+      "name": "Полювання на привидів",
+      "settings": {
+        "info": {
+          "content": "Гра «Полювання на привидів». Розміщення 5 білих привидів, цифри коду та промокод налаштовуються у Cloudflare Worker. Для внутрішнього тесту відкрийте сайт з ?ghosthunt=DEBUG_KEY — гра запрацює лише для вас, навіть коли вона вимкнена тут."
+        },
+        "ghost_hunt_enabled": {
+          "label": "Увімкнути гру для всіх відвідувачів"
+        },
+        "ghost_hunt_api_url": {
+          "label": "URL Worker"
+        },
+        "header_appearance": {
+          "content": "Вигляд"
+        },
+        "ghost_hunt_size": {
+          "label": "Розмір привида"
+        },
+        "ghost_hunt_opacity": {
+          "label": "Прозорість привида"
+        },
+        "ghost_hunt_tracker_offset": {
+          "label": "Відступ лічильника 👻 знизу",
+          "info": "Щоб кнопка лічильника не перекривала панель кешбеку внизу сторінки."
+        },
+        "header_golden": {
+          "content": "Золотий привид"
+        },
+        "ghost_hunt_golden_enabled": {
+          "label": "Показати золотого привида",
+          "info": "Можна увімкнути посеред акції після анонсу в Stories. Зникає для всіх, щойно хтось його впіймає."
+        },
+        "ghost_hunt_golden_product": {
+          "label": "Товар із золотим привидом"
+        },
+        "ghost_hunt_golden_image": {
+          "label": "Номер фото товару"
+        },
+        "ghost_hunt_golden_x": {
+          "label": "Позиція по горизонталі"
+        },
+        "ghost_hunt_golden_y": {
+          "label": "Позиція по вертикалі"
+        },
+        "header_texts": {
+          "content": "Тексти"
+        },
+        "ghost_hunt_title": {
+          "label": "Заголовок"
+        },
+        "ghost_hunt_intro": {
+          "label": "Опис гри"
+        },
+        "ghost_hunt_prize_text": {
+          "label": "Текст після правильного коду"
+        },
+        "ghost_hunt_golden_text": {
+          "label": "Золотий привид — текст форми"
+        },
+        "ghost_hunt_golden_success": {
+          "label": "Золотий привид — успіх"
+        },
+        "ghost_hunt_golden_taken": {
+          "label": "Золотий привид — вже впіймали"
+        }
+      }
     }
   }
 }

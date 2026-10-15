@@ -222,6 +222,30 @@
       "details": "View details"
     }
   },
+  "ghost_hunt": {
+    "ghost_label": "Catch the ghost",
+    "golden_label": "Catch the golden ghost",
+    "tracker_label": "Ghost hunt",
+    "caught": "Ghost #[n] caught! Your digit: [digit]",
+    "found_count": "[count] of [total] ghosts found",
+    "slot": "Ghost [n]",
+    "code_label": "Secret code",
+    "code_placeholder": "5 digits",
+    "check": "Check",
+    "wrong_code": "Wrong code. Keep hunting!",
+    "rate_limited": "Too many attempts. Try again in 10 minutes.",
+    "inactive": "The game is not running right now.",
+    "error": "Something went wrong. Please try again.",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "apply": "Apply to cart",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "consent": "I agree to be contacted about the prize",
+    "submit": "Claim the prize",
+    "invalid": "Please check the highlighted fields."
+  },
   "header": {
     "announcements": "Announcements",
     "main_nav": "Main menu",

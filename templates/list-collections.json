@@ -5,7 +5,14 @@
       "settings": {
         "heading": "Каталог",
         "sort": "alphabetical",
-        "collections": ["eyelashes", "glue", "pincety", "pre-care", "removers", "rozhidnyky"],
+        "collections": [
+          "eyelashes",
+          "glue",
+          "pincety",
+          "pre-care",
+          "removers",
+          "rozhidnyky"
+        ],
         "show_count": false,
         "columns": 3,
         "ratio": "4 / 5",
@@ -15,5 +22,8 @@
       }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }
+

@@ -383,7 +383,7 @@
               "type": "button",
               "settings": {
                 "label": "Увійти в кабінет",
-                "link": "shopify://customers/account",
+                "link": "/account",
                 "style": "accent"
               }
             },
@@ -470,3 +470,4 @@
     "instagram"
   ]
 }
+

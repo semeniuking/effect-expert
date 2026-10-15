@@ -6,24 +6,85 @@
         "media-gallery": {
           "type": "_product-media-gallery",
           "static": true,
-          "settings": { "ratio": "square", "fit": "cover", "priority": true }
+          "settings": {
+            "ratio": "square",
+            "fit": "cover",
+            "priority": true
+          }
         },
-        "breadcrumbs": { "type": "product-breadcrumbs", "settings": { "show_title": false, "hide_mobile": true } },
-        "eyebrow": { "type": "product-eyebrow", "settings": { "text": "", "fallback": "type" } },
-        "title": { "type": "product-title" },
-        "price": { "type": "product-price", "settings": { "show_tax_note": true } },
-        "inventory": { "type": "product-inventory", "settings": { "note": "відправимо сьогодні", "threshold": 5 } },
-        "variant-picker": { "type": "variant-picker", "settings": { "style": "pills", "show_swatches": true, "rail_mobile": true } },
-        "buy-buttons": { "type": "buy-buttons", "settings": { "show_quantity": true, "show_total": true, "show_payment_button": false } },
+        "breadcrumbs": {
+          "type": "product-breadcrumbs",
+          "settings": {
+            "show_title": false,
+            "hide_mobile": true
+          }
+        },
+        "eyebrow": {
+          "type": "product-eyebrow",
+          "settings": {
+            "text": "",
+            "fallback": "type"
+          }
+        },
+        "title": {
+          "type": "product-title"
+        },
+        "price": {
+          "type": "product-price",
+          "settings": {
+            "show_tax_note": true
+          }
+        },
+        "inventory": {
+          "type": "product-inventory",
+          "settings": {
+            "note": "відправимо сьогодні",
+            "threshold": 5
+          }
+        },
+        "variant-picker": {
+          "type": "variant-picker",
+          "settings": {
+            "style": "pills",
+            "show_swatches": true,
+            "rail_mobile": true
+          }
+        },
+        "buy-buttons": {
+          "type": "buy-buttons",
+          "settings": {
+            "show_quantity": true,
+            "show_total": true,
+            "show_payment_button": false
+          }
+        },
         "info-box": {
           "type": "product-info-box",
-          "settings": { "shipping_text": "Відправка в день замовлення (пн–пт)", "show_free_shipping": true, "show_bonus": true }
+          "settings": {
+            "shipping_text": "Відправка в день замовлення (пн–пт)",
+            "show_free_shipping": true,
+            "show_bonus": true
+          }
         },
         "accordion": {
           "type": "product-accordion",
           "blocks": {
-            "description": { "type": "_product-accordion-row", "settings": { "heading": "Опис", "source": "description", "open": true } },
-            "specs": { "type": "_product-accordion-row", "settings": { "heading": "Характеристики", "source": "metafield", "metafield": "custom.specs" } },
+            "description": {
+              "type": "_product-accordion-row",
+              "settings": {
+                "heading": "Опис",
+                "source": "description",
+                "open": true
+              }
+            },
+            "specs": {
+              "type": "_product-accordion-row",
+              "settings": {
+                "heading": "Характеристики",
+                "source": "metafield",
+                "metafield": "custom.specs"
+              }
+            },
             "shipping": {
               "type": "_product-accordion-row",
               "settings": {
@@ -41,10 +102,25 @@
               }
             }
           },
-          "block_order": ["description", "specs", "shipping", "returns"]
+          "block_order": [
+            "description",
+            "specs",
+            "shipping",
+            "returns"
+          ]
         }
       },
-      "block_order": ["breadcrumbs", "eyebrow", "title", "price", "inventory", "variant-picker", "buy-buttons", "info-box", "accordion"],
+      "block_order": [
+        "breadcrumbs",
+        "eyebrow",
+        "title",
+        "price",
+        "inventory",
+        "variant-picker",
+        "buy-buttons",
+        "info-box",
+        "accordion"
+      ],
       "settings": {
         "gallery_width": 55,
         "sticky_info": true,
@@ -70,5 +146,9 @@
       }
     }
   },
-  "order": ["main", "recommendations"]
+  "order": [
+    "main",
+    "recommendations"
+  ]
 }
+

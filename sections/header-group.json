@@ -7,15 +7,27 @@
       "blocks": {
         "announcement-ship": {
           "type": "_announcement",
-          "settings": { "text": "Відправляємо в день замовлення, пн–пт", "link": "" }
+          "settings": {
+            "text": "Відправляємо в день замовлення, пн–пт",
+            "link": ""
+          }
         },
         "announcement-free": {
           "type": "_announcement",
-          "settings": { "text": "Безкоштовна доставка від 3000 грн", "link": "" }
+          "settings": {
+            "text": "Безкоштовна доставка від 3000 грн",
+            "link": ""
+          }
         }
       },
-      "block_order": ["announcement-ship", "announcement-free"],
-      "settings": { "color_scheme": "scheme-2", "interval": 5 }
+      "block_order": [
+        "announcement-ship",
+        "announcement-free"
+      ],
+      "settings": {
+        "color_scheme": "scheme-2",
+        "interval": 5
+      }
     },
     "header": {
       "type": "header",
@@ -28,5 +40,9 @@
       }
     }
   },
-  "order": ["announcement-bar", "header"]
+  "order": [
+    "announcement-bar",
+    "header"
+  ]
 }
+

@@ -553,5 +553,152 @@
         "default": true
       }
     ]
+  },
+  {
+    "name": "t:settings_schema.ghost_hunt.name",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "t:settings_schema.ghost_hunt.settings.info.content"
+      },
+      {
+        "type": "checkbox",
+        "id": "ghost_hunt_enabled",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_enabled.label",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "ghost_hunt_api_url",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_api_url.label",
+        "placeholder": "https://ghost-hunt.example.workers.dev"
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.ghost_hunt.settings.header_appearance.content"
+      },
+      {
+        "type": "color_scheme",
+        "id": "ghost_hunt_color_scheme",
+        "label": "t:shared.color_scheme.label",
+        "default": "scheme-1"
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_size",
+        "min": 24,
+        "max": 96,
+        "step": 2,
+        "unit": "px",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_size.label",
+        "default": 44
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_opacity",
+        "min": 30,
+        "max": 100,
+        "step": 5,
+        "unit": "%",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_opacity.label",
+        "default": 85
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_tracker_offset",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_tracker_offset.label",
+        "default": 56,
+        "info": "t:settings_schema.ghost_hunt.settings.ghost_hunt_tracker_offset.info"
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.ghost_hunt.settings.header_golden.content"
+      },
+      {
+        "type": "checkbox",
+        "id": "ghost_hunt_golden_enabled",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_golden_enabled.label",
+        "default": false,
+        "info": "t:settings_schema.ghost_hunt.settings.ghost_hunt_golden_enabled.info"
+      },
+      {
+        "type": "product",
+        "id": "ghost_hunt_golden_product",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_golden_product.label"
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_golden_image",
+        "min": 1,
+        "max": 8,
+        "step": 1,
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_golden_image.label",
+        "default": 1
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_golden_x",
+        "min": 0,
+        "max": 90,
+        "step": 1,
+        "unit": "%",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_golden_x.label",
+        "default": 70
+      },
+      {
+        "type": "range",
+        "id": "ghost_hunt_golden_y",
+        "min": 0,
+        "max": 90,
+        "step": 1,
+        "unit": "%",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_golden_y.label",
+        "default": 20
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.ghost_hunt.settings.header_texts.content"
+      },
+      {
+        "type": "inline_richtext",
+        "id": "ghost_hunt_title",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_title.label",
+        "default": "Полювання на привидів"
+      },
+      {
+        "type": "richtext",
+        "id": "ghost_hunt_intro",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_intro.label",
+        "default": "<p>На нашому сайті оселилося 5 привидів. Кожен ховає одну цифру секретного коду. Знайди всіх — і отримай промокод!</p>"
+      },
+      {
+        "type": "richtext",
+        "id": "ghost_hunt_prize_text",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_prize_text.label",
+        "default": "<p>Твій промокод на −10% для замовлення від 1 500 грн:</p>"
+      },
+      {
+        "type": "richtext",
+        "id": "ghost_hunt_golden_text",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_golden_text.label",
+        "default": "<p>Ти знайшов(-ла) золотого привида! Залиш контакти, щоб забрати сертифікат на 5 000 грн.</p>"
+      },
+      {
+        "type": "richtext",
+        "id": "ghost_hunt_golden_success",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_golden_success.label",
+        "default": "<p>Вітаємо! Сертифікат твій — ми зв'яжемося з тобою найближчим часом.</p>"
+      },
+      {
+        "type": "richtext",
+        "id": "ghost_hunt_golden_taken",
+        "label": "t:settings_schema.ghost_hunt.settings.ghost_hunt_golden_taken.label",
+        "default": "<p>Ой! Золотого привида щойно впіймав хтось інший. Але 5 білих привидів досі чекають на тебе.</p>"
+      }
+    ]
   }
 ]

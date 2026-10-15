@@ -977,8 +977,9 @@ input:disabled + .pill,
   display: none;
 }
 
-.accordion__summary .icon-plus-minus {
+.icon-plus-minus {
   position: relative;
+  display: inline-block;
   width: 12px;
   height: 12px;
   flex: none;

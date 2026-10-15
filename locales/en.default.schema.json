@@ -1287,6 +1287,73 @@
           "label": "Custom code in the page head"
         }
       }
+    },
+    "ghost_hunt": {
+      "name": "Ghost Hunt",
+      "settings": {
+        "info": {
+          "content": "The \"Ghost hunt\" game. Placement of the 5 white ghosts, the code digits and the promo code are set in the Cloudflare Worker. For internal testing open the store with ?ghosthunt=DEBUG_KEY: the game runs only for you, even while it is off here."
+        },
+        "ghost_hunt_enabled": {
+          "label": "Enable the game for all visitors"
+        },
+        "ghost_hunt_api_url": {
+          "label": "Worker URL"
+        },
+        "header_appearance": {
+          "content": "Appearance"
+        },
+        "ghost_hunt_size": {
+          "label": "Ghost size"
+        },
+        "ghost_hunt_opacity": {
+          "label": "Ghost opacity"
+        },
+        "ghost_hunt_tracker_offset": {
+          "label": "Ghost counter offset from the bottom",
+          "info": "Keeps the counter button clear of the cashback bar at the bottom of the page."
+        },
+        "header_golden": {
+          "content": "Golden ghost"
+        },
+        "ghost_hunt_golden_enabled": {
+          "label": "Show the golden ghost",
+          "info": "Can be switched on mid-campaign after the Stories announcement. It disappears for everyone as soon as someone catches it."
+        },
+        "ghost_hunt_golden_product": {
+          "label": "Product with the golden ghost"
+        },
+        "ghost_hunt_golden_image": {
+          "label": "Product photo number"
+        },
+        "ghost_hunt_golden_x": {
+          "label": "Horizontal position"
+        },
+        "ghost_hunt_golden_y": {
+          "label": "Vertical position"
+        },
+        "header_texts": {
+          "content": "Texts"
+        },
+        "ghost_hunt_title": {
+          "label": "Heading"
+        },
+        "ghost_hunt_intro": {
+          "label": "Game description"
+        },
+        "ghost_hunt_prize_text": {
+          "label": "Text after the correct code"
+        },
+        "ghost_hunt_golden_text": {
+          "label": "Golden ghost: form text"
+        },
+        "ghost_hunt_golden_success": {
+          "label": "Golden ghost: success"
+        },
+        "ghost_hunt_golden_taken": {
+          "label": "Golden ghost: already caught"
+        }
+      }
     }
   }
 }
