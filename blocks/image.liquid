@@ -10,6 +10,8 @@
   endif
   assign sizes = '(min-width: 750px) ' | append: block.settings.desktop_size | append: 'vw, 100vw'
 -%}
+{%- comment -%} Empty image blocks show a placeholder only in the theme editor. {%- endcomment -%}
+{%- if block.settings.image != blank or request.design_mode -%}
 <div
   class="image-block media{% if block.settings.image_mobile != blank %} image-block--has-mobile{% endif %}"
   style="--ratio: {{ ratio }}; --image-width: {{ block.settings.width }}%;"
@@ -34,6 +36,7 @@
     %}
   {%- endif -%}
 </div>
+{%- endif -%}
 
 {% stylesheet %}
   .image-block {

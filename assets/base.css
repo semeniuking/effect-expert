@@ -840,12 +840,15 @@ input:checked + .pill.is-unavailable {
 }
 
 /* Product card ------------------------------------------------------------ */
+/* Cards stretch to the row height (grid/flex stretch — no explicit height, which would disable it).
+   Title is clamped to 2 lines with a 2-line minimum and the price/button sit at the bottom,
+   so every card in a row lines up. */
 .product-card {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  height: 100%;
+  min-width: 0;
 }
 
 .product-card__media {
@@ -897,7 +900,16 @@ input:checked + .pill.is-unavailable {
   flex: 1;
 }
 
+.product-card__heading {
+  min-height: 40px;
+}
+
 .product-card__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
   color: var(--color-text);
   font-size: 14px;
   line-height: 20px;
@@ -916,13 +928,17 @@ input:checked + .pill.is-unavailable {
 }
 
 .product-card__meta {
+  overflow: hidden;
   color: var(--color-text-muted);
   font-size: 13px;
   line-height: 18px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .product-card .price {
-  margin-top: 2px;
+  margin-top: auto;
+  padding-top: 2px;
 }
 
 .product-card__action {
