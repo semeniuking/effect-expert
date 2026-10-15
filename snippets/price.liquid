@@ -26,22 +26,22 @@
 <div class="price{% if class %} {{ class }}{% endif %}" data-price>
   {%- if on_sale and is_range == false -%}
     <span class="visually-hidden">{{ 'products.price.sale_price' | t }}</span>
-    <span class="price__sale">{{ price | money }}</span>
+    <span class="price__sale">{{ price | money_without_trailing_zeros }}</span>
     <span class="visually-hidden">{{ 'products.price.regular_price' | t }}</span>
-    <s class="price__compare">{{ compare | money }}</s>
+    <s class="price__compare">{{ compare | money_without_trailing_zeros }}</s>
   {%- else -%}
     <span class="price__regular">
       {%- if is_range -%}
-        {%- assign price_money = price | money -%}
+        {%- assign price_money = price | money_without_trailing_zeros -%}
         {{ 'products.price.from_price' | t: price: price_money }}
       {%- else -%}
-        {{ price | money }}
+        {{ price | money_without_trailing_zeros }}
       {%- endif -%}
     </span>
   {%- endif -%}
   {%- if target.unit_price_measurement -%}
     <span class="price__unit">
-      {{- target.unit_price | money -}}
+      {{- target.unit_price | money_without_trailing_zeros -}}
       /
       {%- if target.unit_price_measurement.reference_value != 1 -%}
         {{- target.unit_price_measurement.reference_value -}}

@@ -27,7 +27,7 @@
       {%- if block.settings.show_free_shipping and threshold > 0 -%}
         <li data-free-shipping>
           {%- if remaining > 0 -%}
-            {%- assign remaining_money = remaining | money -%}
+            {%- assign remaining_money = remaining | money_without_trailing_zeros -%}
             {{ 'products.info_box.free_shipping_remaining' | t: threshold: threshold_money, remaining: remaining_money }}
           {%- else -%}
             {{ 'products.info_box.free_shipping_reached' | t }}
@@ -35,7 +35,7 @@
         </li>
       {%- endif -%}
       {%- if block.settings.show_bonus and bonus > 0 -%}
-        {%- assign bonus_money = bonus | money -%}
+        {%- assign bonus_money = bonus | money_without_trailing_zeros -%}
         <li>{{ 'products.info_box.bonus' | t: amount: bonus_money }}</li>
       {%- endif -%}
     </ul>

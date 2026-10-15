@@ -152,9 +152,9 @@
 
         <div class="gift-card__balance">
           <span class="text-sm text-muted">{{ 'gift_card.balance' | t }}</span>
-          <span class="gift-card__amount">{{ gift_card.balance | money }}</span>
+          <span class="gift-card__amount">{{ gift_card.balance | money_without_trailing_zeros }}</span>
           {%- if gift_card.balance != gift_card.initial_value -%}
-            {%- assign initial = gift_card.initial_value | money -%}
+            {%- assign initial = gift_card.initial_value | money_without_trailing_zeros -%}
             <span class="text-sm text-muted">{{ 'gift_card.initial_value' | t: value: initial }}</span>
           {%- endif -%}
           {%- if gift_card.expired -%}

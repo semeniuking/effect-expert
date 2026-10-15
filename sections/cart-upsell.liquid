@@ -20,10 +20,10 @@
             <a class="cart-upsell__title" href="{{ product.url }}">{{ product.title | escape }}</a>
             <span class="cart-upsell__price">
               {%- if product.price_varies -%}
-                {%- assign min_price = product.price_min | money -%}
+                {%- assign min_price = product.price_min | money_without_trailing_zeros -%}
                 {{- 'products.price.from_price' | t: price: min_price -}}
               {%- else -%}
-                {{- variant.price | money -}}
+                {{- variant.price | money_without_trailing_zeros -}}
               {%- endif -%}
             </span>
           </div>

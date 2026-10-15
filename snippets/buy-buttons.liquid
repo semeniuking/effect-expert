@@ -91,7 +91,7 @@
           {%- else -%}
             <span>{{ 'products.add_to_cart' | t }}</span>
             {%- if show_total != false -%}
-              <span class="buy-buttons__total">· <span data-total>{{ variant.price | times: qty_min | money }}</span></span>
+              <span class="buy-buttons__total">· <span data-total>{{ variant.price | times: qty_min | money_without_trailing_zeros }}</span></span>
             {%- endif -%}
           {%- endif -%}
         </button>

@@ -661,20 +661,25 @@ a:hover {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-width: 52px;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--color-line-strong);
+  min-width: 48px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--color-line);
   border-radius: var(--radius-button);
   background: var(--color-bg);
   color: var(--color-text);
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1;
   font-weight: var(--font-body-weight-bold);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
   transition:
     border-color var(--duration) var(--ease),
-    background-color var(--duration) var(--ease);
+    background-color var(--duration) var(--ease),
+    color var(--duration) var(--ease);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .pill:hover {
@@ -694,22 +699,38 @@ input:focus-visible + .pill {
   outline-offset: 2px;
 }
 
+/* Not available with the current selection: still selectable, but quiet. */
 .pill.is-unavailable,
 input:disabled + .pill,
 .is-unavailable + .pill {
   color: var(--color-text-muted);
-  background-image: linear-gradient(
-    to top right,
-    transparent calc(50% - 0.5px),
-    var(--color-line-strong) 50%,
-    transparent calc(50% + 0.5px)
-  );
+  border-style: dashed;
+  border-color: var(--color-line);
+  background: var(--color-surface);
+}
+
+.pill.is-unavailable:hover {
+  border-color: var(--color-line-strong);
+}
+
+input:checked + .pill.is-unavailable {
+  background: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+  border-style: solid;
+  color: var(--color-bg);
 }
 
 .pill--sm {
   min-width: 44px;
-  min-height: 40px;
+  min-height: 36px;
+  padding: 0 12px;
   font-size: 13px;
+}
+
+@media (pointer: coarse) {
+  .pill {
+    min-height: 44px;
+  }
 }
 
 .chip {

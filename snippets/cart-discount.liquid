@@ -74,7 +74,7 @@
                 </button>
               </span>
               {%- if application.total_allocated_amount > 0 -%}
-                <span class="cart-discount__amount">−{{ application.total_allocated_amount | money }}</span>
+                <span class="cart-discount__amount">−{{ application.total_allocated_amount | money_without_trailing_zeros }}</span>
               {%- endif -%}
             </li>
           {%- endif -%}

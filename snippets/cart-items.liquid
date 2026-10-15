@@ -37,11 +37,11 @@
         <div class="cart-item__price price">
           {%- if on_sale -%}
             <span class="visually-hidden">{{ 'products.price.sale_price' | t }}</span>
-            <span class="price__sale">{{ item.final_line_price | money }}</span>
+            <span class="price__sale">{{ item.final_line_price | money_without_trailing_zeros }}</span>
             <span class="visually-hidden">{{ 'products.price.regular_price' | t }}</span>
-            <s class="price__compare">{{ item.original_line_price | money }}</s>
+            <s class="price__compare">{{ item.original_line_price | money_without_trailing_zeros }}</s>
           {%- else -%}
-            <span>{{ item.final_line_price | money }}</span>
+            <span>{{ item.final_line_price | money_without_trailing_zeros }}</span>
           {%- endif -%}
         </div>
 
@@ -74,13 +74,13 @@
           {%- endif -%}
 
           {%- if item.quantity > 1 -%}
-            {%- assign each_price = item.final_price | money -%}
+            {%- assign each_price = item.final_price | money_without_trailing_zeros -%}
             <p>{{ 'cart.item.each' | t: price: each_price }}</p>
           {%- endif -%}
 
           {%- if item.unit_price_measurement -%}
             <p>
-              {{- item.unit_price | money -}}
+              {{- item.unit_price | money_without_trailing_zeros -}}
               /
               {%- if item.unit_price_measurement.reference_value != 1 -%}
                 {{- item.unit_price_measurement.reference_value -}}
@@ -94,7 +94,7 @@
               {%- for allocation in item.line_level_discount_allocations -%}
                 <li>
                   {%- render 'icon', name: 'gift', size: 14 -%}
-                  {{ allocation.discount_application.title | escape }} (−{{ allocation.amount | money }})
+                  {{ allocation.discount_application.title | escape }} (−{{ allocation.amount | money_without_trailing_zeros }})
                 </li>
               {%- endfor -%}
             </ul>

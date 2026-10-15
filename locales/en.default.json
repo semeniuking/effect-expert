@@ -219,7 +219,7 @@
       "on": "Share on {{ network }}"
     },
     "quick_add": {
-      "details": "View details"
+      "details": "Full product details"
     }
   },
   "ghost_hunt": {

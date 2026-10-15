@@ -25,7 +25,7 @@
     if percent > 100
       assign percent = 100
     endif
-    assign remaining_money = remaining | money
+    assign remaining_money = remaining | money_without_trailing_zeros
     assign value_now = cart.total_price
     if value_now > threshold
       assign value_now = threshold

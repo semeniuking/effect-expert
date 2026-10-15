@@ -48,6 +48,8 @@ class QuickAddDialog extends HTMLElement {
       const section = doc.querySelector('.shopify-section') || doc.body;
       this.render(section);
       this.dialog?.showModal();
+      // Focus the content (not the close button) so no focus ring flashes on open.
+      this.content?.focus({ preventScroll: true });
     } catch (error) {
       if (/** @type {Error} */ (error).name === 'AbortError') return;
       location.href = href;

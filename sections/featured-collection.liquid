@@ -44,7 +44,7 @@
               <h3 class="product-card__heading text-sm">
                 <span class="product-card__title">{{ 'sections.featured_collection.placeholder_title' | t }}</span>
               </h3>
-              <span class="price">{{ 46000 | money }}</span>
+              <span class="price">{{ 46000 | money_without_trailing_zeros }}</span>
             </div>
           </article>
         {%- endfor -%}

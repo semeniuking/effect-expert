@@ -2,98 +2,220 @@
   Compact product UI for the quick-add dialog. Only rendered through the Section Rendering API
   (`/products/<handle>?section_id=quick-add`, see assets/quick-add.js), so it has no presets.
   Reuses the same snippets as the product page blocks: price, product-inventory, variant-picker, buy-buttons.
+
+  Layout: mobile = bottom sheet (thumbnail + title header, scrolling options, sticky add bar);
+  desktop = image on the left, the same column on the right.
 {%- endcomment -%}
 {%- liquid
   assign variant = product.selected_or_first_available_variant
   assign media_image = variant.featured_media.preview_image | default: product.featured_media.preview_image
+  assign eyebrow = product.metafields.custom.eyebrow.value | default: product.type
 -%}
 <div class="quick-add-product color-{{ section.settings.color_scheme }}">
-  <div id="QuickAddMedia" class="quick-add-product__media media" data-variant-update>
-    {% render 'image',
-      image: media_image,
-      sizes: '(min-width: 750px) 420px, calc(100vw - 32px)',
-      widths: '360, 540, 720, 840',
-      placeholder: 'product-1'
-    %}
+  <div id="QuickAddMedia" class="quick-add-product__media" data-variant-update>
+    <div class="media quick-add-product__image">
+      {% render 'image',
+        image: media_image,
+        sizes: '(min-width: 750px) 420px, 72px',
+        widths: '144, 360, 540, 720, 840',
+        placeholder: 'product-1'
+      %}
+    </div>
   </div>
-  <div class="quick-add-product__info">
-    <div class="quick-add-product__head">
-      <h2 id="QuickAddTitle" class="quick-add-product__title">
-        <a class="link-reset" href="{{ product.url }}">{{ product.title | escape }}</a>
-      </h2>
-      <div id="QuickAddPrice" data-variant-update>
-        {% render 'price', product: product, variant: variant %}
+
+  <div class="quick-add-product__main">
+    <header class="quick-add-product__head">
+      <div id="QuickAddThumb" class="media quick-add-product__thumb" data-variant-update aria-hidden="true">
+        {% render 'image', image: media_image, sizes: '72px', widths: '144, 216', alt: '', placeholder: 'product-1' %}
       </div>
-      {% render 'product-inventory', product: product, id: 'QuickAddInventory' %}
+      <div class="quick-add-product__titles">
+        {%- if eyebrow != blank -%}
+          <p class="eyebrow text-muted quick-add-product__eyebrow">{{ eyebrow | escape }}</p>
+        {%- endif -%}
+        <h2 id="QuickAddTitle" class="quick-add-product__title">
+          <a class="link-reset" href="{{ product.url }}">{{ product.title | escape }}</a>
+        </h2>
+        <div class="quick-add-product__meta">
+          <div id="QuickAddPrice" data-variant-update>
+            {% render 'price', product: product, variant: variant %}
+          </div>
+          {% render 'product-inventory', product: product, id: 'QuickAddInventory' %}
+        </div>
+      </div>
+    </header>
+
+    <div class="quick-add-product__body">
+      {% render 'variant-picker', product: product, section_id: section.id, uid: 'quick-add' %}
+      <a
+        id="QuickAddLink"
+        class="quick-add-product__link"
+        href="{{ variant.url | default: product.url }}"
+        data-variant-update
+      >
+        {{- 'products.quick_add.details' | t -}}
+        {%- render 'icon', name: 'arrow-right', size: 14 -%}
+      </a>
     </div>
 
-    {% render 'variant-picker', product: product, section_id: section.id, uid: 'quick-add' %}
-    {% render 'buy-buttons', product: product, uid: 'quick-add', show_total: false %}
-
-    <a
-      id="QuickAddLink"
-      class="link-arrow quick-add-product__link"
-      href="{{ variant.url | default: product.url }}"
-      data-variant-update
-    >
-      {{- 'products.quick_add.details' | t }} →</a
-    >
+    <div class="quick-add-product__footer">
+      {% render 'buy-buttons', product: product, uid: 'quick-add', show_total: true %}
+    </div>
   </div>
 </div>
 
 {% stylesheet %}
   .quick-add-product {
-    display: grid;
-    gap: 20px;
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    max-height: inherit;
     background: var(--color-bg);
+    color: var(--color-text);
   }
 
   .quick-add-product__media {
-    --ratio: 1 / 1;
-    max-width: 280px;
-    width: 100%;
+    display: none;
   }
 
-  .quick-add-product__info {
+  .quick-add-product__main {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    min-width: 0;
+    min-height: 0;
+    flex: 1;
   }
 
   .quick-add-product__head {
     display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 64px 18px 20px;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .quick-add-product__thumb {
+    --ratio: 1 / 1;
+    width: 72px;
+    flex: none;
+  }
+
+  .quick-add-product__titles {
+    display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding-right: 40px;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .quick-add-product__eyebrow {
+    font-size: 10px;
+    line-height: 14px;
   }
 
   .quick-add-product__title {
-    font-size: 20px;
-    line-height: 26px;
+    font-size: 16px;
+    line-height: 21px;
     font-weight: 700;
   }
 
+  .quick-add-product__title a:hover {
+    color: var(--color-accent);
+  }
+
+  .quick-add-product__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+  }
+
+  .quick-add-product__meta .price {
+    font-size: 16px;
+  }
+
+  .quick-add-product__meta .inventory {
+    margin: 0;
+    font-size: 13px;
+  }
+
+  .quick-add-product__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    flex: 1;
+  }
+
   .quick-add-product__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     align-self: flex-start;
+    min-height: 32px;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .quick-add-product__link:hover {
+    color: var(--color-text);
+  }
+
+  .quick-add-product__footer {
+    padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-line);
+    background: var(--color-bg);
+  }
+
+  .quick-add-product__footer .buy-buttons__add {
+    min-height: 48px;
   }
 
   @media (min-width: 750px) {
     .quick-add-product {
+      display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 32px;
-      padding: 32px;
+      height: min(640px, calc(100dvh - 64px));
     }
 
     .quick-add-product__media {
-      max-width: none;
-      align-self: start;
+      display: block;
+      background: var(--color-surface);
+    }
+
+    .quick-add-product__image {
+      --ratio: auto;
+      height: 100%;
+      border-radius: 0;
+    }
+
+    .quick-add-product__thumb {
+      display: none;
+    }
+
+    .quick-add-product__head {
+      padding: 32px 64px 20px 32px;
+    }
+
+    .quick-add-product__eyebrow {
+      font-size: 11px;
     }
 
     .quick-add-product__title {
-      font-size: 24px;
-      line-height: 30px;
+      font-size: 22px;
+      line-height: 28px;
+    }
+
+    .quick-add-product__meta .price {
+      font-size: 18px;
+    }
+
+    .quick-add-product__body {
+      padding: 24px 32px;
+    }
+
+    .quick-add-product__footer {
+      padding: 16px 32px 24px;
     }
   }
 {% endstylesheet %}

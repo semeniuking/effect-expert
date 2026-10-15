@@ -21,14 +21,14 @@
           {%- render 'icon', name: 'gift', size: 16 -%}
           {{- discount.title | escape -}}
         </span>
-        <span class="cart-summary__discount-value">−{{ discount.total_allocated_amount | money }}</span>
+        <span class="cart-summary__discount-value">−{{ discount.total_allocated_amount | money_without_trailing_zeros }}</span>
       </div>
     {%- endif -%}
   {%- endfor -%}
 
   <div class="cart-summary__total">
     <span>{{ 'cart.summary.total' | t }}</span>
-    <span class="cart-summary__total-price">{{ cart.total_price | money }}</span>
+    <span class="cart-summary__total-price">{{ cart.total_price | money_without_trailing_zeros }}</span>
   </div>
 
   <p class="cart-summary__note">

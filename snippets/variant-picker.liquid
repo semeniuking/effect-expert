@@ -65,7 +65,7 @@
           <legend class="variant-picker__legend">
             <span class="variant-picker__name">{{ option.name | escape }}</span>
             {%- if option.selected_value -%}
-              <span class="text-muted">: {{ option.selected_value | escape }}</span>
+              <span class="variant-picker__selected">{{ option.selected_value | escape }}</span>
             {%- endif -%}
           </legend>
           <div class="variant-picker__values">
@@ -117,7 +117,7 @@
   .variant-picker {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 22px;
   }
 
   .variant-picker__option {
@@ -131,9 +131,17 @@
   }
 
   .variant-picker__legend {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
     padding: 0 0 10px;
     font-size: 14px;
     line-height: 20px;
+  }
+
+  .variant-picker__selected {
+    color: var(--color-text-muted);
+    font-size: 14px;
   }
 
   .variant-picker__option > label.variant-picker__legend {
@@ -142,7 +150,7 @@
 
   .variant-picker__name {
     font-family: var(--font-display);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;

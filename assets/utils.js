@@ -79,7 +79,9 @@ export function formatMoney(cents, format) {
     const [int, dec] = n.toFixed(d).split('.');
     return int.replace(/\B(?=(\d{3})+(?!\d))/g, t) + (dec ? s + dec : '');
   };
-  return fmt.replace(/\{\{\s*(\w+)\s*\}\}/, (_, key) => {
+  // Like Liquid's money_without_trailing_zeros: "₴675.00" → "₴675", "₴675.50" stays.
+  const trim = (/** @type {string} */ s) => s.replace(/[.,]00$/, '');
+  return fmt.replace(/\{\{\s*(\w+)\s*\}\}/, (_, key) => trim((() => {
     switch (key) {
       case 'amount_no_decimals':
         return fixed(value, 0, ',', '.');
@@ -96,7 +98,7 @@ export function formatMoney(cents, format) {
       default:
         return fixed(value, 2, ',', '.');
     }
-  });
+  })()));
 }
 
 /**
