@@ -164,10 +164,7 @@
         ],
         "role": {
           "text": "text",
-          "background": {
-            "solid": "background",
-            "gradient": "background"
-          },
+          "background": "background",
           "links": "accent",
           "icons": "text",
           "primary_button": "button",
@@ -554,11 +551,6 @@
         "id": "integration_ai_assistant",
         "label": "t:settings_schema.integrations.settings.integration_ai_assistant.label",
         "default": true
-      },
-      {
-        "type": "liquid",
-        "id": "custom_head_code",
-        "label": "t:settings_schema.integrations.settings.custom_head_code.label"
       }
     ]
   }
