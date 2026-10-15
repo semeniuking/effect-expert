@@ -1,0 +1,100 @@
+{%- doc -%}
+  Sort control built from `results.sort_options`.
+
+  The inline variant is the real `sort_by` field: it joins the facets form through the `form` attribute, so it also
+  works without JS. The proxy variant is the compact "Сортування" button of the mobile sticky bar: it has no name and
+  facets.js copies its value to the real select.
+
+  @param {object} results - the collection or search object
+  @param {string} id - id for the <select>
+  @param {string} [form_id] - id of the facets form (inline variant)
+  @param {boolean} [proxy] - render the mobile-bar variant
+
+  @example
+  {% render 'facets-sort', results: collection, id: 'SortBy', form_id: 'FacetsForm' %}
+{%- enddoc -%}
+{%- assign current_sort = results.sort_by | default: results.default_sort_by -%}
+{%- capture options -%}
+  {%- for option in results.sort_options -%}
+    <option
+      value="{{ option.value | escape }}"
+      {% if option.value == current_sort %}
+        selected
+      {% endif %}
+    >
+      {{- option.name | escape -}}
+    </option>
+  {%- endfor -%}
+{%- endcapture -%}
+{%- if proxy -%}
+  <label class="facets-sort-proxy" for="{{ id }}">
+    <span>{{ 'facets.sort_mobile' | t }}</span>
+    {% render 'icon', name: 'chevron-down', size: 14 %}
+    <select id="{{ id }}" class="facets-sort-proxy__select" data-sort-proxy>
+      {{- options -}}
+    </select>
+  </label>
+{%- else -%}
+  <div class="facets-sort">
+    <label class="facets-sort__label" for="{{ id }}">{{ 'facets.sort_label' | t }}</label>
+    <select
+      id="{{ id }}"
+      class="select facets-sort__select"
+      name="sort_by"
+      {% if form_id %}
+        form="{{ form_id }}"
+      {% endif %}
+    >
+      {{- options -}}
+    </select>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .facets-sort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--color-text-muted);
+  }
+
+  .facets-sort__label {
+    white-space: nowrap;
+  }
+
+  .facets-sort__select {
+    width: auto;
+    min-height: 44px;
+    padding-left: 12px;
+    font-size: 14px;
+  }
+
+  .facets-sort-proxy {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 52px;
+    font-size: 13px;
+    font-weight: var(--font-body-weight-bold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .facets-sort-proxy__select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .facets-sort-proxy:has(:focus-visible) {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+{% endstylesheet %}

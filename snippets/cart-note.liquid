@@ -1,0 +1,78 @@
+{%- doc -%}
+  Collapsible order note ("Коментар до замовлення"). The textarea belongs to the `cart-form` form, so it is also sent on checkout;
+  with JS (assets/cart-note.js) it is saved with `updateCart({ note })` while typing.
+  Renders nothing when `settings.cart_show_note` is off.
+
+  @param {string} [context] - 'drawer' or 'page', used for ids
+
+  @example
+  {% render 'cart-note', context: 'drawer' %}
+{%- enddoc -%}
+{%- if settings.cart_show_note -%}
+  {%- assign ctx = context | default: 'drawer' -%}
+  <cart-note class="cart-note">
+    <details class="cart-note__details" id="CartNote-{{ ctx }}" {% if cart.note != blank %}open{% endif %}>
+      <summary class="cart-note__summary">
+        {{- 'cart.note.label' | t -}}
+        <span class="icon-plus-minus" aria-hidden="true"></span>
+      </summary>
+      <div class="cart-note__content">
+        <label class="visually-hidden" for="CartNoteInput-{{ ctx }}">{{ 'cart.note.label' | t }}</label>
+        <textarea
+          class="textarea cart-note__input"
+          id="CartNoteInput-{{ ctx }}"
+          name="note"
+          form="cart-form"
+          rows="3"
+          maxlength="1000"
+          placeholder="{{ 'cart.note.placeholder' | t }}"
+          data-preserve-value
+        >{{ cart.note }}</textarea>
+      </div>
+    </details>
+  </cart-note>
+{%- endif -%}
+
+{% stylesheet %}
+  .cart-note {
+    display: block;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .cart-note__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 52px;
+    font-size: 14px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .cart-note__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .cart-note__summary .icon-plus-minus {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    flex: none;
+  }
+
+  .cart-note__content {
+    padding-bottom: 16px;
+  }
+
+  .cart-note__input {
+    min-height: 88px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 749px) {
+    .cart-note__input {
+      font-size: 16px;
+    }
+  }
+{% endstylesheet %}

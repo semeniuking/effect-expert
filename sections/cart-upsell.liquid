@@ -1,0 +1,69 @@
+{%- comment -%}
+  Rendered only through the product recommendations endpoint
+  (routes.product_recommendations_url?section_id=cart-upsell&product_id=…&intent=complementary).
+  assets/cart-upsell.js takes the rows from [data-upsell-list] and drops products that are already in the cart.
+{%- endcomment -%}
+<div class="cart-upsell__list" data-upsell-list>
+  {%- if recommendations.performed? and recommendations.products_count > 0 -%}
+    {%- for product in recommendations.products -%}
+      {%- if product.available -%}
+        {%- assign variant = product.selected_or_first_available_variant -%}
+        <div class="cart-upsell__item" data-product-id="{{ product.id }}">
+          <a class="cart-upsell__media media" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+            {%- if product.featured_media -%}
+              {{- product.featured_media.preview_image | image_url: width: 112 | image_tag: widths: '56, 112', sizes: '56px', loading: 'lazy', alt: '' -}}
+            {%- else -%}
+              {{- 'product-1' | placeholder_svg_tag: 'placeholder-svg' -}}
+            {%- endif -%}
+          </a>
+          <div class="cart-upsell__info">
+            <a class="cart-upsell__title" href="{{ product.url }}">{{ product.title | escape }}</a>
+            <span class="cart-upsell__price">
+              {%- if product.price_varies -%}
+                {%- assign min_price = product.price_min | money -%}
+                {{- 'products.price.from_price' | t: price: min_price -}}
+              {%- else -%}
+                {{- variant.price | money -}}
+              {%- endif -%}
+            </span>
+          </div>
+          <div class="cart-upsell__action">
+            {%- if product.has_only_default_variant or product.variants.size == 1 -%}
+              <product-form>
+                {%- form 'product', product, novalidate: 'novalidate' -%}
+                  <input type="hidden" name="id" value="{{ variant.id }}">
+                  <input type="hidden" name="quantity" value="1">
+                  <button
+                    type="submit"
+                    name="add"
+                    class="button button--secondary button--sm"
+                    aria-label="{{ 'cart.upsell.add_title' | t: title: product.title | escape }}"
+                  >
+                    {{- 'products.add_short' | t -}}
+                  </button>
+                {%- endform -%}
+              </product-form>
+            {%- else -%}
+              <button
+                type="button"
+                class="button button--secondary button--sm"
+                data-quick-add="{{ product.url }}"
+                aria-haspopup="dialog"
+                aria-label="{{ 'cart.upsell.add_title' | t: title: product.title | escape }}"
+              >
+                {{- 'products.choose_options' | t -}}
+              </button>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.cart_upsell.name",
+  "settings": []
+}
+{% endschema %}

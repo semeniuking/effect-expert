@@ -1,0 +1,73 @@
+{%- doc -%}
+  Results pagination: "Показано X з Y", a "Показати ще" link to the next page (facets.js appends the next page's
+  products in place) and numbered page links. Render inside `{% paginate %}`.
+
+  @param {object} paginate - the paginate object
+
+  @example
+  {% render 'results-pagination', paginate: paginate %}
+{%- enddoc -%}
+{%- if paginate.items > 0 -%}
+  {%- liquid
+    assign shown = paginate.current_page | times: paginate.page_size
+    if shown > paginate.items
+      assign shown = paginate.items
+    endif
+    assign current_page_title = paginate.current_page | append: ''
+  -%}
+  <nav class="pagination results-pagination" aria-label="{{ 'pagination.label' | t }}" data-facets-pagination>
+    <p class="results-pagination__status">{{ 'pagination.showing' | t: shown: shown, total: paginate.items }}</p>
+
+    {%- if paginate.next.is_link -%}
+      <a class="button button--secondary results-pagination__more" href="{{ paginate.next.url }}" data-load-more>
+        {{- 'pagination.load_more' | t -}}
+      </a>
+    {%- endif -%}
+
+    {%- if paginate.pages > 1 -%}
+      <ul class="pagination__list" role="list">
+        {%- if paginate.previous.is_link -%}
+          <li>
+            <a class="pagination__item" href="{{ paginate.previous.url }}" aria-label="{{ 'pagination.previous' | t }}">
+              {% render 'icon', name: 'chevron-left', size: 16 %}
+            </a>
+          </li>
+        {%- endif -%}
+        {%- for part in paginate.parts -%}
+          <li>
+            {%- if part.is_link -%}
+              <a class="pagination__item" href="{{ part.url }}" aria-label="{{ 'general.page' | t: page: part.title }}">
+                {{- part.title -}}
+              </a>
+            {%- elsif part.title == current_page_title -%}
+              <span class="pagination__item" aria-current="page">{{ part.title }}</span>
+            {%- else -%}
+              <span class="pagination__item">{{ part.title }}</span>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+        {%- if paginate.next.is_link -%}
+          <li>
+            <a class="pagination__item" href="{{ paginate.next.url }}" aria-label="{{ 'pagination.next' | t }}">
+              {% render 'icon', name: 'chevron-right', size: 16 %}
+            </a>
+          </li>
+        {%- endif -%}
+      </ul>
+    {%- endif -%}
+  </nav>
+{%- endif -%}
+
+{% stylesheet %}
+  .results-pagination {
+    gap: 16px;
+  }
+
+  .results-pagination__more {
+    min-width: 240px;
+  }
+
+  .results-pagination__status {
+    order: -1;
+  }
+{% endstylesheet %}

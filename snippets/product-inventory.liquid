@@ -1,0 +1,65 @@
+{%- doc -%}
+  Stock line with a status dot: in stock (plus an optional note), low stock with the count, or sold out.
+  Shared by the product-inventory block and the quick-add section. It carries `data-variant-update`, so
+  assets/variant-picker.js swaps it when the variant changes.
+
+  @param {product} product - the product
+  @param {string} id - unique element id, stable across Section Rendering requests
+  @param {string} [note] - text after "In stock", e.g. "відправимо сьогодні"
+  @param {number} [threshold] - show the low-stock count at or below this quantity, default 5
+
+  @example
+  {% render 'product-inventory', product: product, id: 'Inventory-quick-add', note: 'відправимо сьогодні' %}
+{%- enddoc -%}
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign low = threshold | default: 5
+  assign status = 'in'
+  if variant == blank
+    assign status = 'out'
+    assign label = 'products.unavailable' | t
+  elsif variant.available == false
+    assign status = 'out'
+    assign label = 'products.sold_out' | t
+  elsif variant.inventory_management == 'shopify' and variant.inventory_policy == 'deny' and variant.inventory_quantity > 0 and variant.inventory_quantity <= low
+    assign status = 'low'
+    assign label = 'products.inventory.low_stock' | t: count: variant.inventory_quantity
+  else
+    assign label = 'products.inventory.in_stock' | t
+    if note != blank
+      assign label = label | append: ' · ' | append: note
+    endif
+  endif
+-%}
+<p id="{{ id }}" class="inventory inventory--{{ status }}" data-variant-update>
+  <span class="inventory__dot" aria-hidden="true"></span>
+  {{- label | escape -}}
+</p>
+
+{% stylesheet %}
+  .inventory {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-success);
+  }
+
+  .inventory__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+
+  .inventory--low {
+    color: var(--color-sale);
+  }
+
+  .inventory--out {
+    color: var(--color-text-muted);
+  }
+{% endstylesheet %}

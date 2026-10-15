@@ -1,0 +1,62 @@
+{%- doc -%}
+  One Instagram post tile (4:5). Links to the post, or to the profile set on the section when no link is given.
+{%- enddoc -%}
+{%- liquid
+  assign post_link = block.settings.link | default: section.settings.link_url
+  assign post_alt = block.settings.alt | default: block.settings.image.alt
+  assign post_fallback = 'sections.instagram.post' | t
+  assign link_label = post_alt | default: post_fallback
+  assign cols = section.settings.columns | default: 5
+  assign desktop_size = 100 | divided_by: cols
+  assign sizes = '(min-width: 1100px) ' | append: desktop_size | append: 'vw, (min-width: 750px) 25vw, 132px'
+-%}
+<div class="instagram-post media" {{ block.shopify_attributes }}>
+  {% render 'image',
+    image: block.settings.image,
+    sizes: sizes,
+    widths: '140, 280, 360, 480, 640',
+    alt: post_alt,
+    placeholder: 'lifestyle-1'
+  %}
+  {%- if post_link != blank -%}
+    <a class="full-width-link" href="{{ post_link }}" aria-label="{{ link_label | escape }}"></a>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .instagram-post {
+    --ratio: 4 / 5;
+    border-radius: var(--radius-media);
+  }
+
+  .instagram-post img {
+    transition: transform 0.25s var(--ease);
+  }
+
+  .instagram-post:hover img {
+    transform: scale(var(--hover-zoom));
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.instagram_post.name",
+  "tag": null,
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "t:shared.image.label" },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:blocks.instagram_post.settings.link.label",
+      "info": "t:blocks.instagram_post.settings.link.info"
+    },
+    {
+      "type": "text",
+      "id": "alt",
+      "label": "t:blocks.instagram_post.settings.alt.label",
+      "info": "t:blocks.instagram_post.settings.alt.info"
+    }
+  ],
+  "presets": [{ "name": "t:blocks.instagram_post.name" }]
+}
+{% endschema %}

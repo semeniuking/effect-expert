@@ -1,0 +1,301 @@
+{%- doc -%}
+  Filter accordions for Search & Discovery filters (`collection.filters` or `search.filters`).
+  Render inside the facets <form> (see `facets-drawer`). Each filter is a <details class="accordion">.
+
+  - Availability: checkboxes with counts
+  - Swatch filters (`presentation == 'swatch'`): checkbox + color dot + label
+  - Option-like lists whose values are all short (≤ 4 chars, e.g. Вигин C / CC, Товщина 0.07): pill buttons
+  - Other lists and booleans: checkboxes
+  - Price range: two number inputs with the currency symbol
+
+  @param {object} results - the collection or search object
+  @param {string} id_prefix - unique prefix for input ids (use the section id)
+
+  @example
+  {% render 'facets', results: collection, id_prefix: section.id %}
+{%- enddoc -%}
+{%- assign currency_symbol = cart.currency.symbol | default: '₴' -%}
+<div class="facets__list" data-facets-list>
+  {%- for filter in results.filters -%}
+    {%- liquid
+      assign filter_index = forloop.index
+      assign active_count = filter.active_values.size
+      if filter.type == 'price_range'
+        assign active_count = 0
+        if filter.min_value.value != null or filter.max_value.value != null
+          assign active_count = 1
+        endif
+      endif
+
+      assign is_open = false
+      if filter_index <= 3 or active_count > 0 or filter.type == 'price_range'
+        assign is_open = true
+      endif
+
+      assign is_availability = false
+      if filter.param_name == 'filter.v.availability'
+        assign is_availability = true
+      endif
+
+      assign use_pills = false
+      if filter.type == 'list' and filter.presentation != 'swatch' and is_availability == false
+        assign use_pills = true
+        for value in filter.values
+          if value.label.size > 4
+            assign use_pills = false
+            break
+          endif
+        endfor
+      endif
+    -%}
+    <details
+      class="accordion facets__filter"
+      data-filter="{{ filter.param_name | escape }}"
+      {% if is_open %}
+        open
+      {% endif %}
+    >
+      <summary class="accordion__summary facets__summary">
+        <span>
+          {{- filter.label | escape -}}
+          {%- if active_count > 0 %} <span class="facets__summary-count">({{ active_count }})</span>{% endif -%}
+        </span>
+        <span class="icon-plus-minus" aria-hidden="true"></span>
+      </summary>
+
+      <div class="facets__content">
+        {%- case filter.type -%}
+          {%- when 'price_range' -%}
+            {%- liquid
+              assign range_max = filter.range_max | divided_by: 100.0 | ceil
+              assign min_value = ''
+              assign max_value = ''
+              if filter.min_value.value != null
+                assign min_value = filter.min_value.value | divided_by: 100
+              endif
+              if filter.max_value.value != null
+                assign max_value = filter.max_value.value | divided_by: 100
+              endif
+            -%}
+            <fieldset class="facets__price">
+              <legend class="visually-hidden">{{ filter.label | escape }}</legend>
+              <label class="facets__price-field" for="{{ id_prefix }}-price-min">
+                <span aria-hidden="true">{{ currency_symbol }}</span>
+                <span class="visually-hidden">{{ 'facets.price_from' | t }}</span>
+                <input
+                  class="facets__price-input"
+                  id="{{ id_prefix }}-price-min"
+                  type="number"
+                  name="{{ filter.min_value.param_name }}"
+                  value="{{ min_value }}"
+                  placeholder="0"
+                  min="0"
+                  max="{{ range_max }}"
+                  step="1"
+                  inputmode="numeric"
+                  data-price-input
+                >
+              </label>
+              <span class="facets__price-sep" aria-hidden="true">—</span>
+              <label class="facets__price-field" for="{{ id_prefix }}-price-max">
+                <span aria-hidden="true">{{ currency_symbol }}</span>
+                <span class="visually-hidden">{{ 'facets.price_to' | t }}</span>
+                <input
+                  class="facets__price-input"
+                  id="{{ id_prefix }}-price-max"
+                  type="number"
+                  name="{{ filter.max_value.param_name }}"
+                  value="{{ max_value }}"
+                  placeholder="{{ range_max }}"
+                  min="0"
+                  max="{{ range_max }}"
+                  step="1"
+                  inputmode="numeric"
+                  data-price-input
+                >
+              </label>
+            </fieldset>
+
+          {%- else -%}
+            <fieldset class="facets__values{% if use_pills %} facets__values--pills{% endif %}">
+              <legend class="visually-hidden">{{ filter.label | escape }}</legend>
+              {%- for value in filter.values -%}
+                {%- liquid
+                  assign input_id = id_prefix | append: '-f' | append: filter_index | append: '-' | append: forloop.index
+                  assign disabled = false
+                  if value.count == 0 and value.active == false
+                    assign disabled = true
+                  endif
+                -%}
+                {%- if use_pills -%}
+                  <input
+                    class="visually-hidden"
+                    type="checkbox"
+                    id="{{ input_id }}"
+                    name="{{ value.param_name }}"
+                    value="{{ value.value }}"
+                    {% if value.active %}
+                      checked
+                    {% endif %}
+                    {% if disabled %}
+                      disabled
+                    {% endif %}
+                  >
+                  <label class="pill pill--sm" for="{{ input_id }}">{{ value.label | escape }}</label>
+                {%- else -%}
+                  <label class="checkbox facets__checkbox{% if disabled %} is-disabled{% endif %}" for="{{ input_id }}">
+                    <input
+                      type="checkbox"
+                      id="{{ input_id }}"
+                      name="{{ value.param_name }}"
+                      value="{{ value.value }}"
+                      {% if value.active %}
+                        checked
+                      {% endif %}
+                      {% if disabled %}
+                        disabled
+                      {% endif %}
+                    >
+                    {%- if filter.presentation == 'swatch' -%}
+                      {%- liquid
+                        assign swatch_bg = 'var(--color-surface-alt)'
+                        if value.swatch.image
+                          assign swatch_url = value.swatch.image | image_url: width: 40
+                          assign swatch_bg = 'center / cover url(' | append: swatch_url | append: ')'
+                        elsif value.swatch.color
+                          assign swatch_bg = 'rgb(' | append: value.swatch.color.rgb | append: ')'
+                        endif
+                      -%}
+                      <span class="facets__swatch" style="--swatch: {{ swatch_bg }}" aria-hidden="true"></span>
+                    {%- endif -%}
+                    <span>{{ value.label | escape }}</span>
+                    {%- if is_availability or filter.type == 'boolean' -%}
+                      <span class="text-muted">({{ value.count }})</span>
+                    {%- endif -%}
+                  </label>
+                {%- endif -%}
+              {%- endfor -%}
+            </fieldset>
+        {%- endcase -%}
+      </div>
+    </details>
+  {%- endfor -%}
+</div>
+
+{% stylesheet %}
+  .facets__list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .facets__summary {
+    min-height: 52px;
+  }
+
+  .facets__summary-count {
+    color: var(--color-text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .facets__content {
+    padding-bottom: 16px;
+  }
+
+  .facets__values {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .facets__values--pills {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .facets__checkbox {
+    min-height: 40px;
+  }
+
+  .facets__checkbox.is-disabled {
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+  }
+
+  .facets__swatch {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--swatch);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+  }
+
+  .facets__price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 14px;
+  }
+
+  .facets__price-field {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 10px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-button);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    cursor: text;
+  }
+
+  .facets__price-field:hover {
+    border-color: var(--color-text);
+  }
+
+  .facets__price-field:has(:focus-visible) {
+    border-color: var(--color-text);
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .facets__price-input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text);
+    font-size: 16px;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .facets__price-input:focus {
+    outline: none;
+  }
+
+  .facets__price-input::-webkit-outer-spin-button,
+  .facets__price-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .facets__price-sep {
+    color: var(--color-text-muted);
+  }
+{% endstylesheet %}

@@ -1,0 +1,72 @@
+{%- doc -%}
+  Search dialog opened from the header: a top panel on desktop, full screen on mobile.
+  The form posts to /search, so it works without JS. With predictive search enabled, assets/predictive-search.js
+  fetches suggestions from sections/predictive-search.liquid. Popular searches (Theme settings → Search) show as chips
+  while the field is empty. Render it once, from the header section (its styles live in sections/header.liquid).
+
+  @example
+  {% render 'search-dialog' %}
+{%- enddoc -%}
+{%- assign popular = settings.popular_searches | split: ',' -%}
+<dialog id="SearchDialog" class="search-dialog" aria-labelledby="SearchDialogLabel">
+  <predictive-search class="search-dialog__inner">
+    <form action="{{ routes.search_url }}" method="get" role="search" class="search-dialog__form">
+      <div class="search-dialog__bar page-width">
+        <label id="SearchDialogLabel" for="SearchDialogInput" class="visually-hidden">{{ 'predictive_search.title' | t }}</label>
+        <span class="search-dialog__icon">{% render 'icon', name: 'search' %}</span>
+        <input
+          id="SearchDialogInput"
+          class="search-dialog__input"
+          type="search"
+          name="q"
+          value="{{ search.terms | escape }}"
+          placeholder="{{ 'predictive_search.placeholder' | t }}"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          enterkeyhint="search"
+          {% if settings.predictive_search %}
+            aria-controls="PredictiveSearchResults" aria-describedby="PredictiveSearchStatus"
+          {% endif %}
+        >
+        <input type="hidden" name="options[prefix]" value="last">
+        <button type="button" class="search-dialog__cancel" data-search-close>
+          {{- 'predictive_search.cancel' | t -}}
+        </button>
+        <button
+          type="button"
+          class="icon-button search-dialog__close"
+          aria-label="{{ 'predictive_search.close' | t }}"
+          data-search-close
+        >
+          {%- render 'icon', name: 'close' -%}
+        </button>
+      </div>
+    </form>
+
+    <div class="search-dialog__body page-width">
+      {%- if popular.size > 0 -%}
+        <div class="search-dialog__popular" data-search-popular>
+          <p class="search-dialog__label">{{ 'predictive_search.popular' | t }}</p>
+          <ul class="search-dialog__chips" role="list">
+            {%- for term in popular -%}
+              {%- assign term = term | strip -%}
+              {%- if term != blank -%}
+                <li>
+                  <a class="chip" href="{{ routes.search_url }}?q={{ term | url_encode }}&options%5Bprefix%5D=last" data-result>
+                    {{- term | escape -}}
+                  </a>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+      {%- if settings.predictive_search -%}
+        <div id="PredictiveSearchResults" class="search-dialog__results" data-search-results hidden></div>
+        <p id="PredictiveSearchStatus" class="visually-hidden" role="status" data-search-status></p>
+      {%- endif -%}
+    </div>
+  </predictive-search>
+</dialog>
+

@@ -1,0 +1,97 @@
+{%- doc -%}
+  Active filter chips ("Brunette ×", "Вигин: C ×", "₴100–₴700 ×") and an "Очистити все" link.
+  Chips are real links (`url_to_remove`), enhanced by facets.js. The wrapper is always rendered (hidden when empty)
+  so it can be swapped after filtering.
+
+  @param {object} results - the collection or search object
+  @param {string} clear_url - URL with every filter removed
+
+  @example
+  {% render 'facets-active', results: collection, clear_url: collection.url %}
+{%- enddoc -%}
+{%- capture chips -%}
+  {%- for filter in results.filters -%}
+    {%- if filter.type == 'price_range' -%}
+      {%- if filter.min_value.value != null or filter.max_value.value != null -%}
+        {%- liquid
+          assign price_min = filter.min_value.value | default: 0 | money_without_trailing_zeros
+          assign price_max = filter.max_value.value | default: filter.range_max | money_without_trailing_zeros
+          assign chip_label = price_min | append: '–' | append: price_max
+        -%}
+        <a
+          class="chip facets-active__chip"
+          href="{{ filter.url_to_remove }}"
+          aria-label="{{ 'facets.remove_filter' | t: filter: chip_label }}"
+          data-facet-link
+        >
+          {{- chip_label -}}
+          {% render 'icon', name: 'close', size: 14 %}
+        </a>
+      {%- endif -%}
+    {%- else -%}
+      {%- liquid
+        assign show_filter_label = false
+        if filter.type == 'boolean'
+          assign show_filter_label = true
+        endif
+      -%}
+      {%- for value in filter.active_values -%}
+        {%- liquid
+          assign chip_label = value.label | escape
+          if show_filter_label or value.label.size <= 4
+            assign chip_label = filter.label | escape | append: ': ' | append: chip_label
+          endif
+        -%}
+        <a
+          class="chip facets-active__chip"
+          href="{{ value.url_to_remove }}"
+          aria-label="{{ 'facets.remove_filter' | t: filter: chip_label }}"
+          data-facet-link
+        >
+          {{- chip_label -}}
+          {% render 'icon', name: 'close', size: 14 %}
+        </a>
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+<div
+  class="facets-active"
+  role="group"
+  aria-label="{{ 'facets.active_filters' | t }}"
+  data-facets-active
+  {% if chips == blank %}
+    hidden
+  {% endif %}
+>
+  {{ chips }}
+  {%- if chips != blank -%}
+    <a class="facets-active__clear" href="{{ clear_url }}" data-facet-link>{{ 'facets.clear_all' | t }}</a>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .facets-active {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .facets-active__chip {
+    min-height: 36px;
+  }
+
+  .facets-active__chip .icon {
+    color: var(--color-text-muted);
+  }
+
+  .facets-active__clear {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 8px;
+    font-size: 13px;
+    color: var(--color-accent);
+  }
+{% endstylesheet %}

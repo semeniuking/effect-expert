@@ -1,0 +1,149 @@
+{%- doc -%}
+  Product form: quantity stepper and add-to-cart button with a live total (price × quantity), an error message
+  and an optional dynamic checkout button. The hidden variant id and the add button carry `data-variant-update`,
+  so assets/variant-picker.js swaps them on variant change while the quantity is kept.
+  Shared by the buy-buttons block and the quick-add section.
+
+  @param {product} product - the product
+  @param {string} uid - unique prefix for element ids; the form id is "ProductForm-" + uid
+  @param {boolean} [show_quantity] - show the quantity stepper, default true
+  @param {boolean} [show_total] - show the total in the button ("Додати в кошик · ₴ 460"), default true
+  @param {boolean} [show_payment_button] - show Shopify's dynamic checkout button
+  @param {boolean} [main] - marks the main product form (the sticky bar submits it and watches it)
+
+  @example
+  {% render 'buy-buttons', product: product, uid: 'quick-add' %}
+{%- enddoc -%}
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign form_id = 'ProductForm-' | append: uid
+  assign qty_min = variant.quantity_rule.min | default: 1
+  assign qty_step = variant.quantity_rule.increment | default: 1
+  assign qty_max = variant.quantity_rule.max
+-%}
+<buy-buttons class="buy-buttons">
+  <product-form
+    {% if main %}
+      data-main
+    {% endif %}
+  >
+    {%- form 'product', product, id: form_id, class: 'buy-buttons__form', novalidate: 'novalidate' -%}
+      <input
+        type="hidden"
+        name="id"
+        id="VariantId-{{ uid }}"
+        value="{{ variant.id }}"
+        data-variant-update
+        {% if variant == blank %}
+          disabled
+        {% endif %}
+      >
+      <div class="buy-buttons__row">
+        {%- if show_quantity != false -%}
+          <div class="quantity buy-buttons__quantity">
+            <button
+              type="button"
+              class="quantity__button"
+              data-step="-1"
+              aria-label="{{ 'products.quantity.decrease' | t }}"
+            >
+              {%- render 'icon', name: 'minus', size: 16 -%}
+            </button>
+            <input
+              class="quantity__input"
+              type="number"
+              name="quantity"
+              id="Quantity-{{ uid }}"
+              value="{{ qty_min }}"
+              min="{{ qty_min }}"
+              step="{{ qty_step }}"
+              {% if qty_max %}
+                max="{{ qty_max }}"
+              {% endif %}
+              inputmode="numeric"
+              aria-label="{{ 'products.quantity.label' | t }}"
+            >
+            <button
+              type="button"
+              class="quantity__button"
+              data-step="1"
+              aria-label="{{ 'products.quantity.increase' | t }}"
+            >
+              {%- render 'icon', name: 'plus', size: 16 -%}
+            </button>
+          </div>
+        {%- endif -%}
+        <button
+          type="submit"
+          name="add"
+          id="AddButton-{{ uid }}"
+          class="button button--lg buy-buttons__add"
+          data-variant-update
+          data-price="{{ variant.price | default: 0 }}"
+          {% if variant == blank or variant.available == false %}
+            disabled
+          {% endif %}
+        >
+          {%- if variant == blank -%}
+            {{ 'products.unavailable' | t }}
+          {%- elsif variant.available == false -%}
+            {{ 'products.sold_out' | t }}
+          {%- else -%}
+            <span>{{ 'products.add_to_cart' | t }}</span>
+            {%- if show_total != false -%}
+              <span class="buy-buttons__total">· <span data-total>{{ variant.price | times: qty_min | money }}</span></span>
+            {%- endif -%}
+          {%- endif -%}
+        </button>
+      </div>
+      <p class="form-message form-message--error" data-form-error role="alert" hidden></p>
+      {%- if show_payment_button -%}
+        <div class="buy-buttons__payment">{{ form | payment_button }}</div>
+      {%- endif -%}
+    {%- endform -%}
+  </product-form>
+</buy-buttons>
+<script type="module" src="{{ 'product-form.js' | asset_url }}"></script>
+<script type="module" src="{{ 'buy-buttons.js' | asset_url }}"></script>
+
+{% stylesheet %}
+  .buy-buttons__form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .buy-buttons__row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .buy-buttons__quantity .quantity__button,
+  .buy-buttons__quantity .quantity__input {
+    height: 50px;
+  }
+
+  .buy-buttons__add {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .buy-buttons__total {
+    white-space: nowrap;
+  }
+
+  .buy-buttons__payment .shopify-payment-button__button {
+    min-height: 52px;
+    border-radius: var(--radius-button);
+  }
+
+  @media (max-width: 749px) {
+    .buy-buttons__row {
+      gap: 10px;
+    }
+
+    .buy-buttons__total {
+      display: none;
+    }
+  }
+{% endstylesheet %}

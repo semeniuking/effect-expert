@@ -1,0 +1,164 @@
+{%- comment -%}
+  Product page: media gallery (static block) on the left, a sticky info column of product blocks on the right.
+  Blocks read `closest.product`. Variant changes re-render this section with `option_values` and swap every
+  `[data-variant-update]` element (see assets/variant-picker.js). Also renders the sticky add-to-cart bar.
+{%- endcomment -%}
+<div
+  class="section color-{{ section.settings.color_scheme }} main-product"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px; --gallery: {{ section.settings.gallery_width }}%;"
+>
+  <div class="section__inner main-product__grid">
+    <div class="main-product__media">
+      {% content_for 'block', type: '_product-media-gallery', id: 'media-gallery' %}
+    </div>
+    <div class="main-product__info{% if section.settings.sticky_info %} main-product__info--sticky{% endif %}">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+
+  {%- if section.settings.sticky_atc != 'none' -%}
+    {%- assign sticky_desktop = false -%}
+    {%- if section.settings.sticky_atc == 'all' -%}
+      {%- assign sticky_desktop = true -%}
+    {%- endif -%}
+    {% render 'sticky-atc', product: product, uid: section.id, desktop: sticky_desktop %}
+  {%- endif -%}
+</div>
+
+<script type="application/ld+json">
+  {{ product | structured_data }}
+</script>
+
+{% stylesheet %}
+  .main-product {
+    --info-gap: 20px;
+  }
+
+  .main-product__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .main-product__media {
+    min-width: 0;
+  }
+
+  .main-product__info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--info-gap);
+  }
+
+  /* Eyebrow, title, price and stock sit closer together, as one group */
+  .main-product__info > .product-tight + .product-tight {
+    margin-top: calc(8px - var(--info-gap));
+  }
+
+  @media (max-width: 749px) {
+    .main-product {
+      padding-top: 0;
+    }
+  }
+
+  @media (min-width: 750px) {
+    .main-product {
+      --info-gap: 24px;
+    }
+
+    .main-product__grid {
+      gap: 40px;
+    }
+
+    .main-product__info > .product-tight + .product-tight {
+      margin-top: calc(10px - var(--info-gap));
+    }
+  }
+
+  @media (min-width: 990px) {
+    .main-product__grid {
+      display: grid;
+      grid-template-columns: minmax(0, var(--gallery)) minmax(0, 1fr);
+      gap: 56px;
+      align-items: start;
+    }
+
+    .main-product__info {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .main-product__info--sticky {
+      position: sticky;
+      top: 24px;
+    }
+  }
+
+  html:has(.sticky-atc.is-visible) body {
+    padding-bottom: 72px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.main_product.name",
+  "class": "shopify-section--main-product",
+  "blocks": [
+    { "type": "@app" },
+    { "type": "product-breadcrumbs" },
+    { "type": "product-eyebrow" },
+    { "type": "product-title" },
+    { "type": "product-price" },
+    { "type": "product-inventory" },
+    { "type": "variant-picker" },
+    { "type": "buy-buttons" },
+    { "type": "product-info-box" },
+    { "type": "product-description" },
+    { "type": "product-accordion" },
+    { "type": "product-share" },
+    { "type": "accordion" },
+    { "type": "text" },
+    { "type": "heading" },
+    { "type": "button" },
+    { "type": "divider" },
+    { "type": "spacer" },
+    { "type": "custom-liquid" }
+  ],
+  "settings": [
+    {
+      "type": "range",
+      "id": "gallery_width",
+      "label": "t:sections.main_product.settings.gallery_width.label",
+      "info": "t:sections.main_product.settings.gallery_width.info",
+      "min": 40,
+      "max": 65,
+      "step": 5,
+      "unit": "%",
+      "default": 55
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_info",
+      "label": "t:sections.main_product.settings.sticky_info.label",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "sticky_atc",
+      "label": "t:sections.main_product.settings.sticky_atc.label",
+      "info": "t:sections.main_product.settings.sticky_atc.info",
+      "options": [
+        { "value": "none", "label": "t:sections.main_product.settings.sticky_atc.options__none" },
+        { "value": "mobile", "label": "t:sections.main_product.settings.sticky_atc.options__mobile" },
+        { "value": "all", "label": "t:sections.main_product.settings.sticky_atc.options__all" }
+      ],
+      "default": "mobile"
+    },
+    { "type": "header", "content": "t:shared.header_appearance.content" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 24 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 80 }
+  ]
+}
+{% endschema %}

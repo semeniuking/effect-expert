@@ -1,0 +1,174 @@
+{%- doc -%}
+  Discount code field ("Промокод" + "Застосувати") and the applied codes as removable chips with their amounts.
+  assets/cart-discount.js applies codes with `updateCart({ discount: 'A,B' })` and shows an error when a code isn't applicable.
+  Without JS the form posts to /cart/update. Renders nothing when `settings.cart_show_discount` is off.
+
+  @param {string} [context] - 'drawer' or 'page', used for ids
+
+  @example
+  {% render 'cart-discount', context: 'drawer' %}
+{%- enddoc -%}
+{%- if settings.cart_show_discount -%}
+  {%- liquid
+    assign ctx = context | default: 'drawer'
+    assign code_list = ''
+    for application in cart.discount_applications
+      if application.type == 'discount_code'
+        if code_list == ''
+          assign code_list = application.title
+        else
+          assign code_list = code_list | append: ',' | append: application.title
+        endif
+      endif
+    endfor
+    assign error_template = 'cart.discount.not_applicable' | t: code: '%CODE%'
+  -%}
+  <cart-discount class="cart-discount" data-codes="{{ code_list | escape }}">
+    <form
+      class="cart-discount__form input-group"
+      action="{{ routes.cart_update_url }}"
+      method="post"
+    >
+      <label class="visually-hidden" for="CartDiscount-{{ ctx }}">{{ 'cart.discount.label' | t }}</label>
+      <input
+        class="input cart-discount__input"
+        type="text"
+        id="CartDiscount-{{ ctx }}"
+        name="discount"
+        placeholder="{{ 'cart.discount.label' | t }}"
+        autocomplete="off"
+        autocapitalize="characters"
+        spellcheck="false"
+        enterkeyhint="done"
+        required
+      >
+      <button type="submit" class="button button--secondary cart-discount__apply">
+        {{- 'cart.discount.apply' | t -}}
+      </button>
+    </form>
+    <p
+      class="cart-discount__error"
+      id="CartDiscountError-{{ ctx }}"
+      role="alert"
+      data-discount-error
+      data-template="{{ error_template | escape }}"
+      data-generic="{{ 'cart.error' | t | escape }}"
+      hidden
+    ></p>
+
+    {%- if code_list != '' -%}
+      <ul class="cart-discount__codes" role="list" aria-label="{{ 'cart.discount.applied' | t }}">
+        {%- for application in cart.discount_applications -%}
+          {%- if application.type == 'discount_code' -%}
+            <li class="cart-discount__code">
+              <span class="chip cart-discount__chip">
+                {{- application.title | escape -}}
+                <button
+                  type="button"
+                  class="cart-discount__remove"
+                  id="CartDiscountRemove-{{ ctx }}-{{ forloop.index }}"
+                  data-remove-code="{{ application.title | escape }}"
+                  aria-label="{{ 'cart.discount.remove' | t: code: application.title | escape }}"
+                >
+                  {%- render 'icon', name: 'close', size: 14 -%}
+                </button>
+              </span>
+              {%- if application.total_allocated_amount > 0 -%}
+                <span class="cart-discount__amount">−{{ application.total_allocated_amount | money }}</span>
+              {%- endif -%}
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </cart-discount>
+{%- endif -%}
+
+{% stylesheet %}
+  .cart-discount {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .cart-discount__input {
+    min-height: 44px;
+    padding-inline: 14px;
+    font-size: 14px;
+  }
+
+  .cart-discount__apply {
+    --btn-bg: var(--color-bg);
+    --btn-border: var(--color-text);
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 12px;
+  }
+
+  .cart-discount__error {
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--color-sale);
+  }
+
+  .cart-discount__codes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cart-discount__code {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+  }
+
+  .cart-discount__chip {
+    min-height: 30px;
+    padding: 0 2px 0 10px;
+    font-weight: var(--font-body-weight-bold);
+    letter-spacing: 0.04em;
+  }
+
+  .cart-discount__remove {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text-muted);
+  }
+
+  .cart-discount__remove::after {
+    content: '';
+    position: absolute;
+    inset: -9px;
+  }
+
+  .cart-discount__remove:hover {
+    color: var(--color-text);
+  }
+
+  .cart-discount__remove.is-loading {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .cart-discount__amount {
+    color: var(--color-sale);
+    font-weight: var(--font-body-weight-bold);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 749px) {
+    .cart-discount__input {
+      font-size: 16px;
+    }
+  }
+{% endstylesheet %}

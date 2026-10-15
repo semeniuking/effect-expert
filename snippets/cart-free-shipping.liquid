@@ -1,0 +1,87 @@
+{%- doc -%}
+  Free shipping progress: "До безкоштовної доставки залишилось ₴ X" with a progress bar, or a success message once reached.
+  The threshold is `settings.free_shipping_threshold` in the store currency (whole units, 0 hides the bar).
+  Hidden when the cart is shown in another currency, because the threshold can't be converted reliably in Liquid.
+
+  @param {string} [class] - extra classes on the wrapper
+
+  @example
+  {% render 'cart-free-shipping', class: 'cart-drawer__shipping' %}
+{%- enddoc -%}
+{%- liquid
+  assign threshold = settings.free_shipping_threshold | default: 0 | times: 100
+  assign show = true
+  if threshold <= 0 or cart.item_count == 0
+    assign show = false
+  endif
+  if cart.currency.iso_code != shop.currency
+    assign show = false
+  endif
+-%}
+{%- if show -%}
+  {%- liquid
+    assign remaining = threshold | minus: cart.total_price
+    assign percent = cart.total_price | times: 100 | divided_by: threshold
+    if percent > 100
+      assign percent = 100
+    endif
+    assign remaining_money = remaining | money
+    assign value_now = cart.total_price
+    if value_now > threshold
+      assign value_now = threshold
+    endif
+  -%}
+  <div class="cart-shipping{% if remaining <= 0 %} cart-shipping--done{% endif %}{% if class %} {{ class }}{% endif %}">
+    {%- if remaining > 0 -%}
+      <p class="cart-shipping__text">
+        {{- 'cart.free_shipping.remaining_html' | t: amount: remaining_money -}}
+      </p>
+    {%- else -%}
+      <p class="cart-shipping__text cart-shipping__text--success">
+        {%- render 'icon', name: 'truck', size: 18 -%}
+        {{- 'cart.free_shipping.reached' | t -}}
+      </p>
+    {%- endif -%}
+    <div
+      class="progress"
+      role="progressbar"
+      aria-valuemin="0"
+      aria-valuemax="{{ threshold | divided_by: 100 }}"
+      aria-valuenow="{{ value_now | divided_by: 100 }}"
+      aria-label="{{ 'cart.free_shipping.progress_label' | t }}"
+    >
+      <div class="progress__bar" style="width: {{ percent }}%"></div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .cart-shipping {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cart-shipping__text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .cart-shipping__text b,
+  .cart-shipping__text strong {
+    font-weight: var(--font-body-weight-bold);
+    white-space: nowrap;
+  }
+
+  .cart-shipping__text--success {
+    color: var(--color-success);
+    font-weight: var(--font-body-weight-bold);
+  }
+
+  .cart-shipping--done .progress__bar {
+    background: var(--color-success);
+  }
+{% endstylesheet %}

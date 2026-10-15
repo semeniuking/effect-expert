@@ -29,6 +29,25 @@
       "sale_price": "Sale price"
     }
   },
+  "sections": {
+    "slideshow": {
+      "label": "Slideshow",
+      "controls": "Choose a slide",
+      "slide": "Slide {{ number }}",
+      "slide_of": "{{ number }} of {{ total }}",
+      "pause": "Pause",
+      "play": "Play"
+    },
+    "collection_list": {
+      "tile_placeholder": "Collection"
+    },
+    "featured_collection": {
+      "placeholder_title": "Product name"
+    },
+    "instagram": {
+      "post": "Instagram post"
+    }
+  },
   "shopify": {
     "checkout": {
       "address_management": {

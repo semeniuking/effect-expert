@@ -370,7 +370,7 @@
           "label": "AI assistant widget"
         },
         "custom_head_code": {
-          "label": "Custom code in <head>"
+          "label": "Custom code in the page head"
         }
       }
     }
@@ -609,6 +609,78 @@
           "label": "Open by default"
         }
       }
+    },
+    "slide": {
+      "name": "Slide",
+      "settings": {
+        "image": {
+          "label": "Desktop image",
+          "info": "2880 × 1200 px recommended (12:5)"
+        },
+        "image_mobile": {
+          "label": "Mobile image",
+          "info": "1500 × 1875 px recommended (4:5). The desktop image is used when empty."
+        },
+        "link": {
+          "label": "Slide link"
+        },
+        "link_label": {
+          "info": "Describes where the slide leads, e.g. “New collection”"
+        },
+        "header_content": {
+          "content": "Content over the image"
+        },
+        "show_content": {
+          "label": "Show content over the image",
+          "info": "Add headings, text or buttons inside this slide"
+        },
+        "content_position": {
+          "label": "Content position",
+          "options__top_left": "Top left",
+          "options__middle_left": "Middle left",
+          "options__bottom_left": "Bottom left",
+          "options__middle_center": "Center",
+          "options__bottom_center": "Bottom center",
+          "options__middle_right": "Middle right"
+        }
+      }
+    },
+    "benefit": {
+      "name": "Benefit",
+      "settings": {
+        "title": {
+          "label": "Title"
+        },
+        "text": {
+          "label": "Text"
+        }
+      }
+    },
+    "collection_tile": {
+      "name": "Collection tile",
+      "settings": {
+        "image": {
+          "label": "Custom image",
+          "info": "Uses the collection image when empty"
+        },
+        "label": {
+          "label": "Custom label",
+          "info": "Uses the collection title when empty"
+        }
+      }
+    },
+    "instagram_post": {
+      "name": "Instagram post",
+      "settings": {
+        "link": {
+          "label": "Post link",
+          "info": "Links to the profile when empty"
+        },
+        "alt": {
+          "label": "Image description",
+          "info": "For screen readers, e.g. “Brown lashes, macro”"
+        }
+      }
     }
   },
   "sections": {
@@ -645,6 +717,71 @@
         "custom_liquid": {
           "label": "Liquid code"
         }
+      }
+    },
+    "slideshow": {
+      "name": "Slideshow",
+      "settings": {
+        "width": {
+          "info": "Full width is capped at 1440px"
+        },
+        "ratio_desktop": {
+          "label": "Aspect ratio on desktop"
+        },
+        "ratio_mobile": {
+          "label": "Aspect ratio on mobile"
+        },
+        "header_autoplay": {
+          "content": "Autoplay"
+        },
+        "autoplay": {
+          "label": "Change slides automatically",
+          "info": "Pauses on hover and focus, and is off for visitors who prefer reduced motion"
+        },
+        "interval": {
+          "label": "Change slides every"
+        }
+      },
+      "presets": {
+        "name": "Slideshow"
+      }
+    },
+    "benefits": {
+      "name": "Benefits",
+      "presets": {
+        "name": "Benefits"
+      }
+    },
+    "collection_list": {
+      "name": "Collection list",
+      "presets": {
+        "name": "Collection list"
+      }
+    },
+    "featured_collection": {
+      "name": "Featured collection",
+      "settings": {
+        "header_heading": {
+          "content": "Heading"
+        },
+        "link_url": {
+          "info": "Leave empty to link to the selected collection"
+        }
+      },
+      "presets": {
+        "name": "Featured collection"
+      }
+    },
+    "instagram": {
+      "name": "Instagram",
+      "settings": {
+        "link_url": {
+          "label": "Profile link",
+          "info": "Also used by posts that have no link of their own"
+        }
+      },
+      "presets": {
+        "name": "Instagram"
       }
     }
   }

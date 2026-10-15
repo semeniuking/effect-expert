@@ -1,0 +1,184 @@
+{%- doc -%}
+  Variant options as pill buttons (radio inputs + `.pill` labels) or dropdowns. Values that have a swatch show it.
+  Values with no available variant (given the other selections) look struck through.
+  assets/variant-picker.js requests the section again with `option_values` on change and swaps every
+  `[data-variant-update]` element in the same section. Shared by the variant-picker block and the quick-add section.
+
+  @param {product} product - the product
+  @param {string} section_id - the section to re-render (section.id, or 'quick-add')
+  @param {string} uid - unique prefix for element ids and input names
+  @param {string} [style] - 'pills' (default) or 'dropdown'
+  @param {boolean} [show_swatches] - show swatches for values that have one, default true
+  @param {boolean} [update_url] - write ?variant= to the address bar on change
+  @param {boolean} [rail_mobile] - pills scroll horizontally on mobile instead of wrapping
+
+  @example
+  {% render 'variant-picker', product: product, section_id: section.id, uid: 'quick-add' %}
+{%- enddoc -%}
+{%- unless product.has_only_default_variant -%}
+  {%- liquid
+    assign variant = product.selected_or_first_available_variant
+    assign picker_style = style | default: 'pills'
+  -%}
+  <variant-picker
+    id="VariantPicker-{{ uid }}"
+    class="variant-picker{% if rail_mobile %} variant-picker--rail{% endif %}"
+    data-url="{{ product.url }}"
+    data-section-id="{{ section_id }}"
+    {% if update_url %}
+      data-update-url
+    {% endif %}
+  >
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign option_index = forloop.index
+        assign use_swatches = false
+        if show_swatches != false
+          assign swatch_count = option.values | map: 'swatch' | compact | size
+          if swatch_count > 0
+            assign use_swatches = true
+          endif
+        endif
+      -%}
+      {%- if picker_style == 'dropdown' -%}
+        <div class="variant-picker__option">
+          <label class="variant-picker__legend" for="Option-{{ uid }}-{{ option_index }}">
+            <span class="variant-picker__name">{{ option.name | escape }}</span>
+          </label>
+          <select id="Option-{{ uid }}-{{ option_index }}" class="select" data-option-select>
+            {%- for value in option.values -%}
+              <option
+                value="{{ value | escape }}"
+                data-option-value-id="{{ value.id }}"
+                {% if value.selected %}
+                  selected
+                {% endif %}
+              >
+                {{- value | escape -}}
+                {%- unless value.available %} — {{ 'products.unavailable' | t }}{% endunless -%}
+              </option>
+            {%- endfor -%}
+          </select>
+        </div>
+      {%- else -%}
+        <fieldset class="variant-picker__option">
+          <legend class="variant-picker__legend">
+            <span class="variant-picker__name">{{ option.name | escape }}</span>
+            {%- if option.selected_value -%}
+              <span class="text-muted">: {{ option.selected_value | escape }}</span>
+            {%- endif -%}
+          </legend>
+          <div class="variant-picker__values">
+            {%- for value in option.values -%}
+              {%- assign input_id = 'Option-' | append: uid | append: '-' | append: option_index | append: '-' | append: forloop.index -%}
+              <input
+                type="radio"
+                class="visually-hidden"
+                id="{{ input_id }}"
+                name="{{ uid }}-option-{{ option_index }}"
+                value="{{ value | escape }}"
+                data-option-value-id="{{ value.id }}"
+                {% if value.selected %}
+                  checked
+                {% endif %}
+              >
+              <label
+                class="pill{% unless value.available %} is-unavailable{% endunless %}"
+                for="{{ input_id }}"
+              >
+                {%- if use_swatches and value.swatch -%}
+                  <span
+                    class="variant-picker__swatch"
+                    style="
+                      {%- if value.swatch.color %}--swatch-color: {{ value.swatch.color }};{% endif -%}
+                      {%- if value.swatch.image %}--swatch-image: url({{ value.swatch.image | image_url: width: 72 }});{% endif -%}
+                    "
+                    aria-hidden="true"
+                  ></span>
+                {%- endif -%}
+                {{- value | escape -}}
+                {%- unless value.available -%}
+                  <span class="visually-hidden">, {{ 'products.unavailable' | t }}</span>
+                {%- endunless -%}
+              </label>
+            {%- endfor -%}
+          </div>
+        </fieldset>
+      {%- endif -%}
+    {%- endfor -%}
+    <script type="application/json" data-variant-json>
+      {{ variant | json }}
+    </script>
+  </variant-picker>
+  <script type="module" src="{{ 'variant-picker.js' | asset_url }}"></script>
+{%- endunless -%}
+
+{% stylesheet %}
+  .variant-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .variant-picker__option {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .variant-picker__legend {
+    padding: 0 0 10px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .variant-picker__option > label.variant-picker__legend {
+    padding: 0;
+  }
+
+  .variant-picker__name {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .variant-picker__values {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .variant-picker__swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--color-line);
+    background: var(--swatch-color, var(--color-surface)) var(--swatch-image, none) center / cover;
+    flex: none;
+  }
+
+  @media (max-width: 749px) {
+    .variant-picker--rail .variant-picker__values {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-inline: calc(var(--gutter) * -1);
+      padding-inline: var(--gutter);
+    }
+
+    .variant-picker--rail .variant-picker__values::-webkit-scrollbar {
+      display: none;
+    }
+
+    .variant-picker--rail .pill {
+      flex: none;
+    }
+  }
+{% endstylesheet %}

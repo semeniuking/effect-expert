@@ -66,9 +66,7 @@
   </div>
 </div>
 
-{%- if slide_count > 1 -%}
-  <script type="module" src="{{ 'slideshow.js' | asset_url }}"></script>
-{%- endif -%}
+<script type="module" src="{{ 'slideshow.js' | asset_url }}"></script>
 
 {% stylesheet %}
   .slideshow.section--full > .section__inner {
@@ -98,7 +96,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-top: 2px;
+    margin-top: -6px;
   }
 
   html.no-js .slideshow__controls {
@@ -141,7 +139,7 @@
   .slideshow__toggle {
     position: absolute;
     right: 0;
-    top: 2px;
+    top: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -173,10 +171,10 @@
   @media (max-width: 749px) {
     .slideshow__controls {
       position: absolute;
-      right: 8px;
-      bottom: 4px;
+      right: 12px;
+      bottom: -6px;
       z-index: 2;
-      padding: 0;
+      margin: 0;
       pointer-events: none;
     }
 

@@ -1,0 +1,179 @@
+{%- doc -%}
+  The facets <form> inside a `<dialog class="drawer drawer--bottom">`. Opened by any `[data-facets-open]` button
+  (facets.js). Bottom sheet on mobile, right-side drawer from 750px.
+
+  With `sidebar: true` the closed dialog is shown in place as a sticky 240px sidebar from 1100px.
+  Without JS the form is always shown in place, with an "Apply" submit button.
+
+  @param {object} results - the collection or search object
+  @param {string} section_id - the section id (used for element ids)
+  @param {string} action - form action URL (collection URL or the search route)
+  @param {string} clear_url - URL with every filter removed
+  @param {number} count - number of matching products, for the "Show N products" button
+  @param {boolean} [sidebar] - show as a sidebar on desktop
+  @param {string} [terms] - search terms, kept as a hidden field on the search page
+
+  @example
+  {% render 'facets-drawer', results: collection, section_id: section.id, action: collection.url, clear_url: collection.url, count: collection.products_count, sidebar: true %}
+{%- enddoc -%}
+<dialog
+  class="drawer drawer--bottom facets-drawer{% if sidebar %} facets-drawer--sidebar{% endif %}"
+  id="FacetsDrawer-{{ section_id }}"
+  aria-labelledby="FacetsTitle-{{ section_id }}"
+  data-facets-drawer
+>
+  <form
+    class="drawer__inner facets"
+    id="FacetsForm-{{ section_id }}"
+    action="{{ action }}"
+    method="get"
+    data-facets-form
+  >
+    <div class="drawer__header facets__header">
+      <h2 class="drawer__title" id="FacetsTitle-{{ section_id }}">{{ 'facets.title' | t }}</h2>
+      <button type="button" class="icon-button facets-js" aria-label="{{ 'accessibility.close' | t }}" data-facets-close>
+        {% render 'icon', name: 'close' %}
+      </button>
+    </div>
+
+    <div class="drawer__body facets__body">
+      {%- if terms != blank -%}
+        <input type="hidden" name="q" value="{{ terms | escape }}">
+        <input type="hidden" name="options[prefix]" value="last">
+      {%- endif -%}
+      {% render 'facets', results: results, id_prefix: section_id %}
+    </div>
+
+    <div class="drawer__footer facets__footer">
+      <a class="button button--secondary" href="{{ clear_url }}" data-facet-link>{{ 'facets.reset' | t }}</a>
+      <button type="submit" class="button facets-js" data-facets-close data-facets-show>
+        {{- 'facets.show_results' | t: count: count -}}
+      </button>
+      <button type="submit" class="button facets-nojs">{{ 'facets.apply' | t }}</button>
+    </div>
+  </form>
+</dialog>
+
+{% stylesheet %}
+  .js .facets-nojs,
+  .no-js .facets-js {
+    display: none !important;
+  }
+
+  .facets-drawer .drawer__header {
+    min-height: 60px;
+  }
+
+  .facets-drawer .drawer__title {
+    font-size: 16px;
+  }
+
+  .facets__body .facets__list {
+    border-top: 0;
+  }
+
+  .facets__footer {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 12px;
+    padding-top: 12px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+
+  .facets__footer .button {
+    min-height: 52px;
+    padding-inline: 12px;
+  }
+
+  @media (min-width: 750px) {
+    .facets-drawer.drawer--bottom {
+      inset: 0 0 0 auto;
+      width: min(420px, 100vw);
+      height: 100dvh;
+      max-height: 100dvh;
+      margin: 0 0 0 auto;
+      border-radius: var(--radius-card) 0 0 var(--radius-card);
+    }
+
+    .facets-drawer.drawer--bottom[open] {
+      animation-name: drawer-in-right;
+    }
+  }
+
+  /* In-place form: desktop sidebar, and always without JS */
+  .no-js .facets-drawer:not([open]) {
+    position: static;
+    display: block;
+    width: auto;
+    height: auto;
+    max-height: none;
+    margin: 0 0 32px;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .no-js .facets-drawer:not([open]) .drawer__body {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .no-js .facets-drawer:not([open]) .drawer__header {
+    padding: 0;
+    min-height: 48px;
+    border: 0;
+  }
+
+  .no-js .facets-drawer:not([open]) .drawer__footer {
+    padding: 16px 0 0;
+    border: 0;
+  }
+
+  @media (min-width: 1100px) {
+    .facets-drawer--sidebar:not([open]) {
+      position: sticky;
+      top: calc(var(--header-offset, 0px) + 24px);
+      display: block;
+      width: auto;
+      height: auto;
+      max-height: calc(100dvh - var(--header-offset, 0px) - 48px);
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+      background: transparent;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+
+    .facets-drawer--sidebar:not([open]) .drawer__inner {
+      height: auto;
+    }
+
+    .facets-drawer--sidebar:not([open]) .drawer__header {
+      display: none;
+    }
+
+    .facets-drawer--sidebar:not([open]) .drawer__body {
+      padding: 0;
+      overflow: visible;
+    }
+
+    .facets-drawer--sidebar:not([open]) .facets__list {
+      border-top: 1px solid var(--color-line);
+    }
+
+    .js .facets-drawer--sidebar:not([open]) .drawer__footer {
+      display: none;
+    }
+
+    .no-js .facets-drawer--sidebar:not([open]) {
+      margin: 0;
+    }
+
+    .no-js .facets-drawer--sidebar:not([open]) .drawer__footer {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}

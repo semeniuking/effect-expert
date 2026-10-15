@@ -29,6 +29,25 @@
       "sale_price": "Ціна зі знижкою"
     }
   },
+  "sections": {
+    "slideshow": {
+      "label": "Слайдшоу",
+      "controls": "Оберіть слайд",
+      "slide": "Слайд {{ number }}",
+      "slide_of": "{{ number }} з {{ total }}",
+      "pause": "Пауза",
+      "play": "Відтворити"
+    },
+    "collection_list": {
+      "tile_placeholder": "Колекція"
+    },
+    "featured_collection": {
+      "placeholder_title": "Назва товару"
+    },
+    "instagram": {
+      "post": "Публікація в Instagram"
+    }
+  },
   "shopify": {
     "sentence": {
       "two_words_connector": " і ",

@@ -1,0 +1,134 @@
+{%- comment -%}
+  Cart drawer, rendered by layout/theme.liquid when the cart type is "drawer" (not on /cart).
+  assets/cart.js re-renders it after every cart change ([data-cart-section="cart-drawer"]) and
+  assets/cart-drawer.js opens it on `cart:open` and swaps in the new HTML on `cart:updated`.
+{%- endcomment -%}
+<cart-drawer class="cart-drawer" data-cart-section="cart-drawer">
+  <dialog
+    class="drawer cart-drawer__dialog color-{{ section.settings.color_scheme }}"
+    aria-labelledby="CartDrawerTitle"
+  >
+    <div class="drawer__inner">
+      <div class="drawer__header cart-drawer__header">
+        <h2 class="drawer__title" id="CartDrawerTitle">
+          {{- 'cart.title' | t -}}
+          {%- if cart.item_count > 0 %}
+            <span class="cart-drawer__count">({{ cart.item_count }})</span>
+          {%- endif -%}
+        </h2>
+        <button type="button" class="icon-button" data-cart-close aria-label="{{ 'cart.close' | t }}">
+          {%- render 'icon', name: 'close' -%}
+        </button>
+      </div>
+
+      {%- if cart.item_count > 0 -%}
+        {% render 'cart-free-shipping', class: 'cart-drawer__shipping' %}
+
+        <cart-items class="drawer__body cart-drawer__body">
+          {% render 'cart-items', context: 'drawer' %}
+          {% render 'cart-upsell' %}
+          {% render 'cart-note', context: 'drawer' %}
+        </cart-items>
+
+        <div class="drawer__footer cart-drawer__footer">
+          {% render 'cart-discount', context: 'drawer' %}
+          {% render 'cart-summary', context: 'drawer' %}
+        </div>
+
+        <form id="cart-form" action="{{ routes.cart_url }}" method="post" hidden></form>
+      {%- else -%}
+        <div class="drawer__body cart-drawer__body">
+          {% render 'cart-empty', context: 'drawer', heading_tag: 'p' %}
+        </div>
+      {%- endif -%}
+    </div>
+  </dialog>
+</cart-drawer>
+
+<script type="module" src="{{ 'cart-drawer.js' | asset_url }}"></script>
+<script type="module" src="{{ 'cart-items.js' | asset_url }}"></script>
+<script type="module" src="{{ 'product-form.js' | asset_url }}"></script>
+{%- if settings.cart_show_note -%}
+  <script type="module" src="{{ 'cart-note.js' | asset_url }}"></script>
+{%- endif -%}
+{%- if settings.cart_show_discount -%}
+  <script type="module" src="{{ 'cart-discount.js' | asset_url }}"></script>
+{%- endif -%}
+{%- if settings.cart_show_upsell -%}
+  <script type="module" src="{{ 'cart-upsell.js' | asset_url }}"></script>
+{%- endif -%}
+
+{% stylesheet %}
+  .cart-drawer__count {
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+
+  .cart-drawer__shipping {
+    flex: none;
+    padding: 16px 28px;
+    background: var(--color-surface);
+  }
+
+  .cart-drawer__body {
+    display: block;
+  }
+
+  .cart-drawer__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  @media (max-width: 749px) {
+    .cart-drawer__dialog {
+      width: 100vw;
+      border-radius: 0;
+    }
+
+    .cart-drawer__header {
+      min-height: 60px;
+      padding: 0 8px 0 20px;
+    }
+
+    .cart-drawer__header .drawer__title {
+      font-size: 18px;
+    }
+
+    .cart-drawer__shipping {
+      padding: 12px 20px;
+    }
+
+    .cart-drawer__shipping .cart-shipping__text {
+      font-size: 13px;
+    }
+
+    .cart-drawer__body {
+      padding-block: 0;
+    }
+
+    .cart-drawer__footer {
+      gap: 10px;
+      padding: 16px 20px 24px;
+      box-shadow: 0 -8px 24px var(--color-shadow);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.cart_drawer.name",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:shared.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.cart_drawer.settings.info.content"
+    }
+  ]
+}
+{% endschema %}

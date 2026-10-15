@@ -1,0 +1,103 @@
+{%- comment -%}
+  Predictive search results, rendered only through the Section Rendering API:
+  {{ routes.predictive_search_url }}?q=…&section_id=predictive-search&resources[type]=product,collection,query&resources[limit]=6
+  assets/predictive-search.js swaps [data-predictive-results] into the search dialog and copies [data-results-status]
+  into the dialog's live region. Styles live in sections/header.liquid next to the dialog.
+{%- endcomment -%}
+{%- liquid
+  assign products = predictive_search.resources.products
+  assign collections = predictive_search.resources.collections
+  assign queries = predictive_search.resources.queries
+  assign total = products.size | plus: collections.size | plus: queries.size
+  assign terms = predictive_search.terms | strip
+  assign term_lower = terms | downcase | escape
+-%}
+<div class="predictive-search" data-predictive-results>
+  {%- if predictive_search.performed -%}
+    <p class="visually-hidden" data-results-status>
+      {%- if total > 0 -%}
+        {{- 'predictive_search.results_count' | t: count: total -}}
+      {%- else -%}
+        {{- 'predictive_search.no_results' | t: terms: terms -}}
+      {%- endif -%}
+    </p>
+
+    {%- if total > 0 -%}
+      {%- if queries.size > 0 -%}
+        <div class="predictive-search__group">
+          <p class="search-dialog__label" id="PredictiveQueries">{{ 'predictive_search.suggestions' | t }}</p>
+          <ul class="predictive-search__queries" role="list" aria-labelledby="PredictiveQueries">
+            {%- for query in queries -%}
+              {%- liquid
+                assign text = query.text | downcase | escape
+                if term_lower != blank and text contains term_lower
+                  assign bold = '<b>' | append: term_lower | append: '</b>'
+                  assign text = text | replace_first: term_lower, bold
+                endif
+              -%}
+              <li>
+                <a class="predictive-search__query" href="{{ query.url }}" data-result>{{ text }}</a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- if collections.size > 0 -%}
+        <div class="predictive-search__group">
+          <p class="search-dialog__label" id="PredictiveCollections">{{ 'predictive_search.collections' | t }}</p>
+          <ul class="search-dialog__chips" role="list" aria-labelledby="PredictiveCollections">
+            {%- for collection in collections -%}
+              <li>
+                <a class="chip" href="{{ collection.url }}" data-result>{{ collection.title | escape }}</a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- if products.size > 0 -%}
+        <div class="predictive-search__group">
+          <p class="search-dialog__label" id="PredictiveProducts">{{ 'predictive_search.products' | t }}</p>
+          <ul class="predictive-search__products" role="list" aria-labelledby="PredictiveProducts">
+            {%- for product in products -%}
+              <li>
+                <a class="predictive-search__product" href="{{ product.url }}" data-result>
+                  <div class="predictive-search__media media" style="--ratio: 1 / 1;">
+                    {%- render 'image',
+                      image: product.featured_image,
+                      sizes: '56px',
+                      widths: '56, 112, 168',
+                      alt: '',
+                      placeholder: 'product-1'
+                    -%}
+                  </div>
+                  <div class="predictive-search__info">
+                    <span class="predictive-search__title">{{ product.title | escape }}</span>
+                    {% render 'price', product: product, show_from: true, class: 'predictive-search__price' %}
+                  </div>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      <a
+        class="button button--secondary button--full button--lg predictive-search__all"
+        href="{{ routes.search_url }}?q={{ terms | url_encode }}&options%5Bprefix%5D=last"
+        data-result
+      >
+        {{- 'predictive_search.view_all' | t: count: products.size -}}
+      </a>
+    {%- else -%}
+      <p class="predictive-search__empty text-muted">{{ 'predictive_search.no_results' | t: terms: terms }}</p>
+    {%- endif -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.predictive_search.name"
+}
+{% endschema %}

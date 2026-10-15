@@ -1,0 +1,287 @@
+{%- doc -%}
+  Product media gallery (static block of main-product). Desktop: a 76px thumbnail column and the big media.
+  Mobile: full-bleed swipe gallery with a "1 / 4" counter. Images, Shopify video, YouTube/Vimeo and 3D models.
+  Scrolls to the selected variant's featured media.
+{%- enddoc -%}
+{%- liquid
+  assign current_product = closest.product | default: product
+  assign variant = current_product.selected_or_first_available_variant
+  assign media_list = current_product.media
+  assign media_count = media_list.size
+
+  assign start_index = 0
+  if variant.featured_media
+    for media in media_list
+      if media.id == variant.featured_media.id
+        assign start_index = forloop.index0
+        break
+      endif
+    endfor
+  endif
+
+  case block.settings.ratio
+    when 'portrait'
+      assign ratio = '4 / 5'
+    when 'adapt'
+      assign ratio = media_list.first.aspect_ratio | default: 1
+    else
+      assign ratio = '1 / 1'
+  endcase
+
+  assign sizes = '(min-width: 1100px) min(620px, 50vw), (min-width: 750px) calc(100vw - 140px), 100vw'
+-%}
+<media-gallery
+  class="media-gallery{% if media_count > 1 %} media-gallery--thumbs{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-start="{{ start_index }}"
+  style="--ratio: {{ ratio }}; --fit: {{ block.settings.fit }};"
+  {{ block.shopify_attributes }}
+>
+  {%- if media_count > 1 -%}
+    <div class="media-gallery__thumbs no-scrollbar">
+      {%- for media in media_list -%}
+        <button
+          type="button"
+          class="media-gallery__thumb"
+          data-index="{{ forloop.index0 }}"
+          aria-label="{{ 'products.gallery.show_media' | t: index: forloop.index }}"
+          {% if forloop.index0 == start_index %}
+            aria-current="true"
+          {% endif %}
+        >
+          {% render 'image', image: media.preview_image, sizes: '76px', widths: '76, 152, 228', alt: '' %}
+          {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+            <span class="media-gallery__play" aria-hidden="true"></span>
+          {%- endif -%}
+        </button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  <div class="media-gallery__main">
+    <ul
+      class="media-gallery__track no-scrollbar"
+      role="list"
+      aria-label="{{ 'products.gallery.label' | t }}"
+      data-track
+    >
+      {%- for media in media_list -%}
+        <li
+          class="media-gallery__slide media"
+          data-media-id="{{ media.id }}"
+          aria-label="{{ 'products.gallery.slide' | t: index: forloop.index, count: media_count }}"
+        >
+          {%- case media.media_type -%}
+            {%- when 'image' -%}
+              {%- liquid
+                assign is_priority = false
+                if forloop.index0 == start_index and block.settings.priority
+                  assign is_priority = true
+                endif
+              -%}
+              {% render 'image', image: media, sizes: sizes, widths: '360, 540, 720, 900, 1100, 1400', priority: is_priority %}
+            {%- when 'video' -%}
+              {{ media | video_tag: controls: true, playsinline: true, preload: 'metadata', image_size: '1100x' }}
+            {%- when 'external_video' -%}
+              {{ media | external_video_tag: loading: 'lazy' }}
+            {%- else -%}
+              {{ media | media_tag }}
+          {%- endcase -%}
+        </li>
+      {%- else -%}
+        <li class="media-gallery__slide media">
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if media_count > 1 -%}
+      <p class="media-gallery__counter" aria-hidden="true">
+        <span data-counter>{{ start_index | plus: 1 }}</span> / {{ media_count }}
+      </p>
+      {%- if media_count <= 12 -%}
+        <div class="media-gallery__dots" aria-hidden="true">
+          {%- for media in media_list -%}
+            <span class="media-gallery__dot{% if forloop.index0 == start_index %} is-active{% endif %}" data-dot></span>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</media-gallery>
+<script type="module" src="{{ 'media-gallery.js' | asset_url }}"></script>
+
+{% stylesheet %}
+  .media-gallery {
+    display: block;
+  }
+
+  .media-gallery__main {
+    position: relative;
+    min-width: 0;
+  }
+
+  .media-gallery__track {
+    position: relative;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+  }
+
+  .media-gallery__slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .media-gallery__slide > iframe,
+  .media-gallery__slide > model-viewer {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .media-gallery__thumbs {
+    display: none;
+  }
+
+  .media-gallery__thumb {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    padding: 0;
+    flex: none;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-media);
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+
+  .media-gallery__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .media-gallery__thumb[aria-current='true'] {
+    border-color: var(--color-text);
+  }
+
+  .media-gallery__play {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 0;
+    height: 0;
+    margin: -8px 0 0 -5px;
+    border-style: solid;
+    border-width: 8px 0 8px 13px;
+    border-color: transparent transparent transparent var(--color-bg);
+    filter: drop-shadow(0 0 2px var(--color-shadow));
+  }
+
+  .media-gallery__counter {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 2px 8px;
+    border-radius: var(--radius-button);
+    background: var(--color-bg);
+    font-size: 12px;
+    line-height: 18px;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+  }
+
+  .media-gallery__dots {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    pointer-events: none;
+  }
+
+  .media-gallery__dot {
+    width: 20px;
+    height: 3px;
+    background: var(--color-line);
+  }
+
+  .media-gallery__dot.is-active {
+    background: var(--color-text);
+  }
+
+  @media (max-width: 749px) {
+    .media-gallery {
+      margin-inline: calc(var(--gutter) * -1);
+    }
+
+    .media-gallery__slide {
+      border-radius: 0;
+    }
+  }
+
+  @media (min-width: 750px) {
+    .media-gallery--thumbs {
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .media-gallery__thumbs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 0;
+      min-height: 100%;
+      overflow-y: auto;
+    }
+
+    .media-gallery__counter,
+    .media-gallery__dots {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.product_media_gallery.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "ratio",
+      "label": "t:shared.ratio.label",
+      "options": [
+        { "value": "square", "label": "t:blocks.product_media_gallery.settings.ratio.options__square" },
+        { "value": "portrait", "label": "t:blocks.product_media_gallery.settings.ratio.options__portrait" },
+        { "value": "adapt", "label": "t:shared.ratio.options__adapt" }
+      ],
+      "default": "square"
+    },
+    {
+      "type": "select",
+      "id": "fit",
+      "label": "t:blocks.product_media_gallery.settings.fit.label",
+      "options": [
+        { "value": "cover", "label": "t:blocks.product_media_gallery.settings.fit.options__cover" },
+        { "value": "contain", "label": "t:blocks.product_media_gallery.settings.fit.options__contain" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "checkbox",
+      "id": "priority",
+      "label": "t:blocks.product_media_gallery.settings.priority.label",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

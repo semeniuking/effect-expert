@@ -1,0 +1,84 @@
+{%- comment -%}
+  Instagram: heading row + a row of posts (image + link). Desktop: grid of N (4:5, 8px gap). Mobile: 132px swipe rail.
+  An app block (Instagram feed app) can be added instead of the posts and spans the full width.
+{%- endcomment -%}
+<div
+  class="section section--page color-{{ section.settings.color_scheme }} instagram"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="section__inner">
+    {% render 'section-heading', settings: section.settings %}
+    <div
+      class="grid grid--rail-mobile instagram__grid"
+      style="--cols: {{ section.settings.columns }}; --cols-tablet: {{ section.settings.columns | at_most: 4 }}; --rail-item: 132px; --grid-gap: 8px; --grid-row-gap: 8px;"
+    >
+      {%- if section.blocks.size > 0 -%}
+        {% content_for 'blocks' %}
+      {%- else -%}
+        {%- for i in (1..section.settings.columns) -%}
+          {%- assign placeholder_index = i | modulo: 2 | plus: 1 -%}
+          <div class="instagram__placeholder media" aria-hidden="true">
+            {{ 'lifestyle-' | append: placeholder_index | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .instagram__placeholder {
+    --ratio: 4 / 5;
+  }
+
+  .instagram__grid > .shopify-app-block {
+    grid-column: 1 / -1;
+    flex: 0 0 100%;
+  }
+
+  @media (max-width: 749px) {
+    .instagram .instagram__grid {
+      gap: 6px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.instagram.name",
+  "class": "shopify-section--instagram",
+  "blocks": [{ "type": "_instagram-post" }, { "type": "@app" }],
+  "max_blocks": 12,
+  "settings": [
+    { "type": "text", "id": "subheading", "label": "t:shared.subheading.label", "default": "19,8 тис. лешмейкерів з нами" },
+    { "type": "text", "id": "heading", "label": "t:shared.heading.label", "default": "@effectexpert_official" },
+    { "type": "text", "id": "link_label", "label": "t:shared.link_text.label", "default": "Підписатися" },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "t:sections.instagram.settings.link_url.label",
+      "info": "t:sections.instagram.settings.link_url.info"
+    },
+    { "type": "header", "content": "t:shared.header_layout.content" },
+    { "type": "range", "id": "columns", "label": "t:shared.columns.label", "min": 3, "max": 6, "step": 1, "default": 5 },
+    { "type": "header", "content": "t:shared.header_appearance.content" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 80 }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.instagram.presets.name",
+      "category": "t:categories.media",
+      "blocks": {
+        "post_1": { "type": "_instagram-post", "settings": {} },
+        "post_2": { "type": "_instagram-post", "settings": {} },
+        "post_3": { "type": "_instagram-post", "settings": {} },
+        "post_4": { "type": "_instagram-post", "settings": {} },
+        "post_5": { "type": "_instagram-post", "settings": {} }
+      },
+      "block_order": ["post_1", "post_2", "post_3", "post_4", "post_5"]
+    }
+  ]
+}
+{% endschema %}

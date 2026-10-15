@@ -1,0 +1,117 @@
+{%- doc -%}
+  Sticky add-to-cart bar: product title, selected options, price and an "У кошик" button that submits the main
+  product form (`product-form[data-main]` in the same section). assets/sticky-atc.js shows it once the main buy
+  buttons have scrolled out of view. The inner part is swapped on variant change.
+
+  @param {product} product - the product
+  @param {string} uid - unique prefix for element ids
+  @param {boolean} [desktop] - also show the bar on tablet and desktop
+
+  @example
+  {% render 'sticky-atc', product: product, uid: section.id %}
+{%- enddoc -%}
+{%- assign variant = product.selected_or_first_available_variant -%}
+<sticky-atc class="sticky-atc{% unless desktop %} sticky-atc--mobile{% endunless %}" aria-hidden="true" inert>
+  <div id="StickyAtc-{{ uid }}" class="sticky-atc__inner page-width" data-variant-update>
+    {%- assign thumb = variant.featured_media.preview_image | default: product.featured_media.preview_image -%}
+    {%- if thumb -%}
+      <div class="sticky-atc__media media">
+        {% render 'image', image: thumb, sizes: '48px', widths: '48, 96, 144', alt: '' %}
+      </div>
+    {%- endif -%}
+    <div class="sticky-atc__info">
+      <p class="sticky-atc__title">
+        <span class="sticky-atc__name">{{ product.title | escape }}</span>
+        {%- unless product.has_only_default_variant or variant == blank -%}
+          <span class="text-muted"> · {{ variant.options | join: ' · ' | escape }}</span>
+        {%- endunless -%}
+      </p>
+      {% render 'price', product: product, variant: variant, class: 'sticky-atc__price' %}
+    </div>
+    <button
+      type="button"
+      class="button sticky-atc__button"
+      data-sticky-add
+      {% if variant == blank or variant.available == false %}
+        disabled
+      {% endif %}
+    >
+      {%- if variant == blank -%}
+        {{ 'products.unavailable' | t }}
+      {%- elsif variant.available == false -%}
+        {{ 'products.sold_out' | t }}
+      {%- else -%}
+        {{ 'products.sticky_add' | t }}
+      {%- endif -%}
+    </button>
+  </div>
+</sticky-atc>
+<script type="module" src="{{ 'sticky-atc.js' | asset_url }}"></script>
+
+{% stylesheet %}
+  .sticky-atc {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 20;
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-top: 1px solid var(--color-line);
+    box-shadow: 0 -4px 16px var(--color-shadow);
+    transform: translateY(110%);
+    transition: transform 0.25s var(--ease);
+  }
+
+  .sticky-atc.is-visible {
+    transform: none;
+  }
+
+  .sticky-atc__inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-block: 10px calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .sticky-atc__media {
+    width: 48px;
+    aspect-ratio: 1;
+    flex: none;
+  }
+
+  .sticky-atc__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sticky-atc__title {
+    font-size: 13px;
+    line-height: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sticky-atc__price.price {
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .sticky-atc__button {
+    flex: none;
+    padding-inline: 20px;
+  }
+
+  @media (max-width: 749px) {
+    .sticky-atc__media {
+      display: none;
+    }
+  }
+
+  @media (min-width: 750px) {
+    .sticky-atc--mobile {
+      display: none;
+    }
+  }
+{% endstylesheet %}

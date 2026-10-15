@@ -1,0 +1,302 @@
+{
+  "sections": {
+    "slideshow": {
+      "type": "slideshow",
+      "blocks": {
+        "slide_1": {
+          "type": "_slide",
+          "settings": {
+            "image": "shopify://shop_images/IMG_3648.png",
+            "image_mobile": "shopify://shop_images/IMG_3644.png",
+            "link": "shopify://collections/all",
+            "link_label": "Нова колекція — до каталогу",
+            "show_content": false
+          }
+        },
+        "slide_2": {
+          "type": "_slide",
+          "settings": {
+            "link": "shopify://collections/best-sellers",
+            "link_label": "Топ продаж",
+            "show_content": false
+          }
+        }
+      },
+      "block_order": ["slide_1", "slide_2"],
+      "settings": {
+        "width": "full",
+        "ratio_desktop": "12/5",
+        "ratio_mobile": "4/5",
+        "autoplay": true,
+        "interval": 6,
+        "color_scheme": "scheme-1",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "hero": {
+      "type": "section",
+      "blocks": {
+        "hero_content": {
+          "type": "group",
+          "settings": { "gap": 24, "width": "fill" },
+          "blocks": {
+            "hero_eyebrow": {
+              "type": "heading",
+              "settings": { "text": "Матеріали для нарощення вій", "style": "eyebrow", "color": "muted" }
+            },
+            "hero_title": {
+              "type": "heading",
+              "settings": { "text": "Ідеальний погляд починається з *матеріалів*", "style": "display", "tag": "h1", "max_width": 22 }
+            },
+            "hero_text": {
+              "type": "text",
+              "settings": {
+                "text": "<p>Вії, клей, пінцети, препарати та розхідники для лешмейкерів. Відправляємо в день замовлення.</p>",
+                "size": "lg",
+                "muted": true,
+                "max_width": 48
+              }
+            },
+            "hero_buttons": {
+              "type": "group",
+              "settings": { "direction": "row", "gap": 16, "width": "fit", "stack_mobile": true },
+              "blocks": {
+                "hero_primary": {
+                  "type": "button",
+                  "settings": { "label": "До шопінгу", "link": "shopify://collections/all", "style": "primary" }
+                },
+                "hero_secondary": {
+                  "type": "button",
+                  "settings": { "label": "Топ продаж", "link": "shopify://collections/best-sellers", "style": "secondary" }
+                }
+              },
+              "block_order": ["hero_primary", "hero_secondary"]
+            }
+          },
+          "block_order": ["hero_eyebrow", "hero_title", "hero_text", "hero_buttons"]
+        },
+        "hero_media": {
+          "type": "image",
+          "settings": { "ratio": "4/3", "desktop_size": 50 }
+        }
+      },
+      "block_order": ["hero_content", "hero_media"],
+      "settings": {
+        "layout": "row",
+        "align": "center",
+        "gap": 56,
+        "width": "page",
+        "color_scheme": "scheme-1",
+        "padding_top": 56,
+        "padding_bottom": 24
+      }
+    },
+    "benefits": {
+      "type": "benefits",
+      "blocks": {
+        "benefit_shipping": {
+          "type": "_benefit",
+          "settings": { "title": "Відправка", "text": "В день замовлення, пн–пт" }
+        },
+        "benefit_delivery": {
+          "type": "_benefit",
+          "settings": { "title": "Доставка", "text": "Безкоштовно від 3000 грн" }
+        },
+        "benefit_cashback": {
+          "type": "_benefit",
+          "settings": { "title": "Кешбек", "text": "5% бонусами з кожного замовлення" }
+        }
+      },
+      "block_order": ["benefit_shipping", "benefit_delivery", "benefit_cashback"],
+      "settings": {
+        "width": "page",
+        "color_scheme": "scheme-1",
+        "padding_top": 40,
+        "padding_bottom": 40
+      }
+    },
+    "collection_list": {
+      "type": "collection-list",
+      "blocks": {
+        "tile_eyelashes": {
+          "type": "collection-tile",
+          "settings": { "collection": "eyelashes", "label": "Вії" }
+        },
+        "tile_glue": {
+          "type": "collection-tile",
+          "settings": { "collection": "glue", "label": "Клей" }
+        },
+        "tile_pincety": {
+          "type": "collection-tile",
+          "settings": { "collection": "pincety", "label": "Пінцети" }
+        },
+        "tile_pre_care": {
+          "type": "collection-tile",
+          "settings": { "collection": "pre-care", "label": "Препарати" }
+        },
+        "tile_removers": {
+          "type": "collection-tile",
+          "settings": { "collection": "removers", "label": "Ремувери" }
+        },
+        "tile_rozhidnyky": {
+          "type": "collection-tile",
+          "settings": { "collection": "rozhidnyky", "label": "Розхідники" }
+        }
+      },
+      "block_order": ["tile_eyelashes", "tile_glue", "tile_pincety", "tile_pre_care", "tile_removers", "tile_rozhidnyky"],
+      "settings": {
+        "subheading": "",
+        "heading": "Каталог",
+        "link_label": "Усі товари",
+        "link_url": "shopify://collections/all",
+        "columns": 6,
+        "mobile_layout": "rail",
+        "columns_mobile": 2,
+        "color_scheme": "scheme-1",
+        "padding_top": 24,
+        "padding_bottom": 0
+      }
+    },
+    "featured_collection": {
+      "type": "featured-collection",
+      "settings": {
+        "collection": "best-sellers",
+        "products_count": 4,
+        "subheading": "Обирають лешмейкери",
+        "heading": "Топ продаж",
+        "link_label": "Дивитись усі",
+        "link_url": "shopify://collections/best-sellers",
+        "columns": 4,
+        "mobile_layout": "rail",
+        "color_scheme": "scheme-1",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
+    "expert": {
+      "type": "section",
+      "blocks": {
+        "expert_media": {
+          "type": "image",
+          "settings": { "ratio": "1/1", "desktop_size": 50 }
+        },
+        "expert_content": {
+          "type": "group",
+          "settings": { "gap": 24, "padding_y": 64 },
+          "blocks": {
+            "expert_eyebrow": {
+              "type": "heading",
+              "settings": { "text": "Колекція", "style": "eyebrow", "color": "muted" }
+            },
+            "expert_title": {
+              "type": "heading",
+              "settings": { "text": "Expert", "style": "display", "tag": "h2", "color": "accent" }
+            },
+            "expert_text": {
+              "type": "text",
+              "settings": { "text": "<p>Ще більше вій в одній упаковці.</p>", "size": "lg" }
+            },
+            "expert_features": {
+              "type": "text",
+              "settings": {
+                "text": "<ul><li>28 ліній</li><li>Коробка-органайзер</li><li>Mix / окремі довжини</li><li>Black, brunette, brown</li></ul>",
+                "size": "md",
+                "muted": true
+              }
+            },
+            "expert_button": {
+              "type": "button",
+              "settings": { "label": "Обрати EXPERT", "link": "shopify://collections/eyelashes", "style": "primary" }
+            }
+          },
+          "block_order": ["expert_eyebrow", "expert_title", "expert_text", "expert_features", "expert_button"]
+        }
+      },
+      "block_order": ["expert_media", "expert_content"],
+      "settings": {
+        "layout": "grid",
+        "columns": 2,
+        "align": "center",
+        "gap": 64,
+        "width": "page",
+        "color_scheme": "scheme-2",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "cashback": {
+      "type": "section",
+      "blocks": {
+        "cashback_content": {
+          "type": "group",
+          "settings": { "gap": 12, "width": "fill" },
+          "blocks": {
+            "cashback_title": {
+              "type": "heading",
+              "settings": { "text": "*5%* кешбеку", "style": "h1", "tag": "h2" }
+            },
+            "cashback_text": {
+              "type": "text",
+              "settings": {
+                "text": "<p>Купуйте матеріали — повертаємо бонусами з кожного замовлення. Списуйте при наступних покупках.</p>",
+                "size": "lg",
+                "muted": true,
+                "max_width": 52
+              }
+            }
+          },
+          "block_order": ["cashback_title", "cashback_text"]
+        },
+        "cashback_buttons": {
+          "type": "group",
+          "settings": { "direction": "row", "gap": 16, "width": "fit", "stack_mobile": true },
+          "blocks": {
+            "cashback_primary": {
+              "type": "button",
+              "settings": { "label": "Увійти в кабінет", "link": "shopify://customers/account", "style": "accent" }
+            },
+            "cashback_secondary": {
+              "type": "button",
+              "settings": { "label": "Як це працює", "style": "secondary" }
+            }
+          },
+          "block_order": ["cashback_primary", "cashback_secondary"]
+        }
+      },
+      "block_order": ["cashback_content", "cashback_buttons"],
+      "settings": {
+        "layout": "row",
+        "justify": "space-between",
+        "align": "center",
+        "gap": 32,
+        "width": "page",
+        "color_scheme": "scheme-1",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
+    "instagram": {
+      "type": "instagram",
+      "blocks": {
+        "post_1": { "type": "_instagram-post", "settings": {} },
+        "post_2": { "type": "_instagram-post", "settings": {} },
+        "post_3": { "type": "_instagram-post", "settings": {} },
+        "post_4": { "type": "_instagram-post", "settings": {} },
+        "post_5": { "type": "_instagram-post", "settings": {} }
+      },
+      "block_order": ["post_1", "post_2", "post_3", "post_4", "post_5"],
+      "settings": {
+        "subheading": "19,8 тис. лешмейкерів з нами",
+        "heading": "@effectexpert_official",
+        "link_label": "Підписатися",
+        "link_url": "https://www.instagram.com/effectexpert_official/",
+        "columns": 5,
+        "color_scheme": "scheme-1",
+        "padding_top": 0,
+        "padding_bottom": 80
+      }
+    }
+  },
+  "order": ["slideshow", "hero", "benefits", "collection_list", "featured_collection", "expert", "cashback", "instagram"]
+}

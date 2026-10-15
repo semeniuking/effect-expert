@@ -1,0 +1,71 @@
+{%- doc -%}
+  Language switcher built on the localization form. Works without JS (each language is a submit button).
+  Renders nothing when the store has a single published language.
+
+  @param {string} id - unique form id
+  @param {string} [style] - 'dropdown' (compact code that opens a small list) or 'inline' (codes side by side), default 'inline'
+
+  @example
+  {% render 'language-switcher', id: 'HeaderLanguage', style: 'dropdown' %}
+{%- enddoc -%}
+{%- if localization.available_languages.size > 1 -%}
+  {%- liquid
+    assign current_code = localization.language.iso_code | upcase
+    if localization.language.iso_code == 'uk'
+      assign current_code = 'UA'
+    endif
+  -%}
+  {%- form 'localization', id: id, class: 'lang-switch' -%}
+    {%- if style == 'dropdown' -%}
+      <details class="lang-switch__dropdown" data-auto-close>
+        <summary class="lang-switch__summary">
+          {{- current_code -}}
+          <span class="visually-hidden">, {{ 'header.language' | t }}</span>
+          {% render 'icon', name: 'chevron-down', size: 12 %}
+        </summary>
+        <ul class="lang-switch__panel" role="list">
+          {%- for language in localization.available_languages -%}
+            <li>
+              <button
+                type="submit"
+                name="language_code"
+                value="{{ language.iso_code }}"
+                lang="{{ language.iso_code }}"
+                class="lang-switch__option"
+                {% if language.iso_code == localization.language.iso_code %}
+                  aria-current="true"
+                {% endif %}
+              >
+                {{ language.endonym_name | capitalize }}
+              </button>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </details>
+    {%- else -%}
+      <div class="lang-switch__inline" role="group" aria-label="{{ 'header.language' | t }}">
+        {%- for language in localization.available_languages -%}
+          {%- liquid
+            assign code = language.iso_code | upcase
+            if language.iso_code == 'uk'
+              assign code = 'UA'
+            endif
+          -%}
+          <button
+            type="submit"
+            name="language_code"
+            value="{{ language.iso_code }}"
+            lang="{{ language.iso_code }}"
+            class="lang-switch__code"
+            {% if language.iso_code == localization.language.iso_code %}
+              aria-current="true"
+            {% endif %}
+          >
+            {{- code -}}
+            <span class="visually-hidden"> {{ language.endonym_name | capitalize }}</span>
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  {%- endform -%}
+{%- endif -%}
