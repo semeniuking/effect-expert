@@ -1,0 +1,15 @@
+---
+description: CSS standards for the Effect Expert theme
+globs: "**/*.liquid, assets/*.css"
+alwaysApply: false
+---
+
+# CSS standards
+
+- Use the design tokens from `snippets/theme-styles.liquid` (`--color-*`, `--font-*`, `--text-*`, `--radius-*`, `--gutter`, `--page-width`). Never hard-code brand hex values in components — colors must follow the active color scheme (`.color-{{ scheme_id }}`).
+- Global, reusable patterns live in `assets/base.css` (buttons, pills, forms, drawer, accordion, grid, price, product card). Reuse them before writing new CSS.
+- Component CSS goes in the owning section/block's `{% stylesheet %}`. Class names are BEM-like and prefixed with the component name (`.cart-drawer__footer`).
+- Settings that control one property → inline CSS variable (`style="--gap: {{ block.settings.gap }}px"`). Settings that switch layouts → modifier classes.
+- Mobile first. Breakpoints: `750px` (tablet) and `1100px` (desktop). Container queries are fine for blocks that can be placed anywhere.
+- Touch targets ≥ 44px. Keep visible focus (`:focus-visible` outline uses `--color-focus`). Respect `prefers-reduced-motion`.
+- No CSS frameworks, no `!important` outside utilities.

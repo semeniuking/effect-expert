@@ -1,0 +1,8 @@
+---
+description: Effect Expert theme overview — read before changing the theme
+alwaysApply: true
+---
+
+This repository is the **Effect Expert** custom Shopify theme (zero-build). Read `docs/THEME.md` for architecture,
+tokens, base classes, snippets, JS events and translation rules. Validate with `npm run check:node` (or
+`shopify theme check`) and keep `npm run size` within budget.

@@ -1,0 +1,9 @@
+docs/
+scripts/
+node_modules/
+package.json
+package-lock.json
+.prettierrc.json
+.prettierignore
+.theme-check.yml
+README.md

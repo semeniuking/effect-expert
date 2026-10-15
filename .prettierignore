@@ -1,0 +1,5 @@
+node_modules
+config/settings_data.json
+locales/*.json
+templates/*.json
+sections/*-group.json

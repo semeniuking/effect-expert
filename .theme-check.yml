@@ -1,0 +1,9 @@
+extends: theme-check:recommended
+ignore:
+  - node_modules/**
+  - scripts/**
+  - docs/**
+RemoteAsset:
+  # Third-party scripts (Get Checkout, chat widgets) are loaded intentionally from their CDNs.
+  enabled: true
+  severity: info

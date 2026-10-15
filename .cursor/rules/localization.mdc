@@ -8,7 +8,7 @@ alwaysApply: false
 ### Translation requirements
 
 - **Every user-facing text** must use translation filters.
-- **Update `locales/en.default.json`** with all new keys.
+- **Update `locales/en.default.json` and `locales/uk.json`** with all new keys (Ukrainian is the store's primary language). Editor labels go in `en.default.schema.json` and `uk.schema.json`.
 - **Use descriptive, hierarchical keys** for organization.
 - **Only add English text**; translators handle other languages.
 
