@@ -1,4 +1,65 @@
 {
+  "collections": {
+    "breadcrumbs": "Хлібні крихти",
+    "subcollections": "Категорії",
+    "product_count": {
+      "one": "{{ count }} товар",
+      "few": "{{ count }} товари",
+      "many": "{{ count }} товарів",
+      "other": "{{ count }} товару"
+    },
+    "empty_title": "Товарів не знайдено",
+    "empty_filtered_text": "Спробуйте прибрати частину фільтрів або змінити діапазон цін.",
+    "empty_collection_text": "У цій колекції поки немає товарів.",
+    "reset_filters": "Скинути фільтри",
+    "browse_all": "Переглянути всі товари",
+    "list_empty": "Колекцій поки немає"
+  },
+  "facets": {
+    "title": "Фільтри",
+    "sort_label": "Сортувати",
+    "sort_mobile": "Сортування",
+    "price_from": "Ціна від",
+    "price_to": "Ціна до",
+    "active_filters": "Активні фільтри",
+    "remove_filter": "Прибрати фільтр: {{ filter }}",
+    "clear_all": "Очистити все",
+    "reset": "Скинути",
+    "apply": "Застосувати",
+    "show_results": {
+      "one": "Показати {{ count }} товар",
+      "few": "Показати {{ count }} товари",
+      "many": "Показати {{ count }} товарів",
+      "other": "Показати {{ count }} товару"
+    },
+    "in_stock": "В наявності"
+  },
+  "search_page": {
+    "title": "Пошук",
+    "input_label": "Пошук товарів",
+    "placeholder": "Що шукаєте?",
+    "submit": "Шукати",
+    "results_count": {
+      "one": "{{ count }} результат для «{{ terms }}»",
+      "few": "{{ count }} результати для «{{ terms }}»",
+      "many": "{{ count }} результатів для «{{ terms }}»",
+      "other": "{{ count }} результату для «{{ terms }}»"
+    },
+    "empty_text": "Введіть назву товару, бренд або вигин — наприклад, «клей» чи «Brunette».",
+    "no_results_title": "За запитом «{{ terms }}» нічого не знайдено",
+    "no_results_text": "Перевірте написання або спробуйте коротший, загальніший запит.",
+    "browse_catalog": "Перейти до каталогу",
+    "popular": "Часто шукають:",
+    "type_article": "Стаття",
+    "type_page": "Сторінка"
+  },
+  "pagination": {
+    "label": "Навігація сторінками",
+    "showing": "Показано {{ shown }} з {{ total }}",
+    "load_more": "Показати ще",
+    "previous": "Попередня сторінка",
+    "next": "Наступна сторінка"
+  },
   "accessibility": {
     "skip_to_content": "Перейти до вмісту",
     "close": "Закрити",
@@ -26,8 +87,84 @@
     "price": {
       "from_price": "від {{ price }}",
       "regular_price": "Звичайна ціна",
-      "sale_price": "Ціна зі знижкою"
+      "sale_price": "Ціна зі знижкою",
+      "taxes_included": "Податки включені"
+    },
+    "breadcrumbs": "Хлібні крихти",
+    "sticky_add": "У кошик",
+    "inventory": {
+      "in_stock": "В наявності",
+      "low_stock": "Залишилось лише {{ count }} шт."
+    },
+    "quantity": {
+      "label": "Кількість",
+      "decrease": "Зменшити кількість",
+      "increase": "Збільшити кількість"
+    },
+    "gallery": {
+      "label": "Фото товару",
+      "slide": "Фото {{ index }} з {{ count }}",
+      "show_media": "Показати фото {{ index }}"
+    },
+    "info_box": {
+      "free_shipping_remaining": "Безкоштовна доставка від {{ threshold }} — залишилось {{ remaining }}",
+      "free_shipping_reached": "Для вашого замовлення доставка безкоштовна",
+      "bonus": "+{{ amount }} бонусами на наступне замовлення"
+    },
+    "share": {
+      "label": "Поділитися",
+      "on": "Поділитися в {{ network }}"
+    },
+    "quick_add": {
+      "details": "Детальніше"
     }
+  },
+  "header": {
+    "announcements": "Оголошення",
+    "main_nav": "Головне меню",
+    "menu_open": "Відкрити меню",
+    "menu_close": "Закрити меню",
+    "menu_label": "Меню",
+    "catalog": "Каталог",
+    "view_all": "Переглянути все",
+    "search": "Пошук",
+    "account": "Увійти",
+    "my_account": "Мій акаунт",
+    "login": "Увійти в акаунт",
+    "cart": "Кошик",
+    "language": "Мова"
+  },
+  "predictive_search": {
+    "title": "Пошук",
+    "placeholder": "Пошук товарів",
+    "cancel": "Скасувати",
+    "close": "Закрити пошук",
+    "popular": "Популярні запити",
+    "suggestions": "Підказки",
+    "collections": "Категорії",
+    "products": "Товари",
+    "view_all": "Усі результати ({{ count }})",
+    "results_count": "Знайдено результатів: {{ count }}",
+    "no_results": "За запитом «{{ terms }}» нічого не знайдено"
+  },
+  "footer": {
+    "contact": "Звʼязок",
+    "phone": "Телефон",
+    "email": "Email",
+    "policies": "Правова інформація",
+    "payment_methods": "Способи оплати"
+  },
+  "password": {
+    "signup_label": "Дізнайтеся про відкриття першими",
+    "email_placeholder": "Ваш email",
+    "signup_button": "Повідомити",
+    "signup_success": "Дякуємо! Ми повідомимо вас, щойно відкриємося.",
+    "enter_with_password": "Увійти з паролем",
+    "password_label": "Пароль",
+    "enter": "Увійти",
+    "wrong_password": "Неправильний пароль. Спробуйте ще раз.",
+    "admin_hint": "Ви власник магазину?",
+    "admin_link": "Увійдіть тут"
   },
   "sections": {
     "slideshow": {

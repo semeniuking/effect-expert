@@ -1,0 +1,76 @@
+{%- doc -%}
+  One row of the product accordion. Content source: product description, a product metafield
+  ("namespace.key", rich text or text), a page, or custom rich text. Hidden when it has no content.
+{%- enddoc -%}
+{%- liquid
+  assign current_product = closest.product | default: product
+  capture row_content
+    case block.settings.source
+      when 'description'
+        echo current_product.description
+      when 'metafield'
+        assign mf_parts = block.settings.metafield | strip | split: '.'
+        if mf_parts.size == 2
+          assign mf = current_product.metafields[mf_parts[0]][mf_parts[1]]
+          if mf != blank
+            if mf.type == 'rich_text_field' or mf.type contains 'list.'
+              echo mf | metafield_tag
+            elsif mf.type == 'multi_line_text_field'
+              echo mf.value | escape | newline_to_br
+            else
+              echo mf.value
+            endif
+          endif
+        endif
+      when 'page'
+        echo block.settings.page.content
+      else
+        echo block.settings.content
+    endcase
+  endcapture
+-%}
+{%- if row_content != blank or request.design_mode -%}
+  <details class="accordion"{% if block.settings.open %} open{% endif %} {{ block.shopify_attributes }}>
+    <summary class="accordion__summary">
+      {{ block.settings.heading | escape }}
+      <span class="icon-plus-minus" aria-hidden="true"></span>
+    </summary>
+    <div class="accordion__content rte">
+      {{ row_content }}
+    </div>
+  </details>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:blocks.product_accordion_row.name",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "heading", "label": "t:shared.heading.label", "default": "Характеристики" },
+    {
+      "type": "select",
+      "id": "source",
+      "label": "t:blocks.product_accordion_row.settings.source.label",
+      "options": [
+        { "value": "description", "label": "t:blocks.product_accordion_row.settings.source.options__description" },
+        { "value": "metafield", "label": "t:blocks.product_accordion_row.settings.source.options__metafield" },
+        { "value": "page", "label": "t:blocks.product_accordion_row.settings.source.options__page" },
+        { "value": "richtext", "label": "t:blocks.product_accordion_row.settings.source.options__richtext" }
+      ],
+      "default": "richtext"
+    },
+    {
+      "type": "text",
+      "id": "metafield",
+      "label": "t:blocks.product_accordion_row.settings.metafield.label",
+      "info": "t:blocks.product_accordion_row.settings.metafield.info",
+      "default": "custom.specs",
+      "visible_if": "{{ block.settings.source == 'metafield' }}"
+    },
+    { "type": "page", "id": "page", "label": "t:blocks.product_accordion_row.settings.page.label" },
+    { "type": "richtext", "id": "content", "label": "t:blocks.product_accordion_row.settings.content.label", "visible_if": "{{ block.settings.source == 'richtext' }}" },
+    { "type": "checkbox", "id": "open", "label": "t:blocks.accordion_row.settings.open.label", "default": false }
+  ],
+  "presets": [{ "name": "t:blocks.product_accordion_row.name" }]
+}
+{% endschema %}

@@ -1,0 +1,50 @@
+{%- doc -%}
+  Selected variant price (sale price + struck compare-at price) with the "taxes included" note.
+  The wrapper id stays the same across renders so variant changes can replace it.
+{%- enddoc -%}
+{%- assign current_product = closest.product | default: product -%}
+<div class="product-price product-tight" {{ block.shopify_attributes }}>
+  <div id="Price-{{ section.id }}-{{ block.id }}" class="product-price__inner" data-variant-update>
+    {%- assign variant = current_product.selected_or_first_available_variant -%}
+    {%- if variant -%}
+      {% render 'price', product: current_product, variant: variant %}
+    {%- else -%}
+      {% render 'price', product: current_product, show_from: true %}
+    {%- endif -%}
+    {%- if block.settings.show_tax_note and cart.taxes_included -%}
+      <span class="product-price__note text-xs text-muted">{{ 'products.price.taxes_included' | t }}</span>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .product-price__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+  }
+
+  .product-price .price {
+    font-size: 22px;
+    line-height: 28px;
+  }
+
+  @media (min-width: 750px) {
+    .product-price .price {
+      font-size: 24px;
+      line-height: 32px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.product_price.name",
+  "tag": null,
+  "settings": [
+    { "type": "checkbox", "id": "show_tax_note", "label": "t:blocks.product_price.settings.show_tax_note.label", "default": true }
+  ],
+  "presets": [{ "name": "t:blocks.product_price.name", "category": "t:categories.product" }]
+}
+{% endschema %}

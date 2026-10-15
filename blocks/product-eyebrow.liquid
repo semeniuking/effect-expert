@@ -1,0 +1,52 @@
+{%- doc -%}
+  Small capitals line above the title, e.g. "Лінійка BALANCE · 20 ліній". Text from the setting (connect a dynamic
+  source if you like), else the `custom.eyebrow` metafield, else the chosen fallback.
+{%- enddoc -%}
+{%- liquid
+  assign current_product = closest.product | default: product
+  assign text = block.settings.text
+  if text == blank
+    assign text = current_product.metafields.custom.eyebrow.value
+  endif
+  if text == blank
+    case block.settings.fallback
+      when 'type'
+        assign text = current_product.type
+      when 'vendor'
+        assign text = current_product.vendor
+    endcase
+  endif
+-%}
+{%- if text != blank -%}
+  <p class="eyebrow text-muted product-eyebrow product-tight" {{ block.shopify_attributes }}>{{ text | escape }}</p>
+{%- endif -%}
+
+{% stylesheet %}
+  @media (max-width: 749px) {
+    .product-eyebrow {
+      font-size: 11px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.product_eyebrow.name",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "text", "label": "t:blocks.product_eyebrow.settings.text.label", "info": "t:blocks.product_eyebrow.settings.text.info" },
+    {
+      "type": "select",
+      "id": "fallback",
+      "label": "t:blocks.product_eyebrow.settings.fallback.label",
+      "options": [
+        { "value": "none", "label": "t:blocks.product_eyebrow.settings.fallback.options__none" },
+        { "value": "type", "label": "t:blocks.product_eyebrow.settings.fallback.options__type" },
+        { "value": "vendor", "label": "t:blocks.product_eyebrow.settings.fallback.options__vendor" }
+      ],
+      "default": "type"
+    }
+  ],
+  "presets": [{ "name": "t:blocks.product_eyebrow.name", "category": "t:categories.product" }]
+}
+{% endschema %}

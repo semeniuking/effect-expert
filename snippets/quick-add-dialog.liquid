@@ -1,0 +1,46 @@
+{%- doc -%}
+  Quick-add dialog, rendered once by layout/theme.liquid. assets/quick-add.js opens it from any
+  `[data-quick-add="<product url>"]` button and fills it with the `quick-add` section.
+
+  @example
+  {% render 'quick-add-dialog' %}
+{%- enddoc -%}
+<quick-add-dialog>
+  <dialog class="modal quick-add" aria-labelledby="QuickAddTitle">
+    <button
+      type="button"
+      class="icon-button quick-add__close"
+      data-quick-add-close
+      aria-label="{{ 'accessibility.close' | t }}"
+    >
+      {%- render 'icon', name: 'close' -%}
+    </button>
+    <div class="quick-add__content" data-quick-add-content></div>
+  </dialog>
+</quick-add-dialog>
+<script type="module" src="{{ 'quick-add.js' | asset_url }}"></script>
+
+{% stylesheet %}
+  .quick-add {
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .quick-add__close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+  }
+
+  .quick-add[open] {
+    animation: quick-add-in 0.2s var(--ease);
+  }
+
+  @keyframes quick-add-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+{% endstylesheet %}

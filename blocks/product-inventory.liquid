@@ -1,0 +1,25 @@
+{%- doc -%}
+  Stock status with a colored dot: "В наявності · відправимо сьогодні", low stock with the count, or sold out.
+{%- enddoc -%}
+{%- assign current_product = closest.product | default: product -%}
+<div class="product-inventory product-tight" {{ block.shopify_attributes }}>
+  {%- assign inventory_id = 'Inventory-' | append: section.id | append: '-' | append: block.id -%}
+  {% render 'product-inventory',
+    product: current_product,
+    id: inventory_id,
+    note: block.settings.note,
+    threshold: block.settings.threshold
+  %}
+</div>
+
+{% schema %}
+{
+  "name": "t:blocks.product_inventory.name",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "note", "label": "t:blocks.product_inventory.settings.note.label", "default": "відправимо сьогодні" },
+    { "type": "range", "id": "threshold", "label": "t:blocks.product_inventory.settings.threshold.label", "info": "t:blocks.product_inventory.settings.threshold.info", "min": 0, "max": 20, "step": 1, "default": 5 }
+  ],
+  "presets": [{ "name": "t:blocks.product_inventory.name", "category": "t:categories.product" }]
+}
+{% endschema %}

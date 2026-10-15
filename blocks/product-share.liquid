@@ -1,0 +1,40 @@
+{%- doc -%}
+  Share links for Telegram, Viber and Facebook (plain links, no scripts).
+{%- enddoc -%}
+{%- liquid
+  assign current_product = closest.product | default: product
+  assign share_url = request.origin | append: current_product.url | url_encode
+  assign share_text = current_product.title | url_encode
+-%}
+<div class="product-share" {{ block.shopify_attributes }}>
+  <span class="product-share__label text-sm text-muted">{{ 'products.share.label' | t }}</span>
+  <a class="icon-button" href="https://t.me/share/url?url={{ share_url }}&text={{ share_text }}" target="_blank" rel="noopener" aria-label="{{ 'products.share.on' | t: network: 'Telegram' }}">
+    {%- render 'icon', name: 'telegram' -%}
+  </a>
+  <a class="icon-button" href="viber://forward?text={{ share_text }}%20{{ share_url }}" aria-label="{{ 'products.share.on' | t: network: 'Viber' }}">
+    {%- render 'icon', name: 'viber' -%}
+  </a>
+  <a class="icon-button" href="https://www.facebook.com/sharer/sharer.php?u={{ share_url }}" target="_blank" rel="noopener" aria-label="{{ 'products.share.on' | t: network: 'Facebook' }}">
+    {%- render 'icon', name: 'facebook' -%}
+  </a>
+</div>
+
+{% stylesheet %}
+  .product-share {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .product-share__label {
+    margin-right: 8px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.product_share.name",
+  "tag": null,
+  "presets": [{ "name": "t:blocks.product_share.name", "category": "t:categories.product" }]
+}
+{% endschema %}

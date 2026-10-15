@@ -1,0 +1,27 @@
+{%- doc -%}
+  The product description as rich text.
+{%- enddoc -%}
+{%- assign current_product = closest.product | default: product -%}
+{%- if current_product.description != blank -%}
+  <div class="product-description rte{% if block.settings.muted %} text-muted{% endif %}" {{ block.shopify_attributes }}>
+    {{ current_product.description }}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .product-description {
+    font-size: 15px;
+    line-height: 24px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.product_description.name",
+  "tag": null,
+  "settings": [
+    { "type": "checkbox", "id": "muted", "label": "t:blocks.text.settings.muted.label", "default": true }
+  ],
+  "presets": [{ "name": "t:blocks.product_description.name", "category": "t:categories.product" }]
+}
+{% endschema %}

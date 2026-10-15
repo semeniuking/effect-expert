@@ -1,0 +1,42 @@
+{%- doc -%}
+  Breadcrumbs: Головна / collection (the current collection, else the product's first collection) / optional product title.
+{%- enddoc -%}
+{%- liquid
+  assign current_product = closest.product | default: product
+  assign crumb_collection = collection | default: current_product.collections.first
+-%}
+<nav
+  class="breadcrumbs product-breadcrumbs{% if block.settings.hide_mobile %} product-breadcrumbs--hide-mobile{% endif %}"
+  aria-label="{{ 'products.breadcrumbs' | t }}"
+  {{ block.shopify_attributes }}
+>
+  <a href="{{ routes.root_url }}">{{ 'general.home' | t }}</a>
+  {%- if crumb_collection -%}
+    <span aria-hidden="true">/</span>
+    <a href="{{ crumb_collection.url }}">{{ crumb_collection.title | escape }}</a>
+  {%- endif -%}
+  {%- if block.settings.show_title and current_product -%}
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ current_product.title | escape }}</span>
+  {%- endif -%}
+</nav>
+
+{% stylesheet %}
+  @media (max-width: 749px) {
+    .product-breadcrumbs--hide-mobile {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.product_breadcrumbs.name",
+  "tag": null,
+  "settings": [
+    { "type": "checkbox", "id": "show_title", "label": "t:blocks.product_breadcrumbs.settings.show_title.label", "default": false },
+    { "type": "checkbox", "id": "hide_mobile", "label": "t:blocks.product_breadcrumbs.settings.hide_mobile.label", "default": true }
+  ],
+  "presets": [{ "name": "t:blocks.product_breadcrumbs.name", "category": "t:categories.product" }]
+}
+{% endschema %}

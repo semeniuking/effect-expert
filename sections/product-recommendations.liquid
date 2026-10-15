@@ -1,0 +1,101 @@
+{%- comment -%}
+  "Купують разом": Shopify product recommendations, loaded with assets/product-recommendations.js when the section
+  nears the viewport (routes.product_recommendations_url + section_id). Complementary products by default, falling
+  back to related ones when there are none. Renders nothing when there is nothing to show.
+{%- endcomment -%}
+{%- liquid
+  assign rec_product = closest.product | default: product
+  assign fallback = ''
+  if section.settings.intent == 'complementary' and section.settings.fallback_related
+    assign fallback = 'related'
+  endif
+-%}
+<product-recommendations
+  class="product-recommendations color-{{ section.settings.color_scheme }}"
+  data-url="{{ routes.product_recommendations_url }}"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ rec_product.id }}"
+  data-limit="{{ section.settings.products_to_show }}"
+  data-intent="{{ section.settings.intent }}"
+  data-fallback="{{ fallback }}"
+>
+  {%- if recommendations.performed and recommendations.products_count > 0 -%}
+    <div
+      class="section product-recommendations__inner"
+      style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+      data-recommendations
+    >
+      <div class="section__inner">
+        {% render 'section-heading', settings: section.settings %}
+        <ul
+          class="grid{% if section.settings.mobile_layout == 'rail' %} grid--rail-mobile{% endif %}"
+          role="list"
+          style="--cols: {{ section.settings.columns }}; --cols-tablet: 3; --cols-mobile: 2;"
+        >
+          {%- for rec in recommendations.products -%}
+            <li>
+              {% render 'product-card',
+                product: rec,
+                sizes: '(min-width: 1100px) calc((min(100vw, 1280px) - 72px) / 4), (min-width: 750px) 33vw, 42vw'
+              %}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    </div>
+  {%- endif -%}
+</product-recommendations>
+<script type="module" src="{{ 'product-recommendations.js' | asset_url }}" fetchpriority="low"></script>
+
+{% stylesheet %}
+  .product-recommendations {
+    display: block;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.product_recommendations.name",
+  "class": "shopify-section--recommendations",
+  "enabled_on": { "templates": ["product"] },
+  "settings": [
+    { "type": "text", "id": "subheading", "label": "t:shared.subheading.label" },
+    { "type": "text", "id": "heading", "label": "t:shared.heading.label", "default": "Купують разом" },
+    {
+      "type": "select",
+      "id": "intent",
+      "label": "t:sections.product_recommendations.settings.intent.label",
+      "info": "t:sections.product_recommendations.settings.intent.info",
+      "options": [
+        { "value": "complementary", "label": "t:sections.product_recommendations.settings.intent.options__complementary" },
+        { "value": "related", "label": "t:sections.product_recommendations.settings.intent.options__related" }
+      ],
+      "default": "complementary"
+    },
+    {
+      "type": "checkbox",
+      "id": "fallback_related",
+      "label": "t:sections.product_recommendations.settings.fallback_related.label",
+      "default": true,
+      "visible_if": "{{ section.settings.intent == 'complementary' }}"
+    },
+    { "type": "range", "id": "products_to_show", "label": "t:shared.products_count.label", "min": 2, "max": 10, "step": 1, "default": 4 },
+    { "type": "range", "id": "columns", "label": "t:shared.columns.label", "min": 2, "max": 5, "step": 1, "default": 4 },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "t:shared.mobile_layout.label",
+      "options": [
+        { "value": "grid", "label": "t:shared.mobile_layout.options__grid" },
+        { "value": "rail", "label": "t:shared.mobile_layout.options__rail" }
+      ],
+      "default": "rail"
+    },
+    { "type": "header", "content": "t:shared.header_appearance.content" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-2" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 64 }
+  ],
+  "presets": [{ "name": "t:sections.product_recommendations.name", "category": "t:categories.products" }]
+}
+{% endschema %}

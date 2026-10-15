@@ -1,0 +1,169 @@
+{%- comment -%}
+  /cart page: line items on the left, a summary card (free shipping, note, discount, total, checkout) on the right.
+  The <cart-items> root carries data-cart-section="main-cart", so assets/cart.js re-renders it after every change.
+{%- endcomment -%}
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="section__inner">
+    <cart-items class="main-cart" data-cart-section="main-cart">
+      <h1 class="h1 main-cart__title">
+        {{- 'cart.title' | t -}}
+        {%- if cart.item_count > 0 %}
+          <span class="main-cart__count">({{ cart.item_count }})</span>
+        {%- endif -%}
+      </h1>
+
+      {%- if cart.item_count > 0 -%}
+        <div class="main-cart__layout">
+          <div class="main-cart__items">
+            {% render 'cart-items', context: 'page' %}
+            {% render 'cart-upsell' %}
+            <noscript>
+              <button type="submit" name="update" form="cart-form" class="button button--secondary main-cart__update">
+                {{- 'cart.update' | t -}}
+              </button>
+            </noscript>
+          </div>
+
+          <aside class="main-cart__aside color-{{ section.settings.summary_color_scheme }}" aria-label="{{ 'cart.summary.heading' | t }}">
+            <h2 class="visually-hidden">{{ 'cart.summary.heading' | t }}</h2>
+            {% render 'cart-free-shipping', class: 'main-cart__shipping' %}
+            {% render 'cart-note', context: 'page' %}
+            {% render 'cart-discount', context: 'page' %}
+            {% render 'cart-summary', context: 'page' %}
+          </aside>
+        </div>
+
+        <form id="cart-form" action="{{ routes.cart_url }}" method="post" hidden></form>
+      {%- else -%}
+        {% render 'cart-empty', context: 'page' %}
+      {%- endif -%}
+    </cart-items>
+  </div>
+</div>
+
+<script type="module" src="{{ 'cart-items.js' | asset_url }}"></script>
+<script type="module" src="{{ 'product-form.js' | asset_url }}"></script>
+{%- if settings.cart_show_note -%}
+  <script type="module" src="{{ 'cart-note.js' | asset_url }}"></script>
+{%- endif -%}
+{%- if settings.cart_show_discount -%}
+  <script type="module" src="{{ 'cart-discount.js' | asset_url }}"></script>
+{%- endif -%}
+{%- if settings.cart_show_upsell -%}
+  <script type="module" src="{{ 'cart-upsell.js' | asset_url }}"></script>
+{%- endif -%}
+
+{% stylesheet %}
+  .main-cart {
+    display: block;
+  }
+
+  .main-cart__title {
+    margin-bottom: clamp(20px, 3vw, 32px);
+  }
+
+  .main-cart__count {
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+
+  .main-cart__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+
+  .main-cart__items > .cart-items {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .main-cart__update {
+    margin-top: 16px;
+  }
+
+  .main-cart__aside {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+    border-radius: var(--radius-card);
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .main-cart__aside .cart-note {
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  @media (min-width: 750px) {
+    .main-cart .cart-item__media {
+      width: 112px;
+      height: 112px;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .main-cart__layout {
+      grid-template-columns: minmax(0, 1fr) 400px;
+      gap: 56px;
+    }
+
+    .main-cart__aside {
+      position: sticky;
+      top: calc(var(--header-height) + 24px);
+      padding: 28px;
+    }
+  }
+
+  @media (max-width: 749px) {
+    .main-cart__aside {
+      margin-inline: calc(var(--gutter) * -1);
+      padding: 20px var(--gutter);
+      border-radius: 0;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.main_cart.name",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:shared.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color_scheme",
+      "id": "summary_color_scheme",
+      "label": "t:sections.main_cart.settings.summary_color_scheme.label",
+      "default": "scheme-2"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:shared.padding_top.label",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:shared.padding_bottom.label",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    }
+  ]
+}
+{% endschema %}

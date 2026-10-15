@@ -1,0 +1,105 @@
+{%- doc -%}
+  Contact column: heading, phone and email from Theme settings → Social media & contacts (tel:/mailto: links), plus optional text.
+  Shares the menu block's look, so it collapses into an accordion on mobile in the footer.
+{%- enddoc -%}
+{% # theme-check-disable ValidScopedCSSClass %}
+{%- liquid
+  assign phone = settings.contact_phone | strip
+  assign email = settings.contact_email | strip
+  assign phone_href = phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | remove: '.'
+  assign heading = block.settings.heading
+  if heading == blank
+    assign heading = 'footer.contact' | t
+  endif
+  assign has_content = false
+  if phone != blank or email != blank or block.settings.text != blank
+    assign has_content = true
+  endif
+-%}
+{%- if has_content or request.design_mode -%}
+  <div class="menu-block contact-info{% if block.settings.collapse_mobile %} menu-block--collapse{% endif %}" {{ block.shopify_attributes }}>
+    <details class="menu-block__details" open>
+      <summary class="menu-block__heading eyebrow{% if block.settings.heading == blank %} visually-hidden{% endif %}">
+        {{ heading | escape }}
+        <span class="icon-plus-minus" aria-hidden="true"></span>
+      </summary>
+      <ul class="menu-block__list contact-info__list" role="list">
+        {%- if phone != blank -%}
+          <li>
+            <a class="menu-block__link contact-info__link" href="tel:{{ phone_href }}">
+              {%- render 'icon', name: 'phone', size: 18 -%}
+              <span class="visually-hidden">{{ 'footer.phone' | t }}:</span>
+              {{ phone | escape }}
+            </a>
+          </li>
+        {%- endif -%}
+        {%- if email != blank -%}
+          <li>
+            <a class="menu-block__link contact-info__link" href="mailto:{{ email }}">
+              {%- render 'icon', name: 'mail', size: 18 -%}
+              <span class="visually-hidden">{{ 'footer.email' | t }}:</span>
+              {{ email | escape }}
+            </a>
+          </li>
+        {%- endif -%}
+      </ul>
+      {%- if block.settings.text != blank -%}
+        <div class="contact-info__text rte">{{ block.settings.text }}</div>
+      {%- endif -%}
+    </details>
+  </div>
+  <script>
+    // Collapse on small screens without loading a module (same as the menu block).
+    (() => {
+      const el = document.currentScript.previousElementSibling;
+      if (el?.classList.contains('menu-block--collapse') && matchMedia('(max-width: 749px)').matches) {
+        el.querySelector('details')?.removeAttribute('open');
+      }
+    })();
+  </script>
+{%- endif -%}
+
+{% stylesheet %}
+  .contact-info__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-info__link .icon {
+    color: var(--color-text-muted);
+  }
+
+  .contact-info__text {
+    margin-top: 12px;
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  @media (max-width: 749px) {
+    .contact-info__link {
+      min-height: 40px;
+    }
+
+    .menu-block--collapse .contact-info__text {
+      margin-top: -8px;
+      padding-bottom: 20px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.contact_info.name",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "heading", "label": "t:shared.heading.label", "default": "Звʼязок" },
+    { "type": "paragraph", "content": "t:blocks.contact_info.settings.info.content" },
+    { "type": "richtext", "id": "text", "label": "t:blocks.contact_info.settings.text.label" },
+    { "type": "checkbox", "id": "collapse_mobile", "label": "t:blocks.menu.settings.collapse_mobile.label", "default": true }
+  ],
+  "presets": [{ "name": "t:blocks.contact_info.name", "category": "t:categories.text" }]
+}
+{% endschema %}

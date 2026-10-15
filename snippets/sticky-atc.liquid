@@ -107,11 +107,19 @@
     .sticky-atc__media {
       display: none;
     }
+
+    html:has(.sticky-atc.is-visible) body {
+      padding-bottom: 72px;
+    }
   }
 
   @media (min-width: 750px) {
     .sticky-atc--mobile {
       display: none;
+    }
+
+    html:has(.sticky-atc.is-visible:not(.sticky-atc--mobile)) body {
+      padding-bottom: 72px;
     }
   }
 {% endstylesheet %}

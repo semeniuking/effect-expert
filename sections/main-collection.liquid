@@ -1,0 +1,630 @@
+{%- comment -%}
+  Collection page: breadcrumbs, title, description, optional image, sub-collection chips, Search & Discovery filters
+  (sticky sidebar on desktop, bottom drawer on mobile/tablet), sorting, product grid and "load more" pagination.
+  Sub-collection chips come from a menu with the same handle as the collection (e.g. "eyelashes"), or from the
+  menu picked in the section settings.
+  JS: assets/facets.js (<facet-filters>). Without JS the filters form submits with GET and links are real links.
+{%- endcomment -%}
+{%- liquid
+  assign sid = section.id
+  assign filtering = section.settings.enable_filtering
+  if collection.filters.size == 0
+    assign filtering = false
+  endif
+  assign sorting = section.settings.enable_sorting
+  assign layout = section.settings.filter_layout
+  if filtering == false
+    assign layout = 'none'
+  endif
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign clear_url = collection.url | append: '?sort_by=' | append: sort_by
+  assign form_id = 'FacetsForm-' | append: sid
+  assign sort_id = 'SortBy-' | append: sid
+  assign sort_bar_id = 'SortByBar-' | append: sid
+  assign is_sidebar = false
+  if layout == 'sidebar'
+    assign is_sidebar = true
+  endif
+
+  assign active_filter_count = 0
+  for filter in collection.filters
+    if filter.type == 'price_range'
+      if filter.min_value.value != null or filter.max_value.value != null
+        assign active_filter_count = active_filter_count | plus: 1
+      endif
+    else
+      assign active_filter_count = active_filter_count | plus: filter.active_values.size
+    endif
+  endfor
+
+  assign chip_menu = null
+  if section.settings.show_subcollections
+    assign chip_menu = linklists[collection.handle]
+    if chip_menu.links.size == 0 or chip_menu == blank
+      assign chip_menu = section.settings.subcollections_menu
+    endif
+  endif
+
+  assign cols = section.settings.columns
+  if layout == 'sidebar'
+    assign sizes = '(min-width: 1100px) calc((min(100vw, 1344px) - 360px) / ' | append: cols | append: '), (min-width: 750px) calc((100vw - 112px) / 3), calc((100vw - 52px) / ' | append: section.settings.columns_mobile | append: ')'
+  else
+    assign sizes = '(min-width: 1100px) calc((min(100vw, 1344px) - 64px) / ' | append: cols | append: '), (min-width: 750px) calc((100vw - 112px) / 3), calc((100vw - 52px) / ' | append: section.settings.columns_mobile | append: ')'
+  endif
+
+  assign show_image = false
+  if section.settings.show_image and collection.image != blank
+    assign show_image = true
+  endif
+-%}
+<script type="module" src="{{ 'facets.js' | asset_url }}"></script>
+
+<facet-filters
+  class="section color-{{ section.settings.color_scheme }} collection collection--{{ layout }}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+  data-section-id="{{ sid }}"
+>
+  <div class="section__inner collection__header">
+    {%- if section.settings.show_breadcrumbs -%}
+      <nav class="breadcrumbs" aria-label="{{ 'collections.breadcrumbs' | t }}">
+        <a href="{{ routes.root_url }}">{{ 'general.home' | t }}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{{ collection.title | escape }}</span>
+      </nav>
+    {%- endif -%}
+
+    <div class="collection__intro{% if show_image %} collection__intro--image{% endif %}">
+      <div class="collection__titles">
+        <h1 class="collection__title">{{ collection.title | escape }}</h1>
+        {%- if section.settings.show_description and collection.description != blank -%}
+          <div class="rte collection__description">{{ collection.description }}</div>
+        {%- endif -%}
+      </div>
+      {%- if show_image -%}
+        <div class="media collection__image">
+          {% render 'image',
+            image: collection.image,
+            sizes: '(min-width: 750px) 400px, calc(100vw - 40px)',
+            widths: '360, 540, 720, 800',
+            priority: true
+          %}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- if chip_menu != blank and chip_menu.links.size > 0 -%}
+    <nav class="collection__chips no-scrollbar" aria-label="{{ 'collections.subcollections' | t }}">
+      <ul class="collection__chips-list" role="list">
+        {%- for link in chip_menu.links -%}
+          {%- liquid
+            assign chip_image = null
+            if section.settings.show_chip_images and link.type == 'collection_link'
+              assign chip_image = link.object.featured_image
+            endif
+          -%}
+          <li>
+            <a
+              class="collection-chip{% if link.current %} is-active{% endif %}{% if chip_image %} collection-chip--image{% endif %}"
+              href="{{ link.url }}"
+              {% if link.current %}
+                aria-current="page"
+              {% endif %}
+            >
+              {%- if chip_image -%}
+                <span class="collection-chip__media">
+                  {{- chip_image | image_url: width: 64, height: 64, crop: 'center' | image_tag: alt: '', loading: 'lazy', width: 32, height: 32 -}}
+                </span>
+              {%- endif -%}
+              {{- link.title | escape -}}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+  {%- endif -%}
+
+  {%- if collection.all_products_count > 0 -%}
+    {%- if filtering or sorting -%}
+      <div class="collection__bar facets-js{% unless filtering and sorting %} collection__bar--single{% endunless %}">
+        {%- if filtering -%}
+          <button
+            type="button"
+            class="collection__bar-button"
+            aria-controls="FacetsDrawer-{{ sid }}"
+            aria-expanded="false"
+            aria-haspopup="dialog"
+            data-facets-open
+          >
+            {% render 'icon', name: 'filter', size: 18 %}
+            {{ 'facets.title' | t }}
+            <span data-facets-badge>{% if active_filter_count > 0 %}({{ active_filter_count }}){% endif %}</span>
+          </button>
+        {%- endif -%}
+        {%- if sorting -%}
+          {% render 'facets-sort', results: collection, id: sort_bar_id, proxy: true %}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- paginate collection.products by section.settings.products_per_page -%}
+      <div class="section__inner collection__layout collection__layout--{{ layout }}">
+        {%- if filtering -%}
+          {% render 'facets-drawer',
+            results: collection,
+            section_id: sid,
+            action: collection.url,
+            clear_url: clear_url,
+            count: collection.products_count,
+            sidebar: is_sidebar
+          %}
+        {%- endif -%}
+
+        <div class="collection__main">
+          <div class="collection__toolbar">
+            <div class="collection__toolbar-start">
+              {%- if layout == 'drawer' -%}
+                <button
+                  type="button"
+                  class="button button--secondary button--sm collection__filter-button facets-js"
+                  aria-controls="FacetsDrawer-{{ sid }}"
+                  aria-expanded="false"
+                  aria-haspopup="dialog"
+                  data-facets-open
+                >
+                  {% render 'icon', name: 'filter', size: 18 %}
+                  {{ 'facets.title' | t }}
+                  <span data-facets-badge>{% if active_filter_count > 0 %}({{ active_filter_count }}){% endif %}</span>
+                </button>
+              {%- endif -%}
+              <p class="collection__count" role="status" data-facets-count>
+                {{- 'collections.product_count' | t: count: collection.products_count -}}
+              </p>
+              {%- if filtering -%}
+                {% render 'facets-active', results: collection, clear_url: clear_url %}
+              {%- endif -%}
+            </div>
+            {%- if sorting -%}
+              <div class="collection__sort">
+                {% render 'facets-sort', results: collection, id: sort_id, form_id: form_id %}
+                {%- unless filtering -%}
+                  <form id="{{ form_id }}" action="{{ collection.url }}" method="get" data-facets-form>
+                    <button type="submit" class="button button--secondary button--sm facets-nojs">{{ 'facets.apply' | t }}</button>
+                  </form>
+                {%- endunless -%}
+              </div>
+            {%- endif -%}
+          </div>
+
+          <div class="collection__results" data-facets-results>
+            {%- if collection.products_count == 0 -%}
+              <div class="collection__empty">
+                <h2 class="h3">{{ 'collections.empty_title' | t }}</h2>
+                <p class="text-muted">{{ 'collections.empty_filtered_text' | t }}</p>
+                <a class="button button--secondary" href="{{ clear_url }}" data-facet-link>{{ 'collections.reset_filters' | t }}</a>
+              </div>
+            {%- else -%}
+              <ul
+                class="grid collection__grid"
+                role="list"
+                style="--cols: {{ cols }}; --cols-tablet: 3; --cols-mobile: {{ section.settings.columns_mobile }};"
+                data-facets-grid
+              >
+                {%- for product in collection.products -%}
+                  {%- liquid
+                    assign card_priority = false
+                    if show_image == false and paginate.current_page == 1 and forloop.index <= 2
+                      assign card_priority = true
+                    endif
+                  -%}
+                  <li>
+                    {% render 'product-card', product: product, sizes: sizes, priority: card_priority %}
+                  </li>
+                {%- endfor -%}
+              </ul>
+              {% render 'results-pagination', paginate: paginate %}
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    {%- endpaginate -%}
+  {%- else -%}
+    <div class="section__inner">
+      <div class="collection__empty">
+        <h2 class="h3">{{ 'collections.empty_title' | t }}</h2>
+        <p class="text-muted">{{ 'collections.empty_collection_text' | t }}</p>
+        <a class="button" href="{{ routes.all_products_collection_url }}">{{ 'collections.browse_all' | t }}</a>
+      </div>
+    </div>
+  {%- endif -%}
+</facet-filters>
+
+{% stylesheet %}
+  .collection {
+    display: block;
+  }
+
+  .collection__header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 24px;
+  }
+
+  .collection__intro {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+  }
+
+  .collection__titles {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    flex: 1 1 320px;
+  }
+
+  .collection__description {
+    max-width: 560px;
+    color: var(--color-text-muted);
+    font-size: 15px;
+    line-height: 22px;
+  }
+
+  .collection__image {
+    flex: 0 1 400px;
+    --ratio: 3 / 2;
+  }
+
+  /* Sub-collection chips */
+  .collection__chips {
+    overflow-x: auto;
+    margin-bottom: 24px;
+  }
+
+  .collection__chips-list {
+    display: flex;
+    gap: 8px;
+    width: max-content;
+    margin: 0;
+    padding: 0 var(--gutter);
+  }
+
+  @media (min-width: 750px) {
+    .collection__chips-list {
+      width: auto;
+      max-width: calc(var(--page-width) + var(--gutter) * 2);
+      margin-inline: auto;
+      flex-wrap: wrap;
+    }
+  }
+
+  .collection-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-button);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: var(--font-body-weight-bold);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .collection-chip--image {
+    padding-left: 6px;
+  }
+
+  .collection-chip:hover {
+    border-color: var(--color-text);
+    color: var(--color-text);
+  }
+
+  .collection-chip.is-active {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-bg);
+  }
+
+  .collection-chip__media img {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-media);
+    object-fit: cover;
+    background: var(--color-surface);
+  }
+
+  /* Mobile / tablet sticky bar */
+  .collection__bar {
+    position: sticky;
+    top: var(--header-offset, 0px);
+    z-index: 5;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--color-bg);
+    border-block: 1px solid var(--color-line);
+  }
+
+  .collection__bar--single {
+    grid-template-columns: 1fr;
+  }
+
+  .collection__bar-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 52px;
+    padding: 0 12px;
+    border: 0;
+    border-right: 1px solid var(--color-line);
+    background: none;
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: var(--font-body-weight-bold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .collection__bar--single .collection__bar-button {
+    border-right: 0;
+  }
+
+  .collection__bar-button:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* Layout */
+  .collection__main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+  }
+
+  .collection__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .collection__toolbar-start {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    min-width: 0;
+  }
+
+  .collection__count {
+    margin-right: 4px;
+    font-size: 14px;
+    color: var(--color-text-muted);
+  }
+
+  .collection__results[aria-busy='true'] {
+    opacity: 0.5;
+    pointer-events: none;
+    transition: opacity var(--duration) var(--ease);
+  }
+
+  .collection__grid {
+    --grid-row-gap: 32px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .collection__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 64px 0;
+    text-align: center;
+  }
+
+  .collection__empty .button {
+    margin-top: 8px;
+  }
+
+  @media (max-width: 1099px) {
+    .js .collection__sort,
+    .js .collection__filter-button {
+      display: none;
+    }
+
+    .collection__bar + .collection__layout {
+      margin-top: 12px;
+    }
+  }
+
+  @media (max-width: 749px) {
+    .collection__header {
+      gap: 6px;
+      padding-bottom: 12px;
+    }
+
+    .collection__chips {
+      margin-bottom: 16px;
+    }
+
+    .collection__main {
+      gap: 16px;
+    }
+
+    .collection__grid {
+      --grid-row-gap: 28px;
+    }
+  }
+
+  @media (min-width: 750px) {
+    .collection__toolbar {
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--color-line);
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .collection__bar {
+      display: none;
+    }
+
+    .collection__layout--sidebar {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 40px;
+      align-items: start;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.main_collection.name",
+  "class": "shopify-section--main-collection",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:sections.main_collection.settings.show_breadcrumbs.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "t:sections.main_collection.settings.show_description.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "t:sections.main_collection.settings.show_image.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_collection.settings.header_subcollections.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_subcollections",
+      "label": "t:sections.main_collection.settings.show_subcollections.label",
+      "default": true
+    },
+    {
+      "type": "link_list",
+      "id": "subcollections_menu",
+      "label": "t:sections.main_collection.settings.subcollections_menu.label",
+      "info": "t:sections.main_collection.settings.subcollections_menu.info",
+      "visible_if": "{{ section.settings.show_subcollections }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_chip_images",
+      "label": "t:sections.main_collection.settings.show_chip_images.label",
+      "default": false,
+      "visible_if": "{{ section.settings.show_subcollections }}"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_collection.settings.header_filtering.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "label": "t:sections.main_collection.settings.enable_filtering.label",
+      "info": "t:sections.main_collection.settings.enable_filtering.info",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "filter_layout",
+      "label": "t:sections.main_collection.settings.filter_layout.label",
+      "options": [
+        { "value": "sidebar", "label": "t:sections.main_collection.settings.filter_layout.options__sidebar" },
+        { "value": "drawer", "label": "t:sections.main_collection.settings.filter_layout.options__drawer" }
+      ],
+      "default": "sidebar",
+      "visible_if": "{{ section.settings.enable_filtering }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "label": "t:sections.main_collection.settings.enable_sorting.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:shared.header_layout.content"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "t:sections.main_collection.settings.products_per_page.label",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:shared.columns.label",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:shared.columns_mobile.label",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "header",
+      "content": "t:shared.header_appearance.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:shared.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:shared.padding_top.label",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:shared.padding_bottom.label",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    }
+  ]
+}
+{% endschema %}

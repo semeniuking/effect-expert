@@ -1,0 +1,48 @@
+{%- doc -%}
+  Collapsible product details: each row shows the description, a product metafield (e.g. custom.specs),
+  a page's content or custom rich text. Empty rows are hidden.
+{%- enddoc -%}
+<div class="product-accordion" {{ block.shopify_attributes }}>
+  {% content_for 'blocks' %}
+</div>
+
+{% stylesheet %}
+  .product-accordion {
+    border-top: 1px solid var(--color-line);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.product_accordion.name",
+  "tag": null,
+  "blocks": [{ "type": "_product-accordion-row" }],
+  "presets": [
+    {
+      "name": "t:blocks.product_accordion.name",
+      "category": "t:categories.product",
+      "blocks": {
+        "description": { "type": "_product-accordion-row", "settings": { "heading": "Опис", "source": "description", "open": true } },
+        "specs": { "type": "_product-accordion-row", "settings": { "heading": "Характеристики", "source": "metafield", "metafield": "custom.specs" } },
+        "shipping": {
+          "type": "_product-accordion-row",
+          "settings": {
+            "heading": "Доставка та оплата",
+            "source": "richtext",
+            "content": "<p>Відправляємо Новою Поштою в день замовлення (пн–пт). Безкоштовна доставка від 3000 грн.</p><p>Оплата карткою онлайн або післяплатою у відділенні.</p>"
+          }
+        },
+        "returns": {
+          "type": "_product-accordion-row",
+          "settings": {
+            "heading": "Обмін і повернення",
+            "source": "richtext",
+            "content": "<p>Обмін і повернення протягом 14 днів, якщо товар не використовувався і збережено заводську упаковку. Напишіть нам — допоможемо все оформити.</p>"
+          }
+        }
+      },
+      "block_order": ["description", "specs", "shipping", "returns"]
+    }
+  ]
+}
+{% endschema %}

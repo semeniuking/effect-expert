@@ -1,0 +1,178 @@
+{%- comment -%}
+  Blog listing: eyebrow + title, tag filter chips, a grid of article cards and pagination.
+{%- endcomment -%}
+{%- liquid
+  assign columns = section.settings.columns
+  assign card_sizes = '(min-width: 1100px) calc((min(100vw, 1280px) - 64px) / ' | append: columns | append: '), (min-width: 750px) 50vw, 100vw'
+-%}
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="section__inner main-blog">
+    <header class="main-blog__header">
+      {%- if section.settings.subheading != blank -%}
+        <p class="eyebrow text-muted">{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+      <h1 class="h1">{{ blog.title | escape }}</h1>
+    </header>
+
+    {%- if section.settings.show_tags and blog.all_tags.size > 0 -%}
+      <nav class="main-blog__tags" aria-label="{{ 'blogs.tags_label' | t }}">
+        <ul class="main-blog__tag-list no-scrollbar" role="list">
+          <li>
+            <a
+              class="pill pill--sm main-blog__tag{% if current_tags == blank %} is-active{% endif %}"
+              href="{{ blog.url }}"
+              {% if current_tags == blank %}
+                aria-current="page"
+              {% endif %}
+            >
+              {{- 'blogs.all' | t -}}
+            </a>
+          </li>
+          {%- for tag in blog.all_tags -%}
+            {%- assign active = false -%}
+            {%- if current_tags contains tag -%}
+              {%- assign active = true -%}
+            {%- endif -%}
+            <li>
+              <a
+                class="pill pill--sm main-blog__tag{% if active %} is-active{% endif %}"
+                href="{{ blog.url }}/tagged/{{ tag | handleize }}"
+                {% if active %}
+                  aria-current="page"
+                {% endif %}
+              >
+                {{- tag | escape -}}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+
+    {%- paginate blog.articles by section.settings.per_page -%}
+      {%- if blog.articles.size > 0 -%}
+        <ul
+          class="grid main-blog__grid"
+          role="list"
+          style="--cols: {{ columns }}; --cols-tablet: 2; --cols-mobile: 1;"
+        >
+          {%- for article in blog.articles -%}
+            <li>
+              {% render 'article-card',
+                article: article,
+                sizes: card_sizes,
+                show_excerpt: section.settings.show_excerpt,
+                show_date: section.settings.show_date,
+                priority: forloop.first
+              %}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p class="main-blog__empty text-muted">{{ 'blogs.empty' | t }}</p>
+      {%- endif -%}
+
+      {%- if paginate.pages > 1 -%}
+        <nav class="pagination" aria-label="{{ 'blogs.pagination_label' | t }}">
+          <ul class="pagination__list" role="list">
+            {%- if paginate.previous -%}
+              <li>
+                <a class="pagination__item" href="{{ paginate.previous.url }}" aria-label="{{ 'blogs.previous_page' | t }}">
+                  {%- render 'icon', name: 'chevron-left', size: 18 -%}
+                </a>
+              </li>
+            {%- endif -%}
+            {%- for part in paginate.parts -%}
+              <li>
+                {%- if part.is_link -%}
+                  <a class="pagination__item" href="{{ part.url }}" aria-label="{{ 'general.page' | t: page: part.title }}">{{ part.title }}</a>
+                {%- elsif part.title contains 'hellip' -%}
+                  <span class="pagination__item" aria-hidden="true">{{ part.title }}</span>
+                {%- else -%}
+                  <span class="pagination__item" aria-current="page" aria-label="{{ 'general.page' | t: page: part.title }}">{{ part.title }}</span>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+            {%- if paginate.next -%}
+              <li>
+                <a class="pagination__item" href="{{ paginate.next.url }}" aria-label="{{ 'blogs.next_page' | t }}">
+                  {%- render 'icon', name: 'chevron-right', size: 18 -%}
+                </a>
+              </li>
+            {%- endif -%}
+          </ul>
+        </nav>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .main-blog__header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .main-blog__tags {
+    margin-bottom: 32px;
+  }
+
+  .main-blog__tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .main-blog__tag {
+    padding-inline: 16px;
+    font-weight: var(--font-body-weight);
+  }
+
+  .main-blog__grid {
+    --grid-row-gap: 48px;
+  }
+
+  .main-blog__empty {
+    padding-block: 32px;
+  }
+
+  @media (max-width: 749px) {
+    .main-blog__tag-list {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin-inline: calc(var(--gutter) * -1);
+      padding-inline: var(--gutter);
+    }
+
+    .main-blog__tag {
+      white-space: nowrap;
+    }
+
+    .main-blog__grid {
+      --grid-row-gap: 36px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.main_blog.name",
+  "settings": [
+    { "type": "text", "id": "subheading", "label": "t:shared.subheading.label", "default": "Блог" },
+    { "type": "checkbox", "id": "show_tags", "label": "t:sections.main_blog.settings.show_tags.label", "default": true },
+    { "type": "range", "id": "per_page", "label": "t:sections.main_blog.settings.per_page.label", "min": 3, "max": 24, "step": 3, "default": 9 },
+    { "type": "range", "id": "columns", "label": "t:shared.columns.label", "min": 2, "max": 4, "step": 1, "default": 3 },
+    { "type": "checkbox", "id": "show_date", "label": "t:sections.main_blog.settings.show_date.label", "default": true },
+    { "type": "checkbox", "id": "show_excerpt", "label": "t:sections.main_blog.settings.show_excerpt.label", "default": true },
+    { "type": "header", "content": "t:shared.header_appearance.content" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 96 }
+  ]
+}
+{% endschema %}

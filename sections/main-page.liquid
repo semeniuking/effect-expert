@@ -1,0 +1,79 @@
+{%- comment -%}
+  Standard page: optional eyebrow, title and page.content in a 720px column, followed by any theme blocks
+  (FAQ accordion, contact form, buttons…).
+{%- endcomment -%}
+{%- liquid
+  assign title = section.settings.title
+  if title == blank
+    assign title = page.title
+  endif
+-%}
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px; --gap: {{ section.settings.gap }}px;"
+>
+  <div class="section__inner main-page">
+    {%- if section.settings.show_title -%}
+      <header class="main-page__header">
+        {%- if section.settings.subheading != blank -%}
+          <p class="eyebrow text-muted">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+        <h1 class="h1">{{ title | escape }}</h1>
+      </header>
+    {%- endif -%}
+
+    {%- if page.content != blank -%}
+      <div class="rte main-page__content">{{ page.content }}</div>
+    {%- endif -%}
+
+    {% content_for 'blocks' %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .main-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    max-width: calc(720px + var(--gutter) * 2);
+  }
+
+  .main-page__header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .main-page__content {
+    line-height: 26px;
+  }
+
+  .main-page__content h2,
+  .main-page__content h3 {
+    font-size: 20px;
+    line-height: 26px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.main_page.name",
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    { "type": "checkbox", "id": "show_title", "label": "t:sections.main_page.settings.show_title.label", "default": true },
+    { "type": "text", "id": "subheading", "label": "t:shared.subheading.label" },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.main_page.settings.title.label",
+      "info": "t:sections.main_page.settings.title.info",
+      "visible_if": "{{ section.settings.show_title }}"
+    },
+    { "type": "range", "id": "gap", "label": "t:shared.gap.label", "min": 0, "max": 96, "step": 4, "unit": "px", "default": 32 },
+    { "type": "header", "content": "t:shared.header_appearance.content" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 96 }
+  ]
+}
+{% endschema %}

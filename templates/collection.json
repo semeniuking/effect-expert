@@ -1,0 +1,24 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {
+        "show_breadcrumbs": true,
+        "show_description": true,
+        "show_image": false,
+        "show_subcollections": true,
+        "show_chip_images": false,
+        "enable_filtering": true,
+        "filter_layout": "sidebar",
+        "enable_sorting": true,
+        "products_per_page": 24,
+        "columns": 3,
+        "columns_mobile": "2",
+        "color_scheme": "scheme-1",
+        "padding_top": 24,
+        "padding_bottom": 80
+      }
+    }
+  },
+  "order": ["main"]
+}

@@ -1,0 +1,32 @@
+{
+  "type": "header",
+  "name": "t:sections.header_group.name",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement-ship": {
+          "type": "_announcement",
+          "settings": { "text": "Відправляємо в день замовлення, пн–пт", "link": "" }
+        },
+        "announcement-free": {
+          "type": "_announcement",
+          "settings": { "text": "Безкоштовна доставка від 3000 грн", "link": "" }
+        }
+      },
+      "block_order": ["announcement-ship", "announcement-free"],
+      "settings": { "color_scheme": "scheme-2", "interval": 5 }
+    },
+    "header": {
+      "type": "header",
+      "settings": {
+        "menu": "main-menu",
+        "secondary_menu": "footer",
+        "show_language": true,
+        "sticky": true,
+        "color_scheme": "scheme-1"
+      }
+    }
+  },
+  "order": ["announcement-bar", "header"]
+}

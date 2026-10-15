@@ -103,6 +103,7 @@
   /* In-place form: desktop sidebar, and always without JS */
   .no-js .facets-drawer:not([open]) {
     position: static;
+    inset: auto;
     display: block;
     width: auto;
     height: auto;
@@ -131,14 +132,16 @@
   }
 
   @media (min-width: 1100px) {
-    .facets-drawer--sidebar:not([open]) {
+    .facets-drawer.facets-drawer--sidebar:not([open]) {
       position: sticky;
+      inset: auto;
       top: calc(var(--header-offset, 0px) + 24px);
       display: block;
       width: auto;
       height: auto;
       max-height: calc(100dvh - var(--header-offset, 0px) - 48px);
-      margin: 0;
+      margin: 0 -4px;
+      padding: 0 4px;
       border-radius: 0;
       box-shadow: none;
       background: transparent;
@@ -147,32 +150,32 @@
       scrollbar-width: thin;
     }
 
-    .facets-drawer--sidebar:not([open]) .drawer__inner {
+    .facets-drawer.facets-drawer--sidebar:not([open]) .drawer__inner {
       height: auto;
     }
 
-    .facets-drawer--sidebar:not([open]) .drawer__header {
+    .facets-drawer.facets-drawer--sidebar:not([open]) .drawer__header {
       display: none;
     }
 
-    .facets-drawer--sidebar:not([open]) .drawer__body {
+    .facets-drawer.facets-drawer--sidebar:not([open]) .drawer__body {
       padding: 0;
       overflow: visible;
     }
 
-    .facets-drawer--sidebar:not([open]) .facets__list {
+    .facets-drawer.facets-drawer--sidebar:not([open]) .facets__list {
       border-top: 1px solid var(--color-line);
     }
 
-    .js .facets-drawer--sidebar:not([open]) .drawer__footer {
+    .js .facets-drawer.facets-drawer--sidebar:not([open]) .drawer__footer {
       display: none;
     }
 
-    .no-js .facets-drawer--sidebar:not([open]) {
+    .no-js .facets-drawer.facets-drawer--sidebar:not([open]) {
       margin: 0;
     }
 
-    .no-js .facets-drawer--sidebar:not([open]) .drawer__footer {
+    .no-js .facets-drawer.facets-drawer--sidebar:not([open]) .drawer__footer {
       grid-template-columns: 1fr;
     }
   }

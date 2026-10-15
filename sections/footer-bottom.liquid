@@ -1,0 +1,118 @@
+{%- comment -%}
+  Footer bottom bar: copyright, policy links and payment icons from Shopify.
+{%- endcomment -%}
+<div class="footer-bottom color-{{ section.settings.color_scheme }}">
+  <div class="page-width">
+    <div class="footer-bottom__inner">
+      <p class="footer-bottom__copyright">
+        &copy; {{ 'now' | date: '%Y' }}
+        {{ shop.name | escape }}
+      </p>
+
+      {%- if section.settings.show_policies and shop.policies.size > 0 -%}
+        <nav class="footer-bottom__policies" aria-label="{{ 'footer.policies' | t }}">
+          <ul role="list">
+            {%- for policy in shop.policies -%}
+              {%- if policy != blank -%}
+                <li>
+                  <a href="{{ policy.url }}">{{ policy.title | escape }}</a>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </nav>
+      {%- endif -%}
+
+      {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
+        <ul class="footer-bottom__payments" role="list" aria-label="{{ 'footer.payment_methods' | t }}">
+          {%- for type in shop.enabled_payment_types -%}
+            <li>{{ type | payment_type_svg_tag: class: 'footer-bottom__payment-icon' }}</li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .footer-bottom {
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .footer-bottom__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding-block: 20px 24px;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .footer-bottom__copyright {
+    margin: 0;
+  }
+
+  .footer-bottom__policies ul,
+  .footer-bottom__payments {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer-bottom__policies ul {
+    gap: 0 20px;
+  }
+
+  .footer-bottom__policies a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .footer-bottom__policies a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .footer-bottom__payments {
+    gap: 8px;
+  }
+
+  .footer-bottom__payment-icon {
+    width: 38px;
+    height: 24px;
+  }
+
+  @media (min-width: 750px) {
+    .footer-bottom {
+      font-size: 13px;
+    }
+
+    .footer-bottom__policies {
+      flex: 1;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.footer_bottom.name",
+  "class": "footer-bottom-section",
+  "enabled_on": { "groups": ["footer"] },
+  "settings": [
+    { "type": "checkbox", "id": "show_policies", "label": "t:sections.footer_bottom.settings.show_policies.label", "default": true },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "t:sections.footer_bottom.settings.show_payment_icons.label", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-3" }
+  ],
+  "presets": [{ "name": "t:sections.footer_bottom.name" }]
+}
+{% endschema %}

@@ -1,4 +1,59 @@
 {
+  "collections": {
+    "breadcrumbs": "Breadcrumbs",
+    "subcollections": "Categories",
+    "product_count": {
+      "one": "{{ count }} product",
+      "other": "{{ count }} products"
+    },
+    "empty_title": "No products found",
+    "empty_filtered_text": "Try removing some filters or changing the price range.",
+    "empty_collection_text": "There are no products in this collection yet.",
+    "reset_filters": "Reset filters",
+    "browse_all": "Browse all products",
+    "list_empty": "No collections yet"
+  },
+  "facets": {
+    "title": "Filters",
+    "sort_label": "Sort by",
+    "sort_mobile": "Sort",
+    "price_from": "Price from",
+    "price_to": "Price to",
+    "active_filters": "Active filters",
+    "remove_filter": "Remove filter: {{ filter }}",
+    "clear_all": "Clear all",
+    "reset": "Reset",
+    "apply": "Apply",
+    "show_results": {
+      "one": "Show {{ count }} product",
+      "other": "Show {{ count }} products"
+    },
+    "in_stock": "In stock"
+  },
+  "search_page": {
+    "title": "Search",
+    "input_label": "Search products",
+    "placeholder": "What are you looking for?",
+    "submit": "Search",
+    "results_count": {
+      "one": "{{ count }} result for “{{ terms }}”",
+      "other": "{{ count }} results for “{{ terms }}”"
+    },
+    "empty_text": "Enter a product name, brand or curl — for example “glue” or “Brunette”.",
+    "no_results_title": "Nothing found for “{{ terms }}”",
+    "no_results_text": "Check the spelling or try a shorter, more general search.",
+    "browse_catalog": "Go to catalog",
+    "popular": "Popular searches:",
+    "type_article": "Article",
+    "type_page": "Page"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "showing": "Showing {{ shown }} of {{ total }}",
+    "load_more": "Show more",
+    "previous": "Previous page",
+    "next": "Next page"
+  },
   "accessibility": {
     "skip_to_content": "Skip to content",
     "close": "Close",
@@ -26,8 +81,84 @@
     "price": {
       "from_price": "from {{ price }}",
       "regular_price": "Regular price",
-      "sale_price": "Sale price"
+      "sale_price": "Sale price",
+      "taxes_included": "Taxes included"
+    },
+    "breadcrumbs": "Breadcrumbs",
+    "sticky_add": "Add to cart",
+    "inventory": {
+      "in_stock": "In stock",
+      "low_stock": "Only {{ count }} left"
+    },
+    "quantity": {
+      "label": "Quantity",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity"
+    },
+    "gallery": {
+      "label": "Product media",
+      "slide": "Media {{ index }} of {{ count }}",
+      "show_media": "Show media {{ index }}"
+    },
+    "info_box": {
+      "free_shipping_remaining": "Free shipping from {{ threshold }} — {{ remaining }} to go",
+      "free_shipping_reached": "Your order ships for free",
+      "bonus": "+{{ amount }} in bonuses for your next order"
+    },
+    "share": {
+      "label": "Share",
+      "on": "Share on {{ network }}"
+    },
+    "quick_add": {
+      "details": "View details"
     }
+  },
+  "header": {
+    "announcements": "Announcements",
+    "main_nav": "Main menu",
+    "menu_open": "Open menu",
+    "menu_close": "Close menu",
+    "menu_label": "Menu",
+    "catalog": "Catalog",
+    "view_all": "View all",
+    "search": "Search",
+    "account": "Log in",
+    "my_account": "My account",
+    "login": "Log in to your account",
+    "cart": "Cart",
+    "language": "Language"
+  },
+  "predictive_search": {
+    "title": "Search",
+    "placeholder": "Search products",
+    "cancel": "Cancel",
+    "close": "Close search",
+    "popular": "Popular searches",
+    "suggestions": "Suggestions",
+    "collections": "Collections",
+    "products": "Products",
+    "view_all": "All results ({{ count }})",
+    "results_count": "Results found: {{ count }}",
+    "no_results": "Nothing found for “{{ terms }}”"
+  },
+  "footer": {
+    "contact": "Contact",
+    "phone": "Phone",
+    "email": "Email",
+    "policies": "Legal information",
+    "payment_methods": "Payment methods"
+  },
+  "password": {
+    "signup_label": "Get notified when we open",
+    "email_placeholder": "Your email",
+    "signup_button": "Notify me",
+    "signup_success": "Thank you! We will let you know as soon as we open.",
+    "enter_with_password": "Enter with password",
+    "password_label": "Password",
+    "enter": "Enter",
+    "wrong_password": "Incorrect password. Please try again.",
+    "admin_hint": "Are you the store owner?",
+    "admin_link": "Log in here"
   },
   "sections": {
     "slideshow": {

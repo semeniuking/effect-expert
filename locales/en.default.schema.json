@@ -1,4 +1,302 @@
 {
+  "sections": {
+    "main_collection": {
+      "name": "Collection",
+      "settings": {
+        "show_breadcrumbs": {
+          "label": "Show breadcrumbs"
+        },
+        "show_description": {
+          "label": "Show collection description"
+        },
+        "show_image": {
+          "label": "Show collection image"
+        },
+        "header_subcollections": {
+          "content": "Sub-collection chips"
+        },
+        "show_subcollections": {
+          "label": "Show sub-collection chips"
+        },
+        "subcollections_menu": {
+          "label": "Menu",
+          "info": "A menu whose handle matches the collection handle (e.g. “eyelashes”) is used first. Otherwise this menu is shown on every collection."
+        },
+        "show_chip_images": {
+          "label": "Show collection images in chips"
+        },
+        "header_filtering": {
+          "content": "Filtering and sorting"
+        },
+        "enable_filtering": {
+          "label": "Enable filters",
+          "info": "Set up filters in the Search & Discovery app"
+        },
+        "filter_layout": {
+          "label": "Filters on desktop",
+          "options__sidebar": "Sidebar",
+          "options__drawer": "Drawer"
+        },
+        "enable_sorting": {
+          "label": "Enable sorting"
+        },
+        "products_per_page": {
+          "label": "Products per page"
+        }
+      }
+    },
+    "main_search": {
+      "name": "Search results",
+      "settings": {
+        "enable_filtering": {
+          "label": "Enable filters"
+        },
+        "enable_sorting": {
+          "label": "Enable sorting"
+        },
+        "products_per_page": {
+          "label": "Results per page"
+        },
+        "popular_info": {
+          "content": "Popular searches are edited in Theme settings → Search."
+        }
+      }
+    },
+    "main_list_collections": {
+      "name": "Collections list page",
+      "settings": {
+        "sort": {
+          "label": "Sort collections",
+          "options__alphabetical": "Alphabetically, A–Z",
+          "options__products_high": "Product count, high to low",
+          "options__date_new": "Date, new to old"
+        },
+        "collections": {
+          "label": "Collections",
+          "info": "Leave empty to show all collections in the order above."
+        },
+        "show_count": {
+          "label": "Show product count"
+        },
+        "ratio": {
+          "options__portrait": "Portrait 4:5",
+          "options__square": "Square",
+          "options__tall": "Tall 3:4"
+        }
+      }
+    },
+    "section": {
+      "name": "Section",
+      "settings": {
+        "layout": {
+          "label": "Layout",
+          "options__grid": "Grid"
+        },
+        "columns": {
+          "label": "Columns"
+        },
+        "min_height": {
+          "label": "Minimum height"
+        },
+        "background_image": {
+          "label": "Background image"
+        },
+        "overlay": {
+          "label": "Background overlay"
+        }
+      },
+      "presets": {
+        "empty": "Empty section",
+        "hero": "Hero with image",
+        "rich_text": "Text with buttons",
+        "image_with_text": "Image with text"
+      }
+    },
+    "custom_liquid": {
+      "name": "Custom Liquid",
+      "settings": {
+        "custom_liquid": {
+          "label": "Liquid code"
+        }
+      }
+    },
+    "header_group": {
+      "name": "Header"
+    },
+    "footer_group": {
+      "name": "Footer"
+    },
+    "announcement_bar": {
+      "name": "Announcement bar",
+      "settings": {
+        "interval": {
+          "label": "Change message every",
+          "info": "Mobile only: one message is shown at a time. Rotation stays off for visitors who prefer reduced motion."
+        }
+      }
+    },
+    "header": {
+      "name": "Header",
+      "settings": {
+        "menu": {
+          "label": "Menu"
+        },
+        "secondary_menu": {
+          "label": "Secondary menu in the mobile drawer",
+          "info": "Smaller links under the catalog, e.g. delivery, loyalty program, contacts"
+        },
+        "show_language": {
+          "label": "Show language switcher",
+          "info": "Visible when the store has more than one published language"
+        },
+        "sticky": {
+          "label": "Sticky header"
+        }
+      }
+    },
+    "predictive_search": {
+      "name": "Search suggestions"
+    },
+    "footer": {
+      "name": "Footer",
+      "settings": {
+        "columns": {
+          "label": "Desktop columns",
+          "info": "CSS grid columns, one value per block, e.g. 1.4fr 1fr 1fr 1.4fr"
+        },
+        "mobile_reorder": {
+          "label": "On mobile, show the newsletter first and the brand block last"
+        }
+      }
+    },
+    "footer_bottom": {
+      "name": "Footer bottom bar",
+      "settings": {
+        "show_policies": {
+          "label": "Show policy links"
+        },
+        "show_payment_icons": {
+          "label": "Show payment icons"
+        }
+      }
+    },
+    "password": {
+      "name": "Password page",
+      "settings": {
+        "show_password_message": {
+          "label": "Use the password page message from Online Store → Preferences",
+          "info": "When it is empty, the text below is shown"
+        },
+        "text": {
+          "label": "Text"
+        },
+        "show_newsletter": {
+          "label": "Show email signup"
+        }
+      }
+    },
+    "slideshow": {
+      "name": "Slideshow",
+      "settings": {
+        "width": {
+          "info": "Full width is capped at 1440px"
+        },
+        "ratio_desktop": {
+          "label": "Aspect ratio on desktop"
+        },
+        "ratio_mobile": {
+          "label": "Aspect ratio on mobile"
+        },
+        "header_autoplay": {
+          "content": "Autoplay"
+        },
+        "autoplay": {
+          "label": "Change slides automatically",
+          "info": "Pauses on hover and focus, and is off for visitors who prefer reduced motion"
+        },
+        "interval": {
+          "label": "Change slides every"
+        }
+      },
+      "presets": {
+        "name": "Slideshow"
+      }
+    },
+    "benefits": {
+      "name": "Benefits",
+      "presets": {
+        "name": "Benefits"
+      }
+    },
+    "collection_list": {
+      "name": "Collection list",
+      "presets": {
+        "name": "Collection list"
+      }
+    },
+    "featured_collection": {
+      "name": "Featured collection",
+      "settings": {
+        "header_heading": {
+          "content": "Heading"
+        },
+        "link_url": {
+          "info": "Leave empty to link to the selected collection"
+        }
+      },
+      "presets": {
+        "name": "Featured collection"
+      }
+    },
+    "instagram": {
+      "name": "Instagram",
+      "settings": {
+        "link_url": {
+          "label": "Profile link",
+          "info": "Also used by posts that have no link of their own"
+        }
+      },
+      "presets": {
+        "name": "Instagram"
+      }
+    },
+    "main_product": {
+      "name": "Product information",
+      "settings": {
+        "gallery_width": {
+          "label": "Media column width on desktop",
+          "info": "The info column takes the rest, up to 520px"
+        },
+        "sticky_info": {
+          "label": "Keep product info in view while scrolling (desktop)"
+        },
+        "sticky_atc": {
+          "label": "Sticky add-to-cart bar",
+          "info": "Appears once the main add button scrolls out of view",
+          "options__none": "Off",
+          "options__mobile": "Mobile only",
+          "options__all": "Mobile and desktop"
+        }
+      }
+    },
+    "product_recommendations": {
+      "name": "Product recommendations",
+      "settings": {
+        "intent": {
+          "label": "Recommendations",
+          "info": "Complementary products are set in the Search & Discovery app",
+          "options__complementary": "Complementary (bought together)",
+          "options__related": "Related (similar)"
+        },
+        "fallback_related": {
+          "label": "Show related products when there are no complementary ones"
+        }
+      }
+    },
+    "quick_add": {
+      "name": "Quick add"
+    }
+  },
   "categories": {
     "layout": "Layout",
     "text": "Text",
@@ -9,7 +307,8 @@
     "banners": "Banners",
     "products": "Products",
     "collections": "Collections",
-    "storytelling": "Storytelling"
+    "storytelling": "Storytelling",
+    "product": "Product"
   },
   "shared": {
     "direction": {
@@ -610,6 +909,43 @@
         }
       }
     },
+    "announcement": {
+      "name": "Announcement",
+      "settings": {
+        "text": {
+          "label": "Text"
+        }
+      }
+    },
+    "footer_brand": {
+      "name": "Brand",
+      "settings": {
+        "logo_info": {
+          "content": "Uses the logo for dark backgrounds from Theme settings → Logo & favicon, then the main logo, then the store name."
+        },
+        "logo_height": {
+          "label": "Logo height"
+        },
+        "text": {
+          "label": "Text"
+        },
+        "show_social": {
+          "label": "Show social icons",
+          "info": "Profiles are set in Theme settings → Social media & contacts."
+        }
+      }
+    },
+    "contact_info": {
+      "name": "Contact info",
+      "settings": {
+        "info": {
+          "content": "Phone and email are set in Theme settings → Social media & contacts."
+        },
+        "text": {
+          "label": "Additional text"
+        }
+      }
+    },
     "slide": {
       "name": "Slide",
       "settings": {
@@ -681,108 +1017,152 @@
           "info": "For screen readers, e.g. “Brown lashes, macro”"
         }
       }
-    }
-  },
-  "sections": {
-    "section": {
-      "name": "Section",
-      "settings": {
-        "layout": {
-          "label": "Layout",
-          "options__grid": "Grid"
-        },
-        "columns": {
-          "label": "Columns"
-        },
-        "min_height": {
-          "label": "Minimum height"
-        },
-        "background_image": {
-          "label": "Background image"
-        },
-        "overlay": {
-          "label": "Background overlay"
-        }
-      },
-      "presets": {
-        "empty": "Empty section",
-        "hero": "Hero with image",
-        "rich_text": "Text with buttons",
-        "image_with_text": "Image with text"
-      }
     },
-    "custom_liquid": {
-      "name": "Custom Liquid",
+    "product_media_gallery": {
+      "name": "Media gallery",
       "settings": {
-        "custom_liquid": {
-          "label": "Liquid code"
+        "ratio": {
+          "options__square": "Square",
+          "options__portrait": "Portrait 4:5"
+        },
+        "fit": {
+          "label": "Image fit",
+          "options__cover": "Fill the frame",
+          "options__contain": "Show the whole image"
+        },
+        "priority": {
+          "label": "Load the first image first",
+          "info": "Recommended: it is the largest image on the page"
         }
       }
     },
-    "slideshow": {
-      "name": "Slideshow",
+    "product_breadcrumbs": {
+      "name": "Breadcrumbs",
       "settings": {
-        "width": {
-          "info": "Full width is capped at 1440px"
+        "show_title": {
+          "label": "Show product title"
         },
-        "ratio_desktop": {
-          "label": "Aspect ratio on desktop"
-        },
-        "ratio_mobile": {
-          "label": "Aspect ratio on mobile"
-        },
-        "header_autoplay": {
-          "content": "Autoplay"
-        },
-        "autoplay": {
-          "label": "Change slides automatically",
-          "info": "Pauses on hover and focus, and is off for visitors who prefer reduced motion"
-        },
-        "interval": {
-          "label": "Change slides every"
+        "hide_mobile": {
+          "label": "Hide on mobile"
         }
-      },
-      "presets": {
-        "name": "Slideshow"
       }
     },
-    "benefits": {
-      "name": "Benefits",
-      "presets": {
-        "name": "Benefits"
-      }
-    },
-    "collection_list": {
-      "name": "Collection list",
-      "presets": {
-        "name": "Collection list"
-      }
-    },
-    "featured_collection": {
-      "name": "Featured collection",
+    "product_eyebrow": {
+      "name": "Eyebrow",
       "settings": {
-        "header_heading": {
-          "content": "Heading"
+        "text": {
+          "label": "Text",
+          "info": "Leave empty to use the custom.eyebrow product metafield"
         },
-        "link_url": {
-          "info": "Leave empty to link to the selected collection"
+        "fallback": {
+          "label": "When there is no text or metafield",
+          "options__none": "Hide",
+          "options__type": "Show product type",
+          "options__vendor": "Show vendor"
         }
-      },
-      "presets": {
-        "name": "Featured collection"
       }
     },
-    "instagram": {
-      "name": "Instagram",
+    "product_title": {
+      "name": "Product title"
+    },
+    "product_price": {
+      "name": "Price",
       "settings": {
-        "link_url": {
-          "label": "Profile link",
-          "info": "Also used by posts that have no link of their own"
+        "show_tax_note": {
+          "label": "Show “Taxes included”"
         }
-      },
-      "presets": {
-        "name": "Instagram"
       }
+    },
+    "product_inventory": {
+      "name": "Inventory status",
+      "settings": {
+        "note": {
+          "label": "Text after “In stock”"
+        },
+        "threshold": {
+          "label": "Low stock threshold",
+          "info": "Shows “Only X left” at or below this quantity. Set 0 to turn off."
+        }
+      }
+    },
+    "variant_picker": {
+      "name": "Variant picker",
+      "settings": {
+        "style": {
+          "label": "Style",
+          "options__pills": "Buttons",
+          "options__dropdown": "Dropdowns"
+        },
+        "show_swatches": {
+          "label": "Show swatches",
+          "info": "For option values that have a color or image swatch"
+        },
+        "rail_mobile": {
+          "label": "Scroll buttons sideways on mobile"
+        }
+      }
+    },
+    "buy_buttons": {
+      "name": "Buy buttons",
+      "settings": {
+        "show_quantity": {
+          "label": "Show quantity selector"
+        },
+        "show_total": {
+          "label": "Show total in the button"
+        },
+        "show_payment_button": {
+          "label": "Show dynamic checkout button",
+          "info": "Buy it now, Apple Pay, Google Pay and similar"
+        }
+      }
+    },
+    "product_info_box": {
+      "name": "Shipping & bonus box",
+      "settings": {
+        "shipping_text": {
+          "label": "Shipping line"
+        },
+        "show_free_shipping": {
+          "label": "Show amount left for free shipping",
+          "info": "Uses Theme settings → Cart → Free shipping from"
+        },
+        "show_bonus": {
+          "label": "Show cashback bonus",
+          "info": "Uses Theme settings → Cart → Cashback bonus"
+        }
+      }
+    },
+    "product_description": {
+      "name": "Description"
+    },
+    "product_accordion": {
+      "name": "Product details accordion"
+    },
+    "product_accordion_row": {
+      "name": "Details row",
+      "settings": {
+        "source": {
+          "label": "Content",
+          "options__description": "Product description",
+          "options__metafield": "Product metafield",
+          "options__page": "Page",
+          "options__richtext": "Custom text"
+        },
+        "metafield": {
+          "label": "Metafield",
+          "info": "namespace.key, e.g. custom.specs (rich text or text)"
+        },
+        "page": {
+          "label": "Page"
+        },
+        "content": {
+          "label": "Text"
+        }
+      }
+    },
+    "product_share": {
+      "name": "Share"
     }
   }
 }

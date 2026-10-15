@@ -1,0 +1,101 @@
+{%- doc -%}
+  Blog article card in the product-card style: 4:3 image, date, title and excerpt.
+
+  @param {article} article - the article
+  @param {string} [sizes] - image sizes attribute
+  @param {boolean} [show_excerpt] - show the excerpt, default true
+  @param {boolean} [show_date] - show the publish date, default true
+  @param {boolean} [priority] - eager-load the image
+  @param {string} [heading_tag] - tag for the title, default 'h2'
+
+  @example
+  {% render 'article-card', article: article, sizes: '(min-width: 1100px) 33vw, (min-width: 750px) 50vw, 100vw' %}
+{%- enddoc -%}
+{%- liquid
+  assign tag = heading_tag | default: 'h2'
+  assign sizes_attr = sizes | default: '(min-width: 1100px) calc((min(100vw, 1280px) - 64px) / 3), (min-width: 750px) 50vw, 100vw'
+-%}
+<article class="article-card">
+  <a class="article-card__media media" href="{{ article.url }}" tabindex="-1" aria-hidden="true">
+    {%- if article.image -%}
+      {% render 'image',
+        image: article.image,
+        sizes: sizes_attr,
+        widths: '360, 540, 720, 900, 1100',
+        priority: priority,
+        alt: ''
+      %}
+    {%- else -%}
+      {{- 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' -}}
+    {%- endif -%}
+  </a>
+  <div class="article-card__body">
+    {%- unless show_date == false -%}
+      <span class="article-card__date eyebrow text-muted">
+        {{- article.published_at | time_tag: format: 'date' -}}
+      </span>
+    {%- endunless -%}
+    <{{ tag }} class="article-card__title h3">
+      <a class="article-card__link" href="{{ article.url }}">{{ article.title | escape }}</a>
+    </{{ tag }}>
+    {%- unless show_excerpt == false -%}
+      {%- assign excerpt = article.excerpt_or_content | strip_html | truncatewords: 24 -%}
+      {%- if excerpt != blank -%}
+        <p class="article-card__excerpt text-sm text-muted">{{ excerpt }}</p>
+      {%- endif -%}
+    {%- endunless -%}
+  </div>
+</article>
+
+{% stylesheet %}
+  .article-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+  }
+
+  .article-card__media {
+    --ratio: 4 / 3;
+    display: block;
+  }
+
+  .article-card__media img {
+    transition: transform 0.25s var(--ease);
+  }
+
+  .article-card:hover .article-card__media img {
+    transform: scale(var(--hover-zoom));
+  }
+
+  .article-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .article-card__date {
+    font-size: 11px;
+  }
+
+  .article-card__title {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .article-card__link {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .article-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .article-card__link:hover {
+    color: var(--color-accent);
+  }
+{% endstylesheet %}

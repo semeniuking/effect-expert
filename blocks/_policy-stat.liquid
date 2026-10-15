@@ -1,0 +1,36 @@
+{%- doc -%}
+  One figure in the policy page summary box, e.g. "14 днів" / "на обмін або повернення".
+{%- enddoc -%}
+<div class="policy-stat" {{ block.shopify_attributes }}>
+  <p class="policy-stat__value">{{ block.settings.value | escape }}</p>
+  {%- if block.settings.label != blank -%}
+    <p class="policy-stat__label">{{ block.settings.label | escape }}</p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .policy-stat__value {
+    font-family: var(--font-display);
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 700;
+  }
+
+  .policy-stat__label {
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--color-text-muted);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.policy_stat.name",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "value", "label": "t:blocks.policy_stat.settings.value.label", "default": "14 днів" },
+    { "type": "text", "id": "label", "label": "t:blocks.policy_stat.settings.label.label", "default": "на обмін або повернення" }
+  ],
+  "presets": [{ "name": "t:blocks.policy_stat.name" }]
+}
+{% endschema %}

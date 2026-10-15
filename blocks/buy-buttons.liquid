@@ -1,0 +1,29 @@
+{%- doc -%}
+  Quantity stepper and "Додати в кошик · ₴ 460" (total follows the quantity), with an optional dynamic checkout button.
+  The sticky add-to-cart bar watches and submits this form.
+{%- enddoc -%}
+{%- assign current_product = closest.product | default: product -%}
+<div class="product-buy-buttons" {{ block.shopify_attributes }}>
+  {%- assign buy_uid = section.id | append: '-' | append: block.id -%}
+  {% render 'buy-buttons',
+    product: current_product,
+    uid: buy_uid,
+    show_quantity: block.settings.show_quantity,
+    show_total: block.settings.show_total,
+    show_payment_button: block.settings.show_payment_button,
+    main: true
+  %}
+</div>
+
+{% schema %}
+{
+  "name": "t:blocks.buy_buttons.name",
+  "tag": null,
+  "settings": [
+    { "type": "checkbox", "id": "show_quantity", "label": "t:blocks.buy_buttons.settings.show_quantity.label", "default": true },
+    { "type": "checkbox", "id": "show_total", "label": "t:blocks.buy_buttons.settings.show_total.label", "default": true },
+    { "type": "checkbox", "id": "show_payment_button", "label": "t:blocks.buy_buttons.settings.show_payment_button.label", "info": "t:blocks.buy_buttons.settings.show_payment_button.info", "default": false }
+  ],
+  "presets": [{ "name": "t:blocks.buy_buttons.name", "category": "t:categories.product" }]
+}
+{% endschema %}

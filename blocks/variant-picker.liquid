@@ -1,0 +1,41 @@
+{%- doc -%}
+  Variant options (e.g. Вигин / Товщина / Довжина) as pills or dropdowns. Changing an option updates price, stock,
+  add button, info box, gallery and the sticky bar without reloading.
+{%- enddoc -%}
+{%- assign current_product = closest.product | default: product -%}
+{%- unless current_product.has_only_default_variant -%}
+  <div class="product-variant-picker" {{ block.shopify_attributes }}>
+    {%- assign picker_uid = section.id | append: '-' | append: block.id -%}
+    {% render 'variant-picker',
+      product: current_product,
+      section_id: section.id,
+      uid: picker_uid,
+      style: block.settings.style,
+      show_swatches: block.settings.show_swatches,
+      update_url: true,
+      rail_mobile: block.settings.rail_mobile
+    %}
+  </div>
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "t:blocks.variant_picker.name",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "t:blocks.variant_picker.settings.style.label",
+      "options": [
+        { "value": "pills", "label": "t:blocks.variant_picker.settings.style.options__pills" },
+        { "value": "dropdown", "label": "t:blocks.variant_picker.settings.style.options__dropdown" }
+      ],
+      "default": "pills"
+    },
+    { "type": "checkbox", "id": "show_swatches", "label": "t:blocks.variant_picker.settings.show_swatches.label", "default": true },
+    { "type": "checkbox", "id": "rail_mobile", "label": "t:blocks.variant_picker.settings.rail_mobile.label", "default": true }
+  ],
+  "presets": [{ "name": "t:blocks.variant_picker.name", "category": "t:categories.product" }]
+}
+{% endschema %}

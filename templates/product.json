@@ -1,0 +1,74 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "media-gallery": {
+          "type": "_product-media-gallery",
+          "static": true,
+          "settings": { "ratio": "square", "fit": "cover", "priority": true }
+        },
+        "breadcrumbs": { "type": "product-breadcrumbs", "settings": { "show_title": false, "hide_mobile": true } },
+        "eyebrow": { "type": "product-eyebrow", "settings": { "text": "", "fallback": "type" } },
+        "title": { "type": "product-title" },
+        "price": { "type": "product-price", "settings": { "show_tax_note": true } },
+        "inventory": { "type": "product-inventory", "settings": { "note": "відправимо сьогодні", "threshold": 5 } },
+        "variant-picker": { "type": "variant-picker", "settings": { "style": "pills", "show_swatches": true, "rail_mobile": true } },
+        "buy-buttons": { "type": "buy-buttons", "settings": { "show_quantity": true, "show_total": true, "show_payment_button": false } },
+        "info-box": {
+          "type": "product-info-box",
+          "settings": { "shipping_text": "Відправка в день замовлення (пн–пт)", "show_free_shipping": true, "show_bonus": true }
+        },
+        "accordion": {
+          "type": "product-accordion",
+          "blocks": {
+            "description": { "type": "_product-accordion-row", "settings": { "heading": "Опис", "source": "description", "open": true } },
+            "specs": { "type": "_product-accordion-row", "settings": { "heading": "Характеристики", "source": "metafield", "metafield": "custom.specs" } },
+            "shipping": {
+              "type": "_product-accordion-row",
+              "settings": {
+                "heading": "Доставка та оплата",
+                "source": "richtext",
+                "content": "<p>Відправляємо Новою Поштою в день замовлення (пн–пт). Безкоштовна доставка від 3000 грн.</p><p>Оплата карткою онлайн або післяплатою у відділенні.</p>"
+              }
+            },
+            "returns": {
+              "type": "_product-accordion-row",
+              "settings": {
+                "heading": "Обмін і повернення",
+                "source": "richtext",
+                "content": "<p>Обмін і повернення протягом 14 днів, якщо товар не використовувався і збережено заводську упаковку. Напишіть нам — допоможемо все оформити.</p>"
+              }
+            }
+          },
+          "block_order": ["description", "specs", "shipping", "returns"]
+        }
+      },
+      "block_order": ["breadcrumbs", "eyebrow", "title", "price", "inventory", "variant-picker", "buy-buttons", "info-box", "accordion"],
+      "settings": {
+        "gallery_width": 55,
+        "sticky_info": true,
+        "sticky_atc": "mobile",
+        "color_scheme": "scheme-1",
+        "padding_top": 24,
+        "padding_bottom": 80
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "subheading": "",
+        "heading": "Купують разом",
+        "intent": "complementary",
+        "fallback_related": true,
+        "products_to_show": 4,
+        "columns": 4,
+        "mobile_layout": "rail",
+        "color_scheme": "scheme-2",
+        "padding_top": 64,
+        "padding_bottom": 64
+      }
+    }
+  },
+  "order": ["main", "recommendations"]
+}

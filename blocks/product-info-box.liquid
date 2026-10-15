@@ -1,0 +1,94 @@
+{%- doc -%}
+  Surface-colored box with bullet lines: same-day shipping text, how much is left to free shipping
+  (settings.free_shipping_threshold − cart total) and the cashback bonus for the selected variant
+  (settings.bonus_percent × price). Re-rendered on variant change; the free-shipping line follows cart:updated.
+{%- enddoc -%}
+{%- liquid
+  assign current_product = closest.product | default: product
+  assign variant = current_product.selected_or_first_available_variant
+  assign threshold = settings.free_shipping_threshold | default: 0 | times: 100
+  assign remaining = threshold | minus: cart.total_price
+  assign threshold_money = threshold | money_without_trailing_zeros
+  assign bonus = variant.price | times: settings.bonus_percent | divided_by: 100
+-%}
+<div class="product-info-box" {{ block.shopify_attributes }}>
+  <product-info-box
+    id="InfoBox-{{ section.id }}-{{ block.id }}"
+    class="info-box"
+    data-variant-update
+    data-threshold="{{ threshold }}"
+    data-remaining-text="{{ 'products.info_box.free_shipping_remaining' | t: threshold: threshold_money, remaining: '[[remaining]]' | escape }}"
+    data-reached-text="{{ 'products.info_box.free_shipping_reached' | t | escape }}"
+  >
+    <ul class="info-box__list" role="list">
+      {%- if block.settings.shipping_text != blank -%}
+        <li>{{ block.settings.shipping_text | escape }}</li>
+      {%- endif -%}
+      {%- if block.settings.show_free_shipping and threshold > 0 -%}
+        <li data-free-shipping>
+          {%- if remaining > 0 -%}
+            {{ 'products.info_box.free_shipping_remaining' | t: threshold: threshold_money, remaining: remaining | money }}
+          {%- else -%}
+            {{ 'products.info_box.free_shipping_reached' | t }}
+          {%- endif -%}
+        </li>
+      {%- endif -%}
+      {%- if block.settings.show_bonus and bonus > 0 -%}
+        <li>{{ 'products.info_box.bonus' | t: amount: bonus | money }}</li>
+      {%- endif -%}
+    </ul>
+  </product-info-box>
+</div>
+<script type="module" src="{{ 'product-info-box.js' | asset_url }}"></script>
+
+{% stylesheet %}
+  .info-box {
+    display: block;
+    padding: 16px;
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .info-box__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .info-box__list li {
+    position: relative;
+    padding-left: 14px;
+  }
+
+  .info-box__list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+  }
+
+  @media (max-width: 749px) {
+    .info-box {
+      padding: 14px 16px;
+      font-size: 13px;
+    }
+
+    .info-box__list {
+      gap: 6px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.product_info_box.name",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "shipping_text", "label": "t:blocks.product_info_box.settings.shipping_text.label", "default": "Відправка в день замовлення (пн–пт)" },
+    { "type": "checkbox", "id": "show_free_shipping", "label": "t:blocks.product_info_box.settings.show_free_shipping.label", "info": "t:blocks.product_info_box.settings.show_free_shipping.info", "default": true },
+    { "type": "checkbox", "id": "show_bonus", "label": "t:blocks.product_info_box.settings.show_bonus.label", "info": "t:blocks.product_info_box.settings.show_bonus.info", "default": true }
+  ],
+  "presets": [{ "name": "t:blocks.product_info_box.name", "category": "t:categories.product" }]
+}
+{% endschema %}

@@ -1,0 +1,208 @@
+{%- comment -%}
+  Policy-style page (templates/page.policy.json): a side menu of policy links, eyebrow + title,
+  an optional summary box of figures (_policy-stat blocks), page.content, and a "Залишились питання?" call to action.
+{%- endcomment -%}
+{%- assign menu = section.settings.menu -%}
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="section__inner policy-page">
+    {%- if menu.links.size > 0 -%}
+      <nav class="policy-page__nav" aria-label="{{ section.settings.subheading | default: menu.title | escape }}">
+        <ul role="list">
+          {%- for link in menu.links -%}
+            <li>
+              <a
+                class="policy-page__link"
+                href="{{ link.url }}"
+                {% if link.current or link.url == request.path %}
+                  aria-current="page"
+                {% endif %}
+              >
+                {{- link.title | escape -}}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+
+    <article class="policy-page__article">
+      <header class="policy-page__header">
+        {%- if section.settings.subheading != blank -%}
+          <p class="eyebrow text-muted">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+        <h1 class="h1">{{ page.title | escape }}</h1>
+      </header>
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="policy-page__stats" style="--stats: {{ section.blocks.size }};">
+          {% content_for 'blocks' %}
+        </div>
+      {%- endif -%}
+
+      {%- if page.content != blank -%}
+        <div class="rte policy-page__content">{{ page.content }}</div>
+      {%- endif -%}
+
+      {%- if section.settings.contact_text != blank or section.settings.contact_label != blank -%}
+        <div class="policy-page__contact">
+          {%- if section.settings.contact_text != blank -%}
+            <p>{{ section.settings.contact_text | escape }}</p>
+          {%- endif -%}
+          {%- if section.settings.contact_label != blank and section.settings.contact_link != blank -%}
+            <a class="button" href="{{ section.settings.contact_link }}">{{ section.settings.contact_label | escape }}</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </article>
+  </div>
+</div>
+
+{% stylesheet %}
+  .policy-page {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 48px;
+    max-width: calc(1056px + var(--gutter) * 2);
+  }
+
+  .policy-page__nav {
+    flex: 1 1 220px;
+    max-width: 260px;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .policy-page__link {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 8px 0 8px 14px;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .policy-page__link:hover {
+    color: var(--color-text);
+  }
+
+  .policy-page__link[aria-current='page'] {
+    padding-left: 12px;
+    border-left: 2px solid var(--color-text);
+    color: var(--color-text);
+    font-weight: var(--font-body-weight-bold);
+  }
+
+  .policy-page__article {
+    flex: 999 1 480px;
+    min-width: 0;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    line-height: 26px;
+  }
+
+  .policy-page__header {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .policy-page__stats {
+    display: grid;
+    grid-template-columns: repeat(var(--stats), minmax(0, 1fr));
+    gap: 16px;
+    padding: 20px 24px;
+    background: var(--color-surface);
+    border-radius: var(--radius-card);
+  }
+
+  .policy-page__content {
+    color: var(--color-text-muted);
+  }
+
+  .policy-page__content h2,
+  .policy-page__content h3 {
+    margin-top: 32px;
+    color: var(--color-text);
+    font-size: 20px;
+    line-height: 26px;
+  }
+
+  .policy-page__content strong {
+    color: var(--color-text);
+  }
+
+  .policy-page__contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-line);
+    font-size: 15px;
+  }
+
+  @media (max-width: 749px) {
+    .policy-page {
+      gap: 32px;
+    }
+
+    .policy-page__nav {
+      flex-basis: 100%;
+      max-width: none;
+    }
+
+    .policy-page__article {
+      flex-basis: 100%;
+    }
+
+    .policy-page__stats {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 16px 20px;
+    }
+
+    .policy-page__contact .button {
+      width: 100%;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.policy_page.name",
+  "blocks": [{ "type": "_policy-stat" }],
+  "max_blocks": 4,
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "link_list", "id": "menu", "label": "t:sections.policy_page.settings.menu.label", "default": "footer" },
+    { "type": "text", "id": "subheading", "label": "t:shared.subheading.label", "default": "Правила магазину" },
+    { "type": "header", "content": "t:sections.policy_page.settings.header_contact.content" },
+    { "type": "text", "id": "contact_text", "label": "t:sections.policy_page.settings.contact_text.label", "default": "Залишились питання?" },
+    { "type": "text", "id": "contact_label", "label": "t:sections.policy_page.settings.contact_label.label", "default": "Написати менеджеру" },
+    { "type": "url", "id": "contact_link", "label": "t:shared.link.label" },
+    { "type": "header", "content": "t:shared.header_appearance.content" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 96 }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.policy_page.name",
+      "category": "t:categories.text",
+      "blocks": {
+        "stat_1": { "type": "_policy-stat", "settings": { "value": "14 днів", "label": "на обмін або повернення" } },
+        "stat_2": { "type": "_policy-stat", "settings": { "value": "3 робочі дні", "label": "на повернення коштів" } },
+        "stat_3": { "type": "_policy-stat", "settings": { "value": "Нова пошта", "label": "перевіряйте посилку у відділенні" } }
+      },
+      "block_order": ["stat_1", "stat_2", "stat_3"]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,95 @@
+{%- comment -%}
+  404 page: big eyebrow code, heading, text, a search form and a "На головну" button.
+{%- endcomment -%}
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="section__inner not-found">
+    {%- if section.settings.subheading != blank -%}
+      <p class="eyebrow text-muted">{{ section.settings.subheading | escape }}</p>
+    {%- endif -%}
+    {%- liquid
+      assign heading = section.settings.heading
+      if heading == blank
+        assign heading = 'not_found.title' | t
+      endif
+    -%}
+    <h1 class="h1">{{ heading | escape }}</h1>
+    {%- if section.settings.text != blank -%}
+      <div class="rte text-muted not-found__text">{{ section.settings.text }}</div>
+    {%- endif -%}
+
+    {%- if section.settings.show_search -%}
+      <form class="not-found__search input-group" action="{{ routes.search_url }}" method="get" role="search">
+        <label class="visually-hidden" for="NotFoundSearch">{{ 'not_found.search_label' | t }}</label>
+        <input
+          class="input"
+          type="search"
+          id="NotFoundSearch"
+          name="q"
+          placeholder="{{ 'not_found.search_placeholder' | t }}"
+          autocomplete="off"
+        >
+        <input type="hidden" name="options[prefix]" value="last">
+        <button type="submit" class="button">
+          {%- render 'icon', name: 'search', size: 18 -%}
+          <span class="visually-hidden">{{ 'not_found.search_submit' | t }}</span>
+        </button>
+      </form>
+    {%- endif -%}
+
+    {%- if section.settings.button_label != blank -%}
+      <a class="button button--secondary" href="{{ section.settings.button_link | default: routes.root_url }}">
+        {{- section.settings.button_label | escape -}}
+      </a>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: calc(560px + var(--gutter) * 2);
+    text-align: center;
+  }
+
+  .not-found__text {
+    max-width: 46ch;
+  }
+
+  .not-found__search {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .not-found__search .button {
+    padding-inline: 18px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.main_404.name",
+  "settings": [
+    { "type": "text", "id": "subheading", "label": "t:shared.subheading.label", "default": "404" },
+    { "type": "text", "id": "heading", "label": "t:shared.heading.label", "default": "Сторінку не знайдено" },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:sections.main_404.settings.text.label",
+      "default": "<p>Можливо, посилання застаріло або сторінку видалили. Скористайтеся пошуком або поверніться на головну.</p>"
+    },
+    { "type": "checkbox", "id": "show_search", "label": "t:sections.main_404.settings.show_search.label", "default": true },
+    { "type": "text", "id": "button_label", "label": "t:sections.main_404.settings.button_label.label", "default": "На головну" },
+    { "type": "url", "id": "button_link", "label": "t:shared.link.label", "info": "t:sections.main_404.settings.button_link.info" },
+    { "type": "header", "content": "t:shared.header_appearance.content" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 120 }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,100 @@
+{%- comment -%}
+  Footer: theme blocks laid out on a CSS grid. The desktop column template is a setting (e.g. "1.4fr 1fr 1fr 1.4fr").
+  Tablet uses auto-fitting columns, mobile stacks; menu and contact blocks collapse into accordions on mobile.
+{%- endcomment -%}
+<footer
+  class="section footer color-{{ section.settings.color_scheme }}{% if section.settings.mobile_reorder %} footer--reorder{% endif %}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px; --footer-cols: {{ section.settings.columns | default: '1.4fr 1fr 1fr 1.4fr' | escape }};"
+>
+  <div class="section__inner footer__grid">
+    {% content_for 'blocks' %}
+  </div>
+</footer>
+
+{% stylesheet %}
+  .footer a:not(.button) {
+    color: inherit;
+  }
+
+  .footer a:not(.button):hover {
+    color: var(--color-accent);
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  @media (max-width: 749px) {
+    .footer__grid > .menu-block--collapse {
+      border-top: 1px solid var(--color-line);
+    }
+
+    .footer__grid > .menu-block--collapse + .menu-block--collapse {
+      margin-top: -24px;
+      border-top: 0;
+    }
+
+    .footer--reorder .footer__grid > :has(.email-signup) {
+      order: -1;
+    }
+
+    .footer--reorder .footer__grid > .footer-brand {
+      order: 1;
+    }
+  }
+
+  @media (min-width: 750px) {
+    .footer__grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px 32px;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .footer__grid {
+      grid-template-columns: var(--footer-cols);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.footer.name",
+  "class": "footer-section",
+  "enabled_on": { "groups": ["footer"] },
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    {
+      "type": "text",
+      "id": "columns",
+      "label": "t:sections.footer.settings.columns.label",
+      "info": "t:sections.footer.settings.columns.info",
+      "default": "1.4fr 1fr 1fr 1.4fr"
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_reorder",
+      "label": "t:sections.footer.settings.mobile_reorder.label",
+      "default": true
+    },
+    { "type": "header", "content": "t:shared.header_appearance.content" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "t:shared.color_scheme.label", "default": "scheme-3" },
+    { "type": "range", "id": "padding_top", "label": "t:shared.padding_top.label", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "t:shared.padding_bottom.label", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 40 }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.footer.name",
+      "blocks": {
+        "brand": { "type": "footer-brand" },
+        "catalog": { "type": "menu", "settings": { "heading": "Каталог", "menu": "main-menu" } },
+        "customers": { "type": "menu", "settings": { "heading": "Покупцям", "menu": "footer" } },
+        "contact": { "type": "contact-info" }
+      },
+      "block_order": ["brand", "catalog", "customers", "contact"]
+    }
+  ]
+}
+{% endschema %}

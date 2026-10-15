@@ -1,0 +1,21 @@
+{%- doc -%}
+  Product title as the page's h1.
+{%- enddoc -%}
+{%- assign current_product = closest.product | default: product -%}
+<h1 class="product-title product-tight" {{ block.shopify_attributes }}>{{ current_product.title | escape }}</h1>
+
+{% stylesheet %}
+  .product-title {
+    font-size: clamp(24px, 1.2vw + 16px, 32px);
+    line-height: 1.2;
+    font-weight: 700;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.product_title.name",
+  "tag": null,
+  "presets": [{ "name": "t:blocks.product_title.name", "category": "t:categories.product" }]
+}
+{% endschema %}

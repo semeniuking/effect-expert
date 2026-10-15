@@ -1,0 +1,160 @@
+{%- doc -%}
+  Contact form (Shopify `contact` form): name, email, phone and message, with success and error messages.
+{%- enddoc -%}
+{%- assign form_id = 'ContactForm-' | append: block.id -%}
+<div class="contact-form" {{ block.shopify_attributes }}>
+  {%- if block.settings.heading != blank -%}
+    <h2 class="h3">{{ block.settings.heading | escape }}</h2>
+  {%- endif -%}
+
+  {%- form 'contact', id: form_id, class: 'contact-form__form' -%}
+    {%- if form.posted_successfully? -%}
+      <p class="form-message form-message--success contact-form__message" role="status" tabindex="-1" autofocus>
+        {%- render 'icon', name: 'check', size: 18 -%}
+        {{- 'contact.success' | t -}}
+      </p>
+    {%- elsif form.errors -%}
+      <div class="form-message form-message--error contact-form__message" role="alert" tabindex="-1" autofocus>
+        <p>{{ 'contact.error' | t }}</p>
+        <ul>
+          {%- for field in form.errors -%}
+            <li>
+              {%- if field == 'form' -%}
+                {{- form.errors.messages[field] -}}
+              {%- else -%}
+                {{- form.errors.translated_fields[field] | capitalize }}
+                {{ form.errors.messages[field] -}}
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    <div class="contact-form__row">
+      <div class="field">
+        <label class="field__label" for="{{ form_id }}-name">{{ 'contact.name' | t }}</label>
+        <input
+          class="input"
+          type="text"
+          id="{{ form_id }}-name"
+          name="contact[name]"
+          autocomplete="name"
+          value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+        >
+      </div>
+      <div class="field">
+        <label class="field__label" for="{{ form_id }}-email">
+          {{- 'contact.email' | t }} <span aria-hidden="true">*</span>
+        </label>
+        <input
+          class="input"
+          type="email"
+          id="{{ form_id }}-email"
+          name="contact[email]"
+          autocomplete="email"
+          spellcheck="false"
+          autocapitalize="off"
+          required
+          aria-required="true"
+          value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+          {% if form.errors contains 'email' %}
+            aria-invalid="true"
+          {% endif %}
+        >
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="{{ form_id }}-phone">{{ 'contact.phone' | t }}</label>
+      <input
+        class="input"
+        type="tel"
+        id="{{ form_id }}-phone"
+        name="contact[phone]"
+        autocomplete="tel"
+        inputmode="tel"
+        value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+      >
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="{{ form_id }}-body">{{ 'contact.message' | t }}</label>
+      <textarea class="textarea" id="{{ form_id }}-body" name="contact[body]" rows="6">{{ form.body }}</textarea>
+    </div>
+
+    <div>
+      <button type="submit" class="button{% if block.settings.full_width %} button--full{% endif %}">
+        {%- liquid
+          assign label = block.settings.button_label
+          if label == blank
+            assign label = 'contact.submit' | t
+          endif
+        -%}
+        {{- label | escape -}}
+      </button>
+    </div>
+  {%- endform -%}
+</div>
+
+{% stylesheet %}
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+  }
+
+  .contact-form__form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .contact-form__row {
+    display: grid;
+    gap: 20px;
+  }
+
+  .contact-form__message {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .contact-form__message ul {
+    margin: 0;
+    padding-left: 1.2em;
+  }
+
+  .form-message--success.contact-form__message {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @media (min-width: 750px) {
+    .contact-form__row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:blocks.contact_form.name",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "heading", "label": "t:shared.heading.label" },
+    { "type": "text", "id": "button_label", "label": "t:blocks.contact_form.settings.button_label.label", "default": "Надіслати" },
+    { "type": "checkbox", "id": "full_width", "label": "t:blocks.contact_form.settings.full_width.label", "default": false }
+  ],
+  "presets": [
+    {
+      "name": "t:blocks.contact_form.name",
+      "category": "t:categories.forms",
+      "settings": { "heading": "Напишіть нам" }
+    }
+  ]
+}
+{% endschema %}
