@@ -14,7 +14,7 @@
       {% render 'image', image: bg_image, sizes: '100vw', alt: '' %}
     </div>
   {%- endif -%}
-  <div class="section__inner flex-section__inner flex-section__inner--{{ section.settings.layout }}">
+  <div class="section__inner flex-section__inner flex-section__inner--{{ section.settings.layout }}{% if section.settings.reverse_mobile %} flex-section__inner--reverse-mobile{% endif %}">
     {% content_for 'blocks' %}
   </div>
 </div>
@@ -71,6 +71,14 @@
     .flex-section__inner--grid {
       grid-template-columns: minmax(0, 1fr);
     }
+
+    .flex-section__inner--reverse-mobile.flex-section__inner--row {
+      flex-direction: column-reverse;
+    }
+
+    .flex-section__inner--reverse-mobile.flex-section__inner--grid > :first-child {
+      order: 2;
+    }
   }
 {% endstylesheet %}
 
@@ -126,6 +134,13 @@
       "default": "stretch"
     },
     { "type": "range", "id": "gap", "label": "t:shared.gap.label", "min": 0, "max": 96, "step": 4, "unit": "px", "default": 24 },
+    {
+      "type": "checkbox",
+      "id": "reverse_mobile",
+      "label": "t:sections.section.settings.reverse_mobile.label",
+      "default": false,
+      "visible_if": "{{ section.settings.layout != 'column' }}"
+    },
     { "type": "range", "id": "min_height", "label": "t:sections.section.settings.min_height.label", "min": 0, "max": 900, "step": 20, "unit": "px", "default": 0 },
     { "type": "header", "content": "t:shared.header_appearance.content" },
     {
@@ -163,7 +178,7 @@
     {
       "name": "t:sections.section.presets.hero",
       "category": "t:categories.banners",
-      "settings": { "layout": "row", "align": "center", "gap": 56, "padding_top": 56, "padding_bottom": 24 },
+      "settings": { "layout": "row", "align": "center", "gap": 56, "reverse_mobile": true, "padding_top": 56, "padding_bottom": 24 },
       "blocks": {
         "content": {
           "type": "group",

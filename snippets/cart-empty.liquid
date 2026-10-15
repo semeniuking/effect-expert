@@ -11,12 +11,9 @@
   assign ctx = context | default: 'drawer'
   assign tag = heading_tag | default: 'h2'
   assign collection = settings.cart_empty_collection
+  assign card_sizes = '(min-width: 750px) 190px, 45vw'
   if ctx == 'page'
-    assign product_limit = 4
     assign card_sizes = '(min-width: 1100px) calc((min(100vw, 1280px) - 72px) / 4), (min-width: 750px) 33vw, 50vw'
-  else
-    assign product_limit = 4
-    assign card_sizes = '(min-width: 750px) 190px, 45vw'
   endif
 -%}
 <div class="cart-empty cart-empty--{{ ctx }}">
@@ -31,7 +28,7 @@
     <div class="cart-empty__products">
       <p class="eyebrow text-muted">{{ collection.title | escape }}</p>
       <ul class="grid cart-empty__grid" role="list" style="--cols-mobile: 2; --cols-tablet: {% if ctx == 'page' %}3{% else %}2{% endif %}; --cols: {% if ctx == 'page' %}4{% else %}2{% endif %};">
-        {%- for product in collection.products limit: product_limit -%}
+        {%- for product in collection.products limit: 4 -%}
           <li>{% render 'product-card', product: product, sizes: card_sizes %}</li>
         {%- endfor -%}
       </ul>

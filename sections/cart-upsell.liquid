@@ -3,7 +3,7 @@
   (routes.product_recommendations_url?section_id=cart-upsell&product_id=…&intent=complementary).
   assets/cart-upsell.js takes the rows from [data-upsell-list] and drops products that are already in the cart.
 {%- endcomment -%}
-<div class="cart-upsell__list" data-upsell-list>
+<div data-upsell-list>
   {%- if recommendations.performed? and recommendations.products_count > 0 -%}
     {%- for product in recommendations.products -%}
       {%- if product.available -%}
@@ -60,6 +60,70 @@
     {%- endfor -%}
   {%- endif -%}
 </div>
+
+{% stylesheet %}
+  .cart-upsell__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cart-upsell__media {
+    flex: none;
+    width: 56px;
+    height: 56px;
+  }
+
+  .cart-upsell__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cart-upsell__title {
+    color: var(--color-text);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: var(--font-body-weight-bold);
+    text-decoration: none;
+  }
+
+  .cart-upsell__title:hover {
+    color: var(--color-accent);
+  }
+
+  .cart-upsell__price {
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--color-text-muted);
+  }
+
+  .cart-upsell__action {
+    flex: none;
+  }
+
+  .cart-upsell__action .button {
+    min-height: 44px;
+    padding-inline: 14px;
+  }
+
+  @media (max-width: 749px) {
+    .cart-upsell__media {
+      width: 48px;
+      height: 48px;
+    }
+
+    .cart-upsell__title {
+      font-size: 13px;
+      line-height: 18px;
+    }
+
+    .cart-upsell__price {
+      font-size: 12px;
+    }
+  }
+{% endstylesheet %}
 
 {% schema %}
 {

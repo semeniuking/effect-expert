@@ -1,4 +1,116 @@
 {
+  "cart": {
+    "title": "Cart",
+    "close": "Close cart",
+    "update": "Update cart",
+    "free_shipping": {
+      "remaining_html": "You’re <b>{{ amount }}</b> away from free shipping",
+      "reached": "You’ve got free shipping!",
+      "progress_label": "Progress towards free shipping"
+    },
+    "item": {
+      "quantity": "Quantity",
+      "decrease": "Decrease quantity of {{ title }}",
+      "increase": "Increase quantity of {{ title }}",
+      "remove": "Remove",
+      "remove_title": "Remove {{ title }}",
+      "each": "{{ price }} each"
+    },
+    "upsell": {
+      "heading": "Add to your order",
+      "add_title": "Add {{ title }}"
+    },
+    "note": {
+      "label": "Order note",
+      "placeholder": "E.g. packaging requests or a convenient time to call"
+    },
+    "discount": {
+      "label": "Discount code",
+      "apply": "Apply",
+      "applied": "Applied discount codes",
+      "remove": "Remove discount code {{ code }}",
+      "not_applicable": "The code {{ code }} can’t be applied to this cart."
+    },
+    "summary": {
+      "heading": "Order summary",
+      "total": "Total",
+      "taxes_included": "Taxes included.",
+      "taxes_at_checkout": "Taxes are calculated at checkout.",
+      "shipping_at_checkout": "Shipping is calculated at checkout.",
+      "bonus": "+{{ amount }} in bonuses.",
+      "checkout": "Check out",
+      "view_cart": "View cart"
+    },
+    "empty": {
+      "title": "Your cart is empty",
+      "text": "Lashes, glue, tweezers and everything else for your work are waiting in the catalog.",
+      "button": "Shop the catalog"
+    },
+    "error": "Something went wrong. Please try again."
+  },
+  "not_found": {
+    "title": "Page not found",
+    "search_label": "Search the store",
+    "search_placeholder": "Search products",
+    "search_submit": "Search"
+  },
+  "contact": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "message": "Message",
+    "submit": "Send",
+    "success": "Thank you! We’ll get back to you as soon as possible.",
+    "error": "Please check the form:"
+  },
+  "blogs": {
+    "all": "All",
+    "tags_label": "Topics",
+    "empty": "There are no articles here yet.",
+    "pagination_label": "Pagination",
+    "previous_page": "Previous page",
+    "next_page": "Next page",
+    "article": {
+      "breadcrumbs": "Breadcrumbs",
+      "share": "Share",
+      "share_on": "Share on {{ network }}",
+      "more": "More articles",
+      "previous": "Previous article",
+      "next": "Next article",
+      "comments": {
+        "one": "{{ count }} comment",
+        "other": "{{ count }} comments"
+      }
+    },
+    "comment_form": {
+      "heading": "Leave a comment",
+      "name": "Name",
+      "email": "Email",
+      "message": "Comment",
+      "submit": "Post comment",
+      "moderated": "Comments are reviewed before they are published.",
+      "success": "Your comment has been posted. Thank you!",
+      "success_moderated": "Thank you! Your comment will appear after moderation.",
+      "error": "Your comment couldn’t be posted. Please check the fields:"
+    }
+  },
+  "gift_card": {
+    "title": "Your {{ value }} gift card for {{ shop }}",
+    "subtext": "Your gift card",
+    "heading": "Your gift card",
+    "balance": "Balance",
+    "initial_value": "of {{ value }}",
+    "expired": "Expired",
+    "disabled": "Disabled",
+    "expires_on": "Valid until {{ expires_on }}",
+    "how_to_use": "Enter this code at checkout",
+    "copy": "Copy code",
+    "copied": "Code copied",
+    "qr_alt": "QR code — scan to redeem the gift card",
+    "apple_wallet": "Add to Apple Wallet",
+    "print": "Print",
+    "shop_link": "Go to the store"
+  },
   "collections": {
     "breadcrumbs": "Breadcrumbs",
     "subcollections": "Categories",
@@ -67,9 +179,6 @@
   "newsletter": {
     "label": "Email",
     "success": "Thanks for subscribing!"
-  },
-  "cart": {
-    "error": "Something went wrong. Please try again."
   },
   "products": {
     "add_to_cart": "Add to cart",

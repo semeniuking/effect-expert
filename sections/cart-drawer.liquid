@@ -109,7 +109,7 @@
 
     .cart-drawer__footer {
       gap: 10px;
-      padding: 16px 20px 24px;
+      padding: 16px 20px calc(24px + env(safe-area-inset-bottom));
       box-shadow: 0 -8px 24px var(--color-shadow);
     }
   }
