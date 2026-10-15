@@ -1,0 +1,24 @@
+{
+  "sections": {
+    "main": {
+      "type": "policy-page",
+      "blocks": {
+        "stat_1": { "type": "_policy-stat", "settings": { "value": "14 днів", "label": "на обмін або повернення" } },
+        "stat_2": { "type": "_policy-stat", "settings": { "value": "3 робочі дні", "label": "на повернення коштів" } },
+        "stat_3": { "type": "_policy-stat", "settings": { "value": "Нова пошта", "label": "перевіряйте посилку у відділенні" } }
+      },
+      "block_order": ["stat_1", "stat_2", "stat_3"],
+      "settings": {
+        "menu": "footer",
+        "subheading": "Правила магазину",
+        "contact_text": "Залишились питання?",
+        "contact_label": "Написати менеджеру",
+        "contact_link": "shopify://pages/contact",
+        "color_scheme": "scheme-1",
+        "padding_top": 48,
+        "padding_bottom": 96
+      }
+    }
+  },
+  "order": ["main"]
+}

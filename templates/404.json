@@ -1,0 +1,18 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-404",
+      "settings": {
+        "subheading": "404",
+        "heading": "Сторінку не знайдено",
+        "text": "<p>Можливо, посилання застаріло або сторінку видалили. Скористайтеся пошуком або поверніться на головну.</p>",
+        "show_search": true,
+        "button_label": "На головну",
+        "color_scheme": "scheme-1",
+        "padding_top": 96,
+        "padding_bottom": 120
+      }
+    }
+  },
+  "order": ["main"]
+}

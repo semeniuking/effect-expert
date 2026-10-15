@@ -49,6 +49,7 @@
 {%- if section.settings.sticky -%}
   <style>
     #shopify-section-{{ section.id }} { position: sticky; top: 0; z-index: 30; }
+    :root { --header-offset: var(--header-height, 0px); }
   </style>
 {%- endif -%}
 
