@@ -7,3 +7,4 @@ package-lock.json
 .prettierignore
 .theme-check.yml
 README.md
+ghost-hunt-worker/
