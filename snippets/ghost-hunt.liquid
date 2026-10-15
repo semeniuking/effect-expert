@@ -118,17 +118,35 @@
           class="ghost-hunt__panel"
           ref="progressPanel"
         >
-          <h2
-            id="GhostHuntTitle"
-            class="ghost-hunt__title h3"
-          >
-            {{ settings.ghost_hunt_title }}
-          </h2>
+          <div class="ghost-hunt__header">
+            <span class="ghost-hunt__badge">
+              <img
+                src="{{ 'ghost-white.png' | asset_url }}"
+                alt=""
+                width="40"
+                height="37"
+              >
+            </span>
+            <h2
+              id="GhostHuntTitle"
+              class="ghost-hunt__title"
+            >
+              {{ settings.ghost_hunt_title }}
+            </h2>
+          </div>
           <div class="ghost-hunt__text rte">{{ settings.ghost_hunt_intro }}</div>
-          <p
-            class="ghost-hunt__found"
-            ref="found"
-          ></p>
+          <div class="ghost-hunt__status">
+            <p
+              class="ghost-hunt__found"
+              ref="found"
+            ></p>
+            <div
+              class="ghost-hunt__bar"
+              aria-hidden="true"
+            >
+              <span ref="bar"></span>
+            </div>
+          </div>
           <ol
             class="ghost-hunt__slots"
             ref="slots"
@@ -149,7 +167,7 @@
             <div class="ghost-hunt__row">
               <input
                 id="GhostHuntCode"
-                class="ghost-hunt__input"
+                class="field__input ghost-hunt__input ghost-hunt__input--code"
                 ref="codeInput"
                 name="code"
                 inputmode="numeric"
@@ -178,7 +196,7 @@
             hidden
           >
             <div class="ghost-hunt__text rte">{{ settings.ghost_hunt_prize_text }}</div>
-            <div class="ghost-hunt__row">
+            <div class="ghost-hunt__row ghost-hunt__row--promo">
               <code
                 class="ghost-hunt__promo"
                 ref="promo"

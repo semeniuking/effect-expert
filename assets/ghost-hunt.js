@@ -581,6 +581,7 @@ class GhostHuntApp extends DialogComponent {
     tracker.hidden = !(count > 0 || this.state.promo || this.debug);
     countEl.textContent = `${count}/${total}`;
     foundEl.textContent = format(config.strings.foundCount, { count, total });
+    this.refs.bar?.style.setProperty('width', `${Math.min(100, (count / total) * 100)}%`);
 
     slots.replaceChildren(
       ...Array.from({ length: total }, (_, index) => {
@@ -670,7 +671,7 @@ class GhostHuntApp extends DialogComponent {
         input.type = field.type;
         input.required = field.required;
         if (field.autocomplete) input.autocomplete = /** @type {any} */ (field.autocomplete);
-        if (field.type !== 'checkbox') input.className = 'ghost-hunt__input';
+        if (field.type !== 'checkbox') input.className = 'field__input ghost-hunt__input';
 
         const label = document.createElement('label');
         label.htmlFor = id;

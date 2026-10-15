@@ -130,12 +130,108 @@
   }
 }
 
-/* ---------- Dialog ---------- */
+/* ---------- Dialog ----------
+   Built from the theme's own tokens (heading font, input + button styles, radii, color scheme).
+   Phones: a bottom sheet with natural height instead of the theme's full-screen modal. */
 
-.ghost-hunt__dialog {
-  width: min(440px, calc(100vw - 32px));
-  padding: 28px 24px 24px;
-  border-radius: var(--style-border-radius-popover, 12px);
+.ghost-hunt__dialog.dialog-modal {
+  --gh-muted: rgb(var(--color-foreground-rgb) / var(--opacity-60, 0.6));
+  --gh-line: rgb(var(--color-foreground-rgb) / var(--opacity-15, 0.15));
+  --gh-tint: rgb(var(--color-foreground-rgb) / var(--opacity-5, 0.05));
+  --gh-radius: var(--style-border-radius-inputs, 8px);
+
+  width: min(460px, calc(100vw - 32px));
+  max-width: 460px;
+  margin: auto; /* the theme's reset zeroes dialog margins, which would pin it to the top */
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* The theme's open animation holds margin-top at 0, which would pin the dialog to the top. */
+.ghost-hunt__dialog.dialog-modal[open] {
+  animation: ghost-hunt-pop-in 0.22s ease-out forwards;
+}
+
+.ghost-hunt__dialog.dialog-modal.dialog-closing {
+  animation: ghost-hunt-pop-out 0.16s ease-in forwards;
+}
+
+@keyframes ghost-hunt-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+@keyframes ghost-hunt-pop-out {
+  to {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .ghost-hunt__dialog.dialog-modal {
+    /* Pinned to the bottom with natural height (the theme forces 100dvh on phones). */
+    inset: auto 0 0;
+    width: 100%;
+    max-width: 100%;
+    height: fit-content;
+    max-height: min(90dvh, 760px);
+    margin: 0;
+    padding: 0;
+    border-radius: var(--style-border-radius-popover, 16px) var(--style-border-radius-popover, 16px) 0 0;
+  }
+
+  .ghost-hunt__dialog.dialog-modal[open] {
+    animation: ghost-hunt-sheet-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+
+  .ghost-hunt__dialog.dialog-modal.dialog-closing {
+    animation: ghost-hunt-sheet-out 0.22s ease-in forwards;
+  }
+
+  /* Grab handle */
+  .ghost-hunt__dialog::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin: 10px auto 0;
+    border-radius: 2px;
+    background: var(--gh-line);
+  }
+}
+
+@keyframes ghost-hunt-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes ghost-hunt-sheet-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+.ghost-hunt__panel {
+  display: grid;
+  gap: var(--gap-lg, 20px);
+  padding: 28px 24px calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+@media screen and (max-width: 749px) {
+  .ghost-hunt__panel {
+    gap: var(--gap-md, 16px);
+    padding: 16px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .ghost-hunt__panel[hidden],
@@ -152,63 +248,138 @@
   right: 12px;
 }
 
+.ghost-hunt__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 36px; /* room for the close button */
+}
+
+.ghost-hunt__badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-foreground);
+}
+
+.ghost-hunt__badge img {
+  width: 30px;
+  height: auto;
+}
+
 .ghost-hunt__title {
-  margin: 0 32px 8px 0;
+  margin: 0;
+  font-family: var(--font-h3--family, var(--font-heading--family));
+  font-weight: var(--font-h3--weight, var(--font-heading--weight, 700));
+  font-style: var(--font-h3--style, normal);
+  text-transform: var(--font-h3--case, none);
+  letter-spacing: var(--font-h3--letter-spacing, normal);
+  font-size: clamp(22px, 6vw, 28px);
+  line-height: 1.05;
+}
+
+.ghost-hunt__text {
+  color: var(--gh-muted);
+  font-size: 15px;
+  line-height: 1.45;
 }
 
 .ghost-hunt__text > :first-child {
   margin-top: 0;
 }
 
+.ghost-hunt__text > :last-child {
+  margin-bottom: 0;
+}
+
+.ghost-hunt__status {
+  display: grid;
+  gap: 8px;
+}
+
 .ghost-hunt__found {
-  margin: 12px 0 8px;
+  margin: 0;
+  font-size: 14px;
   font-weight: 600;
+}
+
+.ghost-hunt__bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--gh-line);
+  overflow: hidden;
+}
+
+.ghost-hunt__bar span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--color-foreground);
+  transition: width 0.4s ease;
 }
 
 .ghost-hunt__slots {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 8px;
-  margin: 0 0 20px;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .ghost-hunt__slot {
+  position: relative;
   display: grid;
   place-items: center;
-  aspect-ratio: 1 / 1.15;
-  border: 1px dashed rgb(var(--color-foreground-rgb, 0 0 0) / 0.3);
-  border-radius: 10px;
-  position: relative;
+  aspect-ratio: 1;
+  border: 1px dashed rgb(var(--color-foreground-rgb) / var(--opacity-30, 0.3));
+  border-radius: var(--gh-radius);
+  background: var(--gh-tint);
 }
 
 .ghost-hunt__slot.is-found {
-  border-style: solid;
-  border-color: currentColor;
+  border: 1px solid var(--color-foreground);
+  background: var(--color-foreground);
+  color: var(--color-background);
 }
 
 .ghost-hunt__slot-n {
   position: absolute;
-  top: 3px;
+  top: 4px;
   left: 6px;
-  font-size: 11px;
-  opacity: 0.6;
+  font-size: 10px;
+  line-height: 1;
+  opacity: 0.55;
 }
 
 .ghost-hunt__slot-digit {
-  font-size: 24px;
+  font-family: var(--font-heading--family);
+  font-size: clamp(22px, 7vw, 28px);
   font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .ghost-hunt__slot:not(.is-found) .ghost-hunt__slot-digit {
-  opacity: 0.35;
+  opacity: 0.3;
+}
+
+.ghost-hunt__code-form,
+.ghost-hunt__golden-form,
+.ghost-hunt__result {
+  display: grid;
+  gap: 10px;
 }
 
 .ghost-hunt__label {
   display: block;
-  margin-bottom: 6px;
+  font-size: 12px;
   font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .ghost-hunt__row {
@@ -217,74 +388,105 @@
   align-items: stretch;
 }
 
+.ghost-hunt__row > .button {
+  flex: none;
+}
+
+/* Theme `.field__input` gives the look; these only size it. 16px+ stops iOS zooming in. */
 .ghost-hunt__input {
   flex: 1;
   min-width: 0;
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid rgb(var(--color-foreground-rgb, 0 0 0) / 0.3);
-  border-radius: 8px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
+  min-height: var(--minimum-touch-target, 44px);
+  font-size: max(16px, var(--font-paragraph--size, 16px));
+}
+
+.ghost-hunt__input--code {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ghost-hunt__input--code::placeholder {
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: normal;
 }
 
 .ghost-hunt__input[aria-invalid='true'],
 .ghost-hunt__field input[aria-invalid='true'] {
-  border-color: #d0302f;
-  outline-color: #d0302f;
+  box-shadow: 0 0 0 1px #c62828;
 }
 
 .ghost-hunt__message {
-  min-height: 1.4em;
-  margin: 8px 0 0;
-  color: #d0302f;
+  margin: 0;
+  color: #c62828;
+  font-size: 14px;
 }
 
 .ghost-hunt__message:empty {
-  min-height: 0;
+  display: none;
 }
 
 .ghost-hunt__promo {
   flex: 1;
   display: grid;
   place-items: center;
+  min-height: var(--minimum-touch-target, 44px);
   padding: 10px;
-  border: 2px dashed currentColor;
-  border-radius: 8px;
+  border: 1.5px dashed var(--color-foreground);
+  border-radius: var(--gh-radius);
+  background: var(--gh-tint);
+  font-family: var(--font-heading--family);
   font-size: 20px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 .ghost-hunt__apply {
-  margin-top: 12px;
   width: 100%;
   text-align: center;
 }
 
 .ghost-hunt__golden-image {
   display: block;
-  width: 96px;
+  width: 88px;
   height: auto;
-  margin: 0 auto 12px;
+  margin: 8px auto 0;
+  filter: drop-shadow(0 6px 14px rgb(255 190 30 / 0.45));
 }
 
 .ghost-hunt__fields {
   display: grid;
   gap: 12px;
-  margin-bottom: 16px;
+}
+
+.ghost-hunt__field {
+  display: grid;
+  gap: 6px;
 }
 
 .ghost-hunt__field--checkbox {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: flex-start;
 }
 
+.ghost-hunt__field--checkbox input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--color-foreground);
+}
+
 .ghost-hunt__field--checkbox .ghost-hunt__label {
-  margin: 0;
+  font-size: 14px;
   font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .ghost-hunt__golden-form .button {
