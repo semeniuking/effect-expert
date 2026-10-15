@@ -29,6 +29,7 @@ class FacetFilters extends HTMLElement {
 
   connectedCallback() {
     this.sectionId = this.dataset.sectionId || '';
+    this.current = location.pathname + location.search;
     this.form = /** @type {HTMLFormElement | null} */ (this.querySelector('form[data-facets-form]'));
     this.drawer = /** @type {HTMLDialogElement | null} */ (this.querySelector('dialog[data-facets-drawer]'));
     this.applyPrice = debounce(() => this.applyForm(), 700);
@@ -109,7 +110,7 @@ class FacetFilters extends HTMLElement {
   };
 
   onPopState = () => {
-    this.render(location.href, false);
+    if (location.pathname + location.search !== this.current) this.render(location.href, false);
   };
 
   applyForm() {
@@ -134,6 +135,7 @@ class FacetFilters extends HTMLElement {
       const doc = await fetchSection(url, this.sectionId, this.controller.signal);
       this.swap(doc);
       if (updateHistory) history.replaceState(history.state, '', url);
+      this.current = location.pathname + location.search;
     } catch (error) {
       if (/** @type {Error} */ (error).name !== 'AbortError') location.assign(url);
     }
