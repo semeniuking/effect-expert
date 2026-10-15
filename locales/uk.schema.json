@@ -1,0 +1,1292 @@
+{
+  "shared": {
+    "subheading": {
+      "label": "Надзаголовок"
+    },
+    "direction": {
+      "label": "Напрямок",
+      "options__column": "Вертикально",
+      "options__row": "Горизонтально"
+    },
+    "justify": {
+      "label": "Вирівнювання по головній осі"
+    },
+    "align": {
+      "label": "Вирівнювання по поперечній осі"
+    },
+    "text_align": {
+      "label": "Вирівнювання тексту"
+    },
+    "alignment": {
+      "options__start": "На початку",
+      "options__center": "По центру",
+      "options__end": "У кінці",
+      "options__space_between": "Рівномірно",
+      "options__stretch": "Розтягнути",
+      "options__left": "Ліворуч",
+      "options__right": "Праворуч"
+    },
+    "gap": {
+      "label": "Проміжок"
+    },
+    "header_appearance": {
+      "content": "Вигляд"
+    },
+    "header_link": {
+      "content": "Посилання"
+    },
+    "header_layout": {
+      "content": "Макет"
+    },
+    "color_scheme": {
+      "label": "Колірна схема"
+    },
+    "padding_y": {
+      "label": "Відступ по вертикалі"
+    },
+    "padding_x": {
+      "label": "Відступ по горизонталі"
+    },
+    "padding_top": {
+      "label": "Відступ зверху"
+    },
+    "padding_bottom": {
+      "label": "Відступ знизу"
+    },
+    "size": {
+      "options__small": "Малий",
+      "options__medium": "Середній",
+      "options__large": "Великий"
+    },
+    "ratio": {
+      "label": "Співвідношення сторін",
+      "options__adapt": "Як у зображення"
+    },
+    "link": {
+      "label": "Посилання"
+    },
+    "link_label": {
+      "label": "Текст посилання (для програм читання з екрана)"
+    },
+    "heading": {
+      "label": "Заголовок"
+    },
+    "link_text": {
+      "label": "Текст посилання"
+    },
+    "section_width": {
+      "label": "Ширина",
+      "options__page": "Сторінка",
+      "options__narrow": "Вузька",
+      "options__full": "На всю ширину"
+    },
+    "columns": {
+      "label": "Стовпці на комп’ютері"
+    },
+    "columns_mobile": {
+      "label": "Стовпці на мобільних"
+    },
+    "collection": {
+      "label": "Колекція"
+    },
+    "products_count": {
+      "label": "Кількість товарів"
+    },
+    "image": {
+      "label": "Зображення"
+    },
+    "image_mobile": {
+      "label": "Зображення для мобільних"
+    },
+    "mobile_layout": {
+      "label": "Макет на мобільних",
+      "options__grid": "Сітка",
+      "options__rail": "Гортання стрічкою"
+    }
+  },
+  "sections": {
+    "cart_drawer": {
+      "name": "Висувний кошик",
+      "settings": {
+        "info": {
+          "content": "Безкоштовна доставка, кешбек, примітка, код знижки та рекомендації налаштовуються в Налаштуваннях теми → Кошик."
+        }
+      }
+    },
+    "cart_upsell": {
+      "name": "Рекомендації в кошику"
+    },
+    "main_cart": {
+      "name": "Кошик",
+      "settings": {
+        "summary_color_scheme": {
+          "label": "Колірна схема підсумку"
+        }
+      }
+    },
+    "main_404": {
+      "name": "Сторінка 404",
+      "settings": {
+        "text": {
+          "label": "Текст"
+        },
+        "show_search": {
+          "label": "Показувати пошук"
+        },
+        "button_label": {
+          "label": "Текст кнопки"
+        },
+        "button_link": {
+          "info": "Залиште порожнім, щоб посилатися на головну сторінку"
+        }
+      }
+    },
+    "main_page": {
+      "name": "Сторінка",
+      "settings": {
+        "show_title": {
+          "label": "Показувати заголовок"
+        },
+        "title": {
+          "label": "Заголовок",
+          "info": "Залиште порожнім, щоб використати заголовок сторінки"
+        }
+      }
+    },
+    "policy_page": {
+      "name": "Сторінка політики",
+      "settings": {
+        "menu": {
+          "label": "Меню політик"
+        },
+        "header_contact": {
+          "content": "Запитання"
+        },
+        "contact_text": {
+          "label": "Текст"
+        },
+        "contact_label": {
+          "label": "Текст кнопки"
+        }
+      }
+    },
+    "main_blog": {
+      "name": "Блог",
+      "settings": {
+        "show_tags": {
+          "label": "Показувати фільтр за тегами"
+        },
+        "per_page": {
+          "label": "Статей на сторінці"
+        },
+        "show_date": {
+          "label": "Показувати дату"
+        },
+        "show_excerpt": {
+          "label": "Показувати уривок"
+        }
+      }
+    },
+    "main_article": {
+      "name": "Стаття блогу",
+      "settings": {
+        "show_date": {
+          "label": "Показувати дату"
+        },
+        "show_author": {
+          "label": "Показувати автора"
+        },
+        "show_tags": {
+          "label": "Показувати теги"
+        },
+        "show_share": {
+          "label": "Показувати кнопки поширення"
+        }
+      }
+    },
+    "main_collection": {
+      "name": "Колекція",
+      "settings": {
+        "show_breadcrumbs": {
+          "label": "Показувати навігаційний ланцюжок"
+        },
+        "show_description": {
+          "label": "Показувати опис колекції"
+        },
+        "show_image": {
+          "label": "Показувати зображення колекції"
+        },
+        "header_subcollections": {
+          "content": "Чипи підколекцій"
+        },
+        "show_subcollections": {
+          "label": "Показувати чипи підколекцій"
+        },
+        "subcollections_menu": {
+          "label": "Меню",
+          "info": "Спершу використовується меню, дескриптор якого збігається з дескриптором колекції (наприклад, «eyelashes»). Інакше це меню показується в усіх колекціях."
+        },
+        "show_chip_images": {
+          "label": "Показувати зображення колекцій у чипах"
+        },
+        "header_filtering": {
+          "content": "Фільтрування та сортування"
+        },
+        "enable_filtering": {
+          "label": "Увімкнути фільтри",
+          "info": "Налаштуйте фільтри в застосунку Search & Discovery"
+        },
+        "filter_layout": {
+          "label": "Фільтри на комп’ютері",
+          "options__sidebar": "Бічна панель",
+          "options__drawer": "Висувна панель"
+        },
+        "enable_sorting": {
+          "label": "Увімкнути сортування"
+        },
+        "products_per_page": {
+          "label": "Товарів на сторінці"
+        }
+      }
+    },
+    "main_search": {
+      "name": "Результати пошуку",
+      "settings": {
+        "enable_filtering": {
+          "label": "Увімкнути фільтри"
+        },
+        "enable_sorting": {
+          "label": "Увімкнути сортування"
+        },
+        "products_per_page": {
+          "label": "Результатів на сторінці"
+        },
+        "popular_info": {
+          "content": "Популярні запити редагуються в Налаштуваннях теми → Пошук."
+        }
+      }
+    },
+    "main_list_collections": {
+      "name": "Сторінка списку колекцій",
+      "settings": {
+        "sort": {
+          "label": "Сортування колекцій",
+          "options__alphabetical": "За алфавітом, А–Я",
+          "options__products_high": "Кількість товарів, за спаданням",
+          "options__date_new": "Дата, від нових до старих"
+        },
+        "collections": {
+          "label": "Колекції",
+          "info": "Залиште порожнім, щоб показати всі колекції в порядку, вибраному вище."
+        },
+        "show_count": {
+          "label": "Показувати кількість товарів"
+        },
+        "ratio": {
+          "options__portrait": "Портрет 4:5",
+          "options__square": "Квадрат",
+          "options__tall": "Високе 3:4"
+        }
+      }
+    },
+    "section": {
+      "name": "Розділ",
+      "settings": {
+        "layout": {
+          "label": "Макет",
+          "options__grid": "Сітка"
+        },
+        "columns": {
+          "label": "Стовпці"
+        },
+        "min_height": {
+          "label": "Мінімальна висота"
+        },
+        "background_image": {
+          "label": "Фонове зображення"
+        },
+        "overlay": {
+          "label": "Накладання на фон"
+        },
+        "reverse_mobile": {
+          "label": "На мобільних показувати останній блок першим"
+        }
+      },
+      "presets": {
+        "empty": "Порожній розділ",
+        "hero": "Головний банер із зображенням",
+        "rich_text": "Текст із кнопками",
+        "image_with_text": "Зображення з текстом"
+      }
+    },
+    "custom_liquid": {
+      "name": "Власний Liquid",
+      "settings": {
+        "custom_liquid": {
+          "label": "Код Liquid"
+        }
+      }
+    },
+    "header_group": {
+      "name": "Шапка"
+    },
+    "footer_group": {
+      "name": "Футер"
+    },
+    "announcement_bar": {
+      "name": "Панель оголошень",
+      "settings": {
+        "interval": {
+          "label": "Змінювати повідомлення кожні",
+          "info": "Лише на мобільних: одночасно показується одне повідомлення. Для відвідувачів, які надають перевагу зменшеному руху, зміна вимкнена."
+        }
+      }
+    },
+    "header": {
+      "name": "Шапка",
+      "settings": {
+        "menu": {
+          "label": "Меню"
+        },
+        "secondary_menu": {
+          "label": "Додаткове меню в мобільній панелі",
+          "info": "Дрібніші посилання під каталогом, наприклад доставка, програма лояльності, контакти"
+        },
+        "show_language": {
+          "label": "Показувати перемикач мови",
+          "info": "Видно, коли в магазині опубліковано більше однієї мови"
+        },
+        "sticky": {
+          "label": "Закріплена шапка"
+        }
+      }
+    },
+    "predictive_search": {
+      "name": "Підказки пошуку"
+    },
+    "footer": {
+      "name": "Футер",
+      "settings": {
+        "columns": {
+          "label": "Стовпці на комп’ютері",
+          "info": "Стовпці CSS-сітки, одне значення на блок, наприклад 1.4fr 1fr 1fr 1.4fr"
+        },
+        "mobile_reorder": {
+          "label": "На мобільних показувати розсилку першою, а блок бренду останнім"
+        }
+      }
+    },
+    "footer_bottom": {
+      "name": "Нижня панель футера",
+      "settings": {
+        "show_policies": {
+          "label": "Показувати посилання на політики"
+        },
+        "show_payment_icons": {
+          "label": "Показувати значки способів оплати"
+        }
+      }
+    },
+    "password": {
+      "name": "Сторінка пароля",
+      "settings": {
+        "show_password_message": {
+          "label": "Використовувати повідомлення сторінки пароля з розділу Інтернет-магазин → Налаштування",
+          "info": "Якщо воно порожнє, показується текст нижче"
+        },
+        "text": {
+          "label": "Текст"
+        },
+        "show_newsletter": {
+          "label": "Показувати підписку на розсилку"
+        }
+      }
+    },
+    "slideshow": {
+      "name": "Слайд-шоу",
+      "settings": {
+        "width": {
+          "info": "Повна ширина обмежена 1440px"
+        },
+        "ratio_desktop": {
+          "label": "Співвідношення сторін на комп’ютері"
+        },
+        "ratio_mobile": {
+          "label": "Співвідношення сторін на мобільних"
+        },
+        "header_autoplay": {
+          "content": "Автопрокручування"
+        },
+        "autoplay": {
+          "label": "Автоматично змінювати слайди",
+          "info": "Зупиняється під час наведення та фокусування й вимкнене для відвідувачів, які надають перевагу зменшеному руху"
+        },
+        "interval": {
+          "label": "Змінювати слайди кожні"
+        }
+      },
+      "presets": {
+        "name": "Слайд-шоу"
+      }
+    },
+    "benefits": {
+      "name": "Переваги",
+      "presets": {
+        "name": "Переваги"
+      }
+    },
+    "collection_list": {
+      "name": "Список колекцій",
+      "presets": {
+        "name": "Список колекцій"
+      }
+    },
+    "featured_collection": {
+      "name": "Рекомендована колекція",
+      "settings": {
+        "header_heading": {
+          "content": "Заголовок"
+        },
+        "link_url": {
+          "info": "Залиште порожнім, щоб посилатися на вибрану колекцію"
+        }
+      },
+      "presets": {
+        "name": "Рекомендована колекція"
+      }
+    },
+    "instagram": {
+      "name": "Instagram",
+      "settings": {
+        "link_url": {
+          "label": "Посилання на профіль",
+          "info": "Також використовується для дописів без власного посилання"
+        }
+      },
+      "presets": {
+        "name": "Instagram"
+      }
+    },
+    "main_product": {
+      "name": "Інформація про товар",
+      "settings": {
+        "gallery_width": {
+          "label": "Ширина стовпця медіа на комп’ютері",
+          "info": "Стовпець з інформацією займає решту, до 520px"
+        },
+        "sticky_info": {
+          "label": "Закріплювати інформацію про товар під час прокручування (комп’ютер)"
+        },
+        "sticky_atc": {
+          "label": "Закріплена панель «Додати в кошик»",
+          "info": "З’являється, коли основна кнопка додавання зникає з поля зору",
+          "options__none": "Вимкнено",
+          "options__mobile": "Лише на мобільних",
+          "options__all": "На мобільних і комп’ютері"
+        }
+      }
+    },
+    "product_recommendations": {
+      "name": "Рекомендації товарів",
+      "settings": {
+        "intent": {
+          "label": "Рекомендації",
+          "info": "Додаткові товари налаштовуються в застосунку Search & Discovery",
+          "options__complementary": "Додаткові (купують разом)",
+          "options__related": "Пов’язані (схожі)"
+        },
+        "fallback_related": {
+          "label": "Показувати пов’язані товари, якщо немає додаткових"
+        }
+      }
+    },
+    "quick_add": {
+      "name": "Швидке додавання"
+    }
+  },
+  "blocks": {
+    "contact_form": {
+      "name": "Контактна форма",
+      "settings": {
+        "button_label": {
+          "label": "Текст кнопки"
+        },
+        "full_width": {
+          "label": "Кнопка на всю ширину"
+        }
+      }
+    },
+    "policy_stat": {
+      "name": "Показник",
+      "settings": {
+        "value": {
+          "label": "Значення"
+        },
+        "label": {
+          "label": "Підпис"
+        }
+      }
+    },
+    "group": {
+      "name": "Група",
+      "settings": {
+        "stack_mobile": {
+          "label": "Розташовувати вертикально на мобільних"
+        },
+        "width": {
+          "label": "Ширина",
+          "options__fill": "Заповнити",
+          "options__fit": "За вмістом",
+          "options__custom": "Власна"
+        },
+        "custom_width": {
+          "label": "Власна ширина"
+        },
+        "use_scheme": {
+          "label": "Використовувати фон колірної схеми"
+        },
+        "link": {
+          "label": "Зробити всю групу посиланням"
+        },
+        "link_label": {
+          "label": "Текст посилання (для програм читання з екрана)"
+        }
+      },
+      "presets": {
+        "column": "Група",
+        "row": "Рядок",
+        "card": "Картка"
+      }
+    },
+    "heading": {
+      "name": "Заголовок",
+      "settings": {
+        "text": {
+          "label": "Текст",
+          "info": "Візьміть слова в *зірочки*, щоб виділити їх акцентним кольором"
+        },
+        "style": {
+          "label": "Стиль",
+          "options__display": "Великий",
+          "options__eyebrow": "Надзаголовок (малі великі літери)"
+        },
+        "tag": {
+          "label": "HTML-тег (SEO)",
+          "options__auto": "Автоматично",
+          "options__p": "Абзац"
+        },
+        "color": {
+          "label": "Колір",
+          "options__default": "За замовчуванням",
+          "options__muted": "Другорядний",
+          "options__accent": "Акцентний"
+        },
+        "uppercase": {
+          "label": "Великі літери"
+        },
+        "max_width": {
+          "label": "Максимальна довжина рядка"
+        }
+      },
+      "presets": {
+        "heading": "Заголовок",
+        "eyebrow": "Надзаголовок"
+      }
+    },
+    "text": {
+      "name": "Текст",
+      "settings": {
+        "text": {
+          "label": "Текст"
+        },
+        "size": {
+          "label": "Розмір"
+        },
+        "muted": {
+          "label": "Другорядний колір"
+        },
+        "max_width": {
+          "label": "Максимальна довжина рядка"
+        }
+      }
+    },
+    "button": {
+      "name": "Кнопка",
+      "settings": {
+        "label": {
+          "label": "Текст"
+        },
+        "link": {
+          "label": "Посилання"
+        },
+        "new_tab": {
+          "label": "Відкривати в новій вкладці"
+        },
+        "style": {
+          "label": "Стиль",
+          "options__primary": "Основна",
+          "options__secondary": "Контурна",
+          "options__accent": "Акцентна",
+          "options__link": "Текстове посилання зі стрілкою"
+        },
+        "full_width": {
+          "label": "Кнопка на всю ширину"
+        },
+        "full_width_mobile": {
+          "label": "На всю ширину на мобільних"
+        }
+      }
+    },
+    "image": {
+      "name": "Зображення",
+      "settings": {
+        "image": {
+          "label": "Зображення"
+        },
+        "image_mobile": {
+          "label": "Зображення для мобільних (необов’язково)"
+        },
+        "width": {
+          "label": "Ширина"
+        },
+        "desktop_size": {
+          "label": "Частка ширини екрана на комп’ютері",
+          "info": "Допомагає браузеру завантажити зображення потрібного розміру"
+        },
+        "priority": {
+          "label": "Завантажувати першим",
+          "info": "Вмикайте лише для першого великого зображення на сторінці"
+        }
+      }
+    },
+    "video": {
+      "name": "Відео",
+      "settings": {
+        "video": {
+          "label": "Відео Shopify"
+        },
+        "video_url": {
+          "label": "або URL YouTube / Vimeo"
+        },
+        "cover": {
+          "label": "Обкладинка для YouTube / Vimeo"
+        },
+        "autoplay": {
+          "label": "Автовідтворення без звуку та по колу"
+        },
+        "controls": {
+          "label": "Показувати елементи керування"
+        }
+      }
+    },
+    "spacer": {
+      "name": "Відступ",
+      "settings": {
+        "height": {
+          "label": "Висота на комп’ютері"
+        },
+        "height_mobile": {
+          "label": "Висота на мобільних"
+        }
+      }
+    },
+    "divider": {
+      "name": "Роздільник",
+      "settings": {
+        "weight": {
+          "label": "Товщина",
+          "options__light": "Тонкий",
+          "options__strong": "Товстий"
+        },
+        "width": {
+          "label": "Ширина"
+        }
+      }
+    },
+    "custom_liquid": {
+      "name": "Власний Liquid",
+      "settings": {
+        "custom_liquid": {
+          "label": "Код Liquid"
+        }
+      }
+    },
+    "social_links": {
+      "name": "Соцмережі",
+      "settings": {
+        "info": {
+          "content": "Профілі налаштовуються в Налаштуваннях теми → Соцмережі та контакти."
+        },
+        "show_labels": {
+          "label": "Показувати імена користувачів"
+        }
+      }
+    },
+    "menu": {
+      "name": "Меню",
+      "settings": {
+        "menu": {
+          "label": "Меню"
+        },
+        "collapse_mobile": {
+          "label": "Згортати на мобільних"
+        }
+      }
+    },
+    "email_signup": {
+      "name": "Підписка на розсилку",
+      "settings": {
+        "placeholder": {
+          "label": "Підказка в полі"
+        },
+        "button_label": {
+          "label": "Текст кнопки"
+        }
+      }
+    },
+    "accordion": {
+      "name": "Акордеон"
+    },
+    "accordion_row": {
+      "name": "Рядок акордеона",
+      "settings": {
+        "content": {
+          "label": "Вміст"
+        },
+        "page": {
+          "label": "Вміст сторінки (необов’язково)"
+        },
+        "open": {
+          "label": "Відкрито за замовчуванням"
+        }
+      }
+    },
+    "announcement": {
+      "name": "Оголошення",
+      "settings": {
+        "text": {
+          "label": "Текст"
+        }
+      }
+    },
+    "footer_brand": {
+      "name": "Бренд",
+      "settings": {
+        "logo_info": {
+          "content": "Використовує логотип для темного фону з Налаштувань теми → Логотип і favicon, потім основний логотип, потім назву магазину."
+        },
+        "logo_height": {
+          "label": "Висота логотипа"
+        },
+        "text": {
+          "label": "Текст"
+        },
+        "show_social": {
+          "label": "Показувати значки соцмереж",
+          "info": "Профілі налаштовуються в Налаштуваннях теми → Соцмережі та контакти."
+        }
+      }
+    },
+    "contact_info": {
+      "name": "Контактна інформація",
+      "settings": {
+        "info": {
+          "content": "Телефон та ел. пошта налаштовуються в Налаштуваннях теми → Соцмережі та контакти."
+        },
+        "text": {
+          "label": "Додатковий текст"
+        }
+      }
+    },
+    "slide": {
+      "name": "Слайд",
+      "settings": {
+        "image": {
+          "label": "Зображення для комп’ютера",
+          "info": "Рекомендовано 2880 × 1200 px (12:5)"
+        },
+        "image_mobile": {
+          "label": "Зображення для мобільних",
+          "info": "Рекомендовано 1500 × 1875 px (4:5). Якщо порожньо, використовується зображення для комп’ютера."
+        },
+        "link": {
+          "label": "Посилання слайда"
+        },
+        "link_label": {
+          "info": "Описує, куди веде слайд, наприклад «Нова колекція»"
+        },
+        "header_content": {
+          "content": "Вміст поверх зображення"
+        },
+        "show_content": {
+          "label": "Показувати вміст поверх зображення",
+          "info": "Додайте заголовки, текст або кнопки всередині цього слайда"
+        },
+        "content_position": {
+          "label": "Розташування вмісту",
+          "options__top_left": "Угорі ліворуч",
+          "options__middle_left": "Посередині ліворуч",
+          "options__bottom_left": "Унизу ліворуч",
+          "options__middle_center": "По центру",
+          "options__bottom_center": "Унизу по центру",
+          "options__middle_right": "Посередині праворуч"
+        }
+      }
+    },
+    "benefit": {
+      "name": "Перевага",
+      "settings": {
+        "title": {
+          "label": "Заголовок"
+        },
+        "text": {
+          "label": "Текст"
+        }
+      }
+    },
+    "collection_tile": {
+      "name": "Плитка колекції",
+      "settings": {
+        "image": {
+          "label": "Власне зображення",
+          "info": "Якщо порожньо, використовується зображення колекції"
+        },
+        "label": {
+          "label": "Власна назва",
+          "info": "Якщо порожньо, використовується назва колекції"
+        }
+      }
+    },
+    "instagram_post": {
+      "name": "Допис Instagram",
+      "settings": {
+        "link": {
+          "label": "Посилання на допис",
+          "info": "Якщо порожньо, веде на профіль"
+        },
+        "alt": {
+          "label": "Опис зображення",
+          "info": "Для програм читання з екрана, наприклад «Коричневі вії, макро»"
+        }
+      }
+    },
+    "product_media_gallery": {
+      "name": "Медіагалерея",
+      "settings": {
+        "ratio": {
+          "options__square": "Квадрат",
+          "options__portrait": "Портрет 4:5"
+        },
+        "fit": {
+          "label": "Припасування зображення",
+          "options__cover": "Заповнити рамку",
+          "options__contain": "Показати зображення повністю"
+        },
+        "priority": {
+          "label": "Завантажувати перше зображення першим",
+          "info": "Рекомендовано: це найбільше зображення на сторінці"
+        }
+      }
+    },
+    "product_breadcrumbs": {
+      "name": "Навігаційний ланцюжок",
+      "settings": {
+        "show_title": {
+          "label": "Показувати назву товару"
+        },
+        "hide_mobile": {
+          "label": "Приховати на мобільних"
+        }
+      }
+    },
+    "product_eyebrow": {
+      "name": "Надзаголовок",
+      "settings": {
+        "text": {
+          "label": "Текст",
+          "info": "Залиште порожнім, щоб використати метаполе товару custom.eyebrow"
+        },
+        "fallback": {
+          "label": "Якщо немає тексту чи метаполя",
+          "options__none": "Приховати",
+          "options__type": "Показувати тип товару",
+          "options__vendor": "Показувати постачальника"
+        }
+      }
+    },
+    "product_title": {
+      "name": "Назва товару"
+    },
+    "product_price": {
+      "name": "Ціна",
+      "settings": {
+        "show_tax_note": {
+          "label": "Показувати «Податки включено»"
+        }
+      }
+    },
+    "product_inventory": {
+      "name": "Наявність на складі",
+      "settings": {
+        "note": {
+          "label": "Текст після «В наявності»"
+        },
+        "threshold": {
+          "label": "Поріг низького залишку",
+          "info": "Показує «Залишилося лише X», коли кількість дорівнює цьому значенню або менша. Встановіть 0, щоб вимкнути."
+        }
+      }
+    },
+    "variant_picker": {
+      "name": "Вибір варіанта",
+      "settings": {
+        "style": {
+          "label": "Стиль",
+          "options__pills": "Кнопки",
+          "options__dropdown": "Випадні списки"
+        },
+        "show_swatches": {
+          "label": "Показувати зразки",
+          "info": "Для значень опцій, що мають зразок кольору чи зображення"
+        },
+        "rail_mobile": {
+          "label": "Гортати кнопки горизонтально на мобільних"
+        }
+      }
+    },
+    "buy_buttons": {
+      "name": "Кнопки покупки",
+      "settings": {
+        "show_quantity": {
+          "label": "Показувати вибір кількості"
+        },
+        "show_total": {
+          "label": "Показувати суму на кнопці"
+        },
+        "show_payment_button": {
+          "label": "Показувати динамічну кнопку оформлення замовлення",
+          "info": "«Купити зараз», Apple Pay, Google Pay тощо"
+        }
+      }
+    },
+    "product_info_box": {
+      "name": "Блок доставки й бонусів",
+      "settings": {
+        "shipping_text": {
+          "label": "Рядок про доставку"
+        },
+        "show_free_shipping": {
+          "label": "Показувати суму до безкоштовної доставки",
+          "info": "Використовує Налаштування теми → Кошик → Безкоштовна доставка від"
+        },
+        "show_bonus": {
+          "label": "Показувати кешбек-бонус",
+          "info": "Використовує Налаштування теми → Кошик → Кешбек-бонус"
+        }
+      }
+    },
+    "product_description": {
+      "name": "Опис"
+    },
+    "product_accordion": {
+      "name": "Акордеон із деталями товару"
+    },
+    "product_accordion_row": {
+      "name": "Рядок деталей",
+      "settings": {
+        "source": {
+          "label": "Джерело вмісту",
+          "options__description": "Опис товару",
+          "options__metafield": "Метаполе товару",
+          "options__page": "Сторінка",
+          "options__richtext": "Власний текст"
+        },
+        "metafield": {
+          "label": "Метаполе",
+          "info": "namespace.key, наприклад custom.specs (форматований текст або текст)"
+        },
+        "page": {
+          "label": "Сторінка"
+        },
+        "content": {
+          "label": "Текст"
+        }
+      }
+    },
+    "product_share": {
+      "name": "Поширити"
+    }
+  },
+  "categories": {
+    "layout": "Макет",
+    "text": "Текст",
+    "media": "Медіа",
+    "links": "Посилання",
+    "forms": "Форми",
+    "advanced": "Додатково",
+    "banners": "Банери",
+    "products": "Товари",
+    "collections": "Колекції",
+    "storytelling": "Розповідь",
+    "product": "Товар"
+  },
+  "settings_schema": {
+    "logo": {
+      "name": "Логотип і favicon",
+      "settings": {
+        "logo": {
+          "label": "Логотип"
+        },
+        "logo_inverse": {
+          "label": "Логотип для темного фону",
+          "info": "Використовується у футері та інших темних колірних схемах."
+        },
+        "logo_height": {
+          "label": "Висота логотипа на комп’ютері"
+        },
+        "logo_height_mobile": {
+          "label": "Висота логотипа на мобільних"
+        },
+        "favicon": {
+          "label": "Favicon",
+          "info": "Показується в розмірі 32 × 32 px"
+        }
+      }
+    },
+    "colors": {
+      "name": "Кольори",
+      "settings": {
+        "header_base": {
+          "content": "Основні"
+        },
+        "header_buttons": {
+          "content": "Основна кнопка"
+        },
+        "header_status": {
+          "content": "Статуси"
+        },
+        "background": {
+          "label": "Фон"
+        },
+        "surface": {
+          "label": "Поверхня",
+          "info": "Підкладки зображень, інформаційні блоки та чергування блоків"
+        },
+        "surface_alt": {
+          "label": "Поверхня (наведення / поля)"
+        },
+        "text": {
+          "label": "Текст"
+        },
+        "text_muted": {
+          "label": "Другорядний текст"
+        },
+        "accent": {
+          "label": "Акцентний колір",
+          "info": "Акцентні слова в заголовках, посилання, рамка фокуса"
+        },
+        "on_accent": {
+          "label": "Текст на акцентному кольорі"
+        },
+        "line": {
+          "label": "Роздільники"
+        },
+        "line_strong": {
+          "label": "Межі полів",
+          "info": "Зберігайте контраст 3:1 із фоном"
+        },
+        "button": {
+          "label": "Фон"
+        },
+        "button_text": {
+          "label": "Текст"
+        },
+        "button_hover": {
+          "label": "Фон під час наведення"
+        },
+        "button_hover_text": {
+          "label": "Текст під час наведення"
+        },
+        "sale": {
+          "label": "Ціна зі знижкою та бейдж"
+        },
+        "success": {
+          "label": "В наявності / успіх"
+        }
+      }
+    },
+    "typography": {
+      "name": "Типографіка",
+      "settings": {
+        "header_fonts": {
+          "content": "Шрифти"
+        },
+        "header_scale": {
+          "content": "Розміри (комп’ютер — на мобільних зменшуються автоматично)"
+        },
+        "type_display_font": {
+          "label": "Заголовки",
+          "info": "Жирне накреслення використовується для заголовків, середнє — для підписів"
+        },
+        "type_body_font": {
+          "label": "Основний текст"
+        },
+        "type_display_size": {
+          "label": "Великий (банер)"
+        },
+        "type_h1_size": {
+          "label": "Заголовок 1"
+        },
+        "type_h2_size": {
+          "label": "Заголовок 2"
+        },
+        "type_h3_size": {
+          "label": "Заголовок 3"
+        },
+        "type_body_size": {
+          "label": "Основний текст"
+        },
+        "type_display_uppercase": {
+          "label": "Великі заголовки великими літерами"
+        }
+      }
+    },
+    "layout": {
+      "name": "Макет",
+      "settings": {
+        "page_width": {
+          "label": "Ширина сторінки"
+        },
+        "gutter": {
+          "label": "Бічні відступи на комп’ютері"
+        },
+        "gutter_mobile": {
+          "label": "Бічні відступи на мобільних"
+        },
+        "grid_gap": {
+          "label": "Проміжок сітки"
+        },
+        "header_radius": {
+          "content": "Радіус кутів"
+        },
+        "radius_button": {
+          "label": "Кнопки, поля, бейджі"
+        },
+        "radius_card": {
+          "label": "Картки, панелі, спливні вікна"
+        },
+        "radius_media": {
+          "label": "Зображення"
+        },
+        "header_motion": {
+          "content": "Анімація"
+        },
+        "animations_hover_zoom": {
+          "label": "Збільшувати зображення під час наведення"
+        }
+      }
+    },
+    "product_cards": {
+      "name": "Картки товарів",
+      "settings": {
+        "card_image_ratio": {
+          "label": "Співвідношення сторін зображення",
+          "options__square": "Квадрат",
+          "options__portrait": "Портрет 4:5",
+          "options__tall": "Високе 3:4"
+        },
+        "card_show_secondary_image": {
+          "label": "Показувати друге зображення під час наведення"
+        },
+        "card_show_subtitle": {
+          "label": "Показувати короткий перелік опцій",
+          "info": "Показується, якщо в товару немає метаполя custom.subtitle"
+        },
+        "card_quick_add": {
+          "label": "Показувати кнопку додавання / швидкого додавання"
+        },
+        "badges_info": {
+          "content": "Додайте товару тег на кшталт badge:Хіт або badge:Новинка, щоб показати бейдж на картці."
+        }
+      }
+    },
+    "cart": {
+      "name": "Кошик",
+      "settings": {
+        "cart_type": {
+          "label": "Тип кошика",
+          "options__drawer": "Висувна панель",
+          "options__page": "Сторінка"
+        },
+        "free_shipping_threshold": {
+          "label": "Безкоштовна доставка від (у валюті магазину)",
+          "info": "Показує індикатор прогресу в кошику. Встановіть 0, щоб приховати."
+        },
+        "bonus_percent": {
+          "label": "Кешбек-бонус",
+          "info": "Показує орієнтовний бонус у кошику та на сторінках товарів. Встановіть 0, щоб приховати."
+        },
+        "cart_show_note": {
+          "label": "Показувати примітку до замовлення"
+        },
+        "cart_show_discount": {
+          "label": "Показувати поле коду знижки"
+        },
+        "cart_show_upsell": {
+          "label": "Показувати рекомендації «Додати до замовлення»",
+          "info": "Використовує рекомендації товарів Shopify (додаткові товари з Search & Discovery)"
+        },
+        "cart_empty_collection": {
+          "label": "Колекція в порожньому кошику"
+        }
+      }
+    },
+    "search": {
+      "name": "Пошук",
+      "settings": {
+        "predictive_search": {
+          "label": "Увімкнути підказки пошуку"
+        },
+        "popular_searches": {
+          "label": "Популярні запити",
+          "info": "Через кому; показуються на сторінці пошуку та у спливному вікні пошуку"
+        }
+      }
+    },
+    "social": {
+      "name": "Соцмережі та контакти",
+      "settings": {
+        "header_contact": {
+          "content": "Контакти"
+        },
+        "contact_phone": {
+          "label": "Телефон"
+        },
+        "contact_email": {
+          "label": "Ел. пошта"
+        }
+      }
+    },
+    "integrations": {
+      "name": "Інтеграції",
+      "settings": {
+        "info": {
+          "content": "Сторонні скрипти, які використовує магазин. Вимкніть скрипт тут замість редагування коду."
+        },
+        "integration_get_checkout": {
+          "label": "Get Checkout"
+        },
+        "integration_keycrm_token": {
+          "label": "Токен чату KeyCRM",
+          "info": "Залиште порожнім, щоб приховати віджет чату KeyCRM"
+        },
+        "integration_ai_assistant": {
+          "label": "Віджет ШІ-асистента"
+        },
+        "custom_head_code": {
+          "label": "Власний код у head сторінки"
+        }
+      }
+    }
+  }
+}

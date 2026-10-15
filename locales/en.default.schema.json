@@ -307,6 +307,9 @@
         },
         "overlay": {
           "label": "Background overlay"
+        },
+        "reverse_mobile": {
+          "label": "Show the last block first on mobile"
         }
       },
       "presets": {
