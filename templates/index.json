@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "slideshow": {
@@ -10,16 +19,22 @@
             "image_mobile": "shopify://shop_images/IMG_3644.png",
             "link": "shopify://collections/all",
             "link_label": "Нова колекція — до каталогу",
-            "show_content": false
-          }
+            "show_content": true,
+            "content_position": "bottom_left",
+            "color_scheme": ""
+          },
+          "blocks": {}
         },
         "slide_2": {
           "type": "_slide",
           "settings": {
             "link": "shopify://collections/best-sellers",
             "link_label": "Топ продаж",
-            "show_content": false
-          }
+            "show_content": false,
+            "content_position": "bottom_left",
+            "color_scheme": ""
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -43,8 +58,20 @@
         "hero_content": {
           "type": "group",
           "settings": {
+            "direction": "column",
+            "stack_mobile": true,
+            "justify": "flex-start",
+            "align": "flex-start",
+            "text_align": "left",
             "gap": 24,
-            "width": "fill"
+            "width": "fill",
+            "custom_width": 50,
+            "use_scheme": false,
+            "color_scheme": "",
+            "padding_y": 0,
+            "padding_x": 0,
+            "link": "",
+            "link_label": ""
           },
           "blocks": {
             "hero_eyebrow": {
@@ -52,8 +79,12 @@
               "settings": {
                 "text": "Матеріали для нарощення вій",
                 "style": "eyebrow",
-                "color": "muted"
-              }
+                "tag": "auto",
+                "color": "muted",
+                "uppercase": false,
+                "max_width": 40
+              },
+              "blocks": {}
             },
             "hero_title": {
               "type": "heading",
@@ -61,8 +92,11 @@
                 "text": "Ідеальний погляд починається з *матеріалів*",
                 "style": "display",
                 "tag": "h1",
+                "color": "default",
+                "uppercase": false,
                 "max_width": 22
-              }
+              },
+              "blocks": {}
             },
             "hero_text": {
               "type": "text",
@@ -71,15 +105,26 @@
                 "size": "lg",
                 "muted": true,
                 "max_width": 48
-              }
+              },
+              "blocks": {}
             },
             "hero_buttons": {
               "type": "group",
               "settings": {
                 "direction": "row",
+                "stack_mobile": true,
+                "justify": "flex-start",
+                "align": "flex-start",
+                "text_align": "left",
                 "gap": 16,
                 "width": "fit",
-                "stack_mobile": true
+                "custom_width": 50,
+                "use_scheme": false,
+                "color_scheme": "",
+                "padding_y": 0,
+                "padding_x": 0,
+                "link": "",
+                "link_label": ""
               },
               "blocks": {
                 "hero_primary": {
@@ -87,16 +132,24 @@
                   "settings": {
                     "label": "До шопінгу",
                     "link": "shopify://collections/all",
-                    "style": "primary"
-                  }
+                    "new_tab": false,
+                    "style": "primary",
+                    "full_width": false,
+                    "full_width_mobile": true
+                  },
+                  "blocks": {}
                 },
                 "hero_secondary": {
                   "type": "button",
                   "settings": {
                     "label": "Топ продаж",
                     "link": "shopify://collections/best-sellers",
-                    "style": "secondary"
-                  }
+                    "new_tab": false,
+                    "style": "secondary",
+                    "full_width": false,
+                    "full_width_mobile": true
+                  },
+                  "blocks": {}
                 }
               },
               "block_order": [
@@ -116,8 +169,13 @@
           "type": "image",
           "settings": {
             "ratio": "4/3",
-            "desktop_size": 50
-          }
+            "width": 100,
+            "desktop_size": 50,
+            "link": "",
+            "link_label": "",
+            "priority": false
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -126,13 +184,17 @@
       ],
       "settings": {
         "layout": "row",
+        "columns": 2,
+        "justify": "flex-start",
         "align": "center",
         "gap": 56,
+        "reverse_mobile": true,
+        "min_height": 0,
         "width": "page",
         "color_scheme": "scheme-1",
+        "overlay": 0,
         "padding_top": 56,
-        "padding_bottom": 24,
-        "reverse_mobile": true
+        "padding_bottom": 24
       }
     },
     "benefits": {
@@ -143,21 +205,24 @@
           "settings": {
             "title": "Відправка",
             "text": "В день замовлення, пн–пт"
-          }
+          },
+          "blocks": {}
         },
         "benefit_delivery": {
           "type": "_benefit",
           "settings": {
             "title": "Доставка",
             "text": "Безкоштовно від 3000 грн"
-          }
+          },
+          "blocks": {}
         },
         "benefit_cashback": {
           "type": "_benefit",
           "settings": {
             "title": "Кешбек",
             "text": "5% бонусами з кожного замовлення"
-          }
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -180,42 +245,48 @@
           "settings": {
             "collection": "eyelashes",
             "label": "Вії"
-          }
+          },
+          "blocks": {}
         },
         "tile_glue": {
           "type": "collection-tile",
           "settings": {
             "collection": "glue",
             "label": "Клей"
-          }
+          },
+          "blocks": {}
         },
         "tile_pincety": {
           "type": "collection-tile",
           "settings": {
             "collection": "pincety",
             "label": "Пінцети"
-          }
+          },
+          "blocks": {}
         },
         "tile_pre_care": {
           "type": "collection-tile",
           "settings": {
             "collection": "pre-care",
             "label": "Препарати"
-          }
+          },
+          "blocks": {}
         },
         "tile_removers": {
           "type": "collection-tile",
           "settings": {
             "collection": "removers",
             "label": "Ремувери"
-          }
+          },
+          "blocks": {}
         },
         "tile_rozhidnyky": {
           "type": "collection-tile",
           "settings": {
             "collection": "rozhidnyky",
             "label": "Розхідники"
-          }
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -262,14 +333,31 @@
           "type": "image",
           "settings": {
             "ratio": "1/1",
-            "desktop_size": 50
-          }
+            "width": 100,
+            "desktop_size": 50,
+            "link": "",
+            "link_label": "",
+            "priority": false
+          },
+          "blocks": {}
         },
         "expert_content": {
           "type": "group",
           "settings": {
+            "direction": "column",
+            "stack_mobile": true,
+            "justify": "flex-start",
+            "align": "flex-start",
+            "text_align": "left",
             "gap": 24,
-            "padding_y": 64
+            "width": "fill",
+            "custom_width": 50,
+            "use_scheme": false,
+            "color_scheme": "",
+            "padding_y": 64,
+            "padding_x": 0,
+            "link": "",
+            "link_label": ""
           },
           "blocks": {
             "expert_eyebrow": {
@@ -277,8 +365,12 @@
               "settings": {
                 "text": "Колекція",
                 "style": "eyebrow",
-                "color": "muted"
-              }
+                "tag": "auto",
+                "color": "muted",
+                "uppercase": false,
+                "max_width": 40
+              },
+              "blocks": {}
             },
             "expert_title": {
               "type": "heading",
@@ -286,31 +378,43 @@
                 "text": "Expert",
                 "style": "display",
                 "tag": "h2",
-                "color": "accent"
-              }
+                "color": "accent",
+                "uppercase": false,
+                "max_width": 40
+              },
+              "blocks": {}
             },
             "expert_text": {
               "type": "text",
               "settings": {
                 "text": "<p>Ще більше вій в одній упаковці.</p>",
-                "size": "lg"
-              }
+                "size": "lg",
+                "muted": false,
+                "max_width": 60
+              },
+              "blocks": {}
             },
             "expert_features": {
               "type": "text",
               "settings": {
                 "text": "<ul><li>28 ліній</li><li>Коробка-органайзер</li><li>Mix / окремі довжини</li><li>Black, brunette, brown</li></ul>",
                 "size": "md",
-                "muted": true
-              }
+                "muted": true,
+                "max_width": 60
+              },
+              "blocks": {}
             },
             "expert_button": {
               "type": "button",
               "settings": {
                 "label": "Обрати EXPERT",
                 "link": "shopify://collections/eyelashes",
-                "style": "primary"
-              }
+                "new_tab": false,
+                "style": "primary",
+                "full_width": false,
+                "full_width_mobile": true
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -329,10 +433,14 @@
       "settings": {
         "layout": "grid",
         "columns": 2,
+        "justify": "flex-start",
         "align": "center",
         "gap": 64,
+        "reverse_mobile": false,
+        "min_height": 0,
         "width": "page",
         "color_scheme": "scheme-2",
+        "overlay": 0,
         "padding_top": 0,
         "padding_bottom": 0
       }
@@ -343,8 +451,20 @@
         "cashback_content": {
           "type": "group",
           "settings": {
+            "direction": "column",
+            "stack_mobile": true,
+            "justify": "flex-start",
+            "align": "flex-start",
+            "text_align": "left",
             "gap": 12,
-            "width": "fill"
+            "width": "fill",
+            "custom_width": 50,
+            "use_scheme": false,
+            "color_scheme": "",
+            "padding_y": 0,
+            "padding_x": 0,
+            "link": "",
+            "link_label": ""
           },
           "blocks": {
             "cashback_title": {
@@ -352,8 +472,12 @@
               "settings": {
                 "text": "*5%* кешбеку",
                 "style": "h1",
-                "tag": "h2"
-              }
+                "tag": "h2",
+                "color": "default",
+                "uppercase": false,
+                "max_width": 40
+              },
+              "blocks": {}
             },
             "cashback_text": {
               "type": "text",
@@ -362,7 +486,8 @@
                 "size": "lg",
                 "muted": true,
                 "max_width": 52
-              }
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -374,9 +499,19 @@
           "type": "group",
           "settings": {
             "direction": "row",
+            "stack_mobile": true,
+            "justify": "flex-start",
+            "align": "flex-start",
+            "text_align": "left",
             "gap": 16,
             "width": "fit",
-            "stack_mobile": true
+            "custom_width": 50,
+            "use_scheme": false,
+            "color_scheme": "",
+            "padding_y": 0,
+            "padding_x": 0,
+            "link": "",
+            "link_label": ""
           },
           "blocks": {
             "cashback_primary": {
@@ -384,15 +519,24 @@
               "settings": {
                 "label": "Увійти в кабінет",
                 "link": "/account",
-                "style": "accent"
-              }
+                "new_tab": false,
+                "style": "accent",
+                "full_width": false,
+                "full_width_mobile": true
+              },
+              "blocks": {}
             },
             "cashback_secondary": {
               "type": "button",
               "settings": {
                 "label": "Як це працює",
-                "style": "secondary"
-              }
+                "link": "",
+                "new_tab": false,
+                "style": "secondary",
+                "full_width": false,
+                "full_width_mobile": true
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -407,11 +551,15 @@
       ],
       "settings": {
         "layout": "row",
+        "columns": 2,
         "justify": "space-between",
         "align": "center",
         "gap": 32,
+        "reverse_mobile": false,
+        "min_height": 0,
         "width": "page",
         "color_scheme": "scheme-1",
+        "overlay": 0,
         "padding_top": 80,
         "padding_bottom": 80
       }
@@ -421,23 +569,43 @@
       "blocks": {
         "post_1": {
           "type": "_instagram-post",
-          "settings": {}
+          "settings": {
+            "link": "",
+            "alt": ""
+          },
+          "blocks": {}
         },
         "post_2": {
           "type": "_instagram-post",
-          "settings": {}
+          "settings": {
+            "link": "",
+            "alt": ""
+          },
+          "blocks": {}
         },
         "post_3": {
           "type": "_instagram-post",
-          "settings": {}
+          "settings": {
+            "link": "",
+            "alt": ""
+          },
+          "blocks": {}
         },
         "post_4": {
           "type": "_instagram-post",
-          "settings": {}
+          "settings": {
+            "link": "",
+            "alt": ""
+          },
+          "blocks": {}
         },
         "post_5": {
           "type": "_instagram-post",
-          "settings": {}
+          "settings": {
+            "link": "",
+            "alt": ""
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -470,4 +638,3 @@
     "instagram"
   ]
 }
-

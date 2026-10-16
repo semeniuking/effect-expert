@@ -1,46 +1,52 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "main-product",
       "blocks": {
-        "media-gallery": {
-          "type": "_product-media-gallery",
-          "static": true,
-          "settings": {
-            "ratio": "square",
-            "fit": "cover",
-            "priority": true
-          }
-        },
         "breadcrumbs": {
           "type": "product-breadcrumbs",
           "settings": {
             "show_title": false,
             "hide_mobile": true
-          }
+          },
+          "blocks": {}
         },
         "eyebrow": {
           "type": "product-eyebrow",
           "settings": {
             "text": "",
             "fallback": "type"
-          }
+          },
+          "blocks": {}
         },
         "title": {
-          "type": "product-title"
+          "type": "product-title",
+          "settings": {},
+          "blocks": {}
         },
         "price": {
           "type": "product-price",
           "settings": {
             "show_tax_note": true
-          }
+          },
+          "blocks": {}
         },
         "inventory": {
           "type": "product-inventory",
           "settings": {
             "note": "відправимо сьогодні",
             "threshold": 5
-          }
+          },
+          "blocks": {}
         },
         "variant-picker": {
           "type": "variant-picker",
@@ -48,7 +54,8 @@
             "style": "pills",
             "show_swatches": true,
             "rail_mobile": true
-          }
+          },
+          "blocks": {}
         },
         "buy-buttons": {
           "type": "buy-buttons",
@@ -56,7 +63,8 @@
             "show_quantity": true,
             "show_total": true,
             "show_payment_button": false
-          }
+          },
+          "blocks": {}
         },
         "info-box": {
           "type": "product-info-box",
@@ -64,42 +72,60 @@
             "shipping_text": "Відправка в день замовлення (пн–пт)",
             "show_free_shipping": true,
             "show_bonus": true
-          }
+          },
+          "blocks": {}
         },
         "accordion": {
           "type": "product-accordion",
+          "settings": {},
           "blocks": {
             "description": {
               "type": "_product-accordion-row",
               "settings": {
                 "heading": "Опис",
                 "source": "description",
+                "metafield": "custom.specs",
+                "page": "",
+                "content": "",
                 "open": true
-              }
+              },
+              "blocks": {}
             },
             "specs": {
               "type": "_product-accordion-row",
               "settings": {
                 "heading": "Характеристики",
                 "source": "metafield",
-                "metafield": "custom.specs"
-              }
+                "metafield": "custom.specs",
+                "page": "",
+                "content": "",
+                "open": false
+              },
+              "blocks": {}
             },
             "shipping": {
               "type": "_product-accordion-row",
               "settings": {
                 "heading": "Доставка та оплата",
                 "source": "richtext",
-                "content": "<p>Відправляємо Новою Поштою в день замовлення (пн–пт). Безкоштовна доставка від 3000 грн.</p><p>Оплата карткою онлайн або післяплатою у відділенні.</p>"
-              }
+                "metafield": "custom.specs",
+                "page": "",
+                "content": "<p>Відправляємо Новою Поштою в день замовлення (пн–пт). Безкоштовна доставка від 3000 грн.</p><p>Оплата карткою онлайн або післяплатою у відділенні.</p>",
+                "open": false
+              },
+              "blocks": {}
             },
             "returns": {
               "type": "_product-accordion-row",
               "settings": {
                 "heading": "Обмін і повернення",
                 "source": "richtext",
-                "content": "<p>Обмін і повернення протягом 14 днів, якщо товар не використовувався і збережено заводську упаковку. Напишіть нам — допоможемо все оформити.</p>"
-              }
+                "metafield": "custom.specs",
+                "page": "",
+                "content": "<p>Обмін і повернення протягом 14 днів, якщо товар не використовувався і збережено заводську упаковку. Напишіть нам — допоможемо все оформити.</p>",
+                "open": false
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -108,6 +134,16 @@
             "shipping",
             "returns"
           ]
+        },
+        "media-gallery": {
+          "type": "_product-media-gallery",
+          "static": true,
+          "settings": {
+            "ratio": "square",
+            "fit": "cover",
+            "priority": true
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -124,7 +160,7 @@
       "settings": {
         "gallery_width": 55,
         "sticky_info": true,
-        "sticky_atc": "mobile",
+        "sticky_atc": "all",
         "color_scheme": "scheme-1",
         "padding_top": 24,
         "padding_bottom": 80
@@ -151,4 +187,3 @@
     "recommendations"
   ]
 }
-
