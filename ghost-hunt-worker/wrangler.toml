@@ -17,14 +17,17 @@ SHUFFLE_HOURS = "24"
 # Shuffle at local midnight: Kyiv is +180 (summer) / +120 (winter).
 SHUFFLE_TZ_OFFSET_MIN = "120"
 # Where the 5 white ghosts go. Total must equal the length of SECRET_CODE.
-DISTRIBUTION = "home:1,collection:1,product:3"
+# Entries: type[@category|category][:count]; type = home | collection (category page) | product.
+DISTRIBUTION = "collection@rozhidnyky,collection@eyelashes,collection@glue,collection@pre-care,product@rozhidnyky|eyelashes|glue|pre-care"
 # Optional collection handle limiting which products can get a ghost (falls back to all products).
 POOL_COLLECTION = "ghost-hunt-pool"
 # Collection handles that never get a ghost.
 EXCLUDE_COLLECTIONS = ""
 # ISO dates (Kyiv time shown as +02:00/+03:00). Empty = always on.
-CAMPAIGN_START = ""
-CAMPAIGN_END = ""
+CAMPAIGN_START = "2026-10-28T00:00:00+02:00"
+CAMPAIGN_END = "2026-10-31T23:59:59+02:00"
+# When the golden ghost appears (and the popup switches to its golden version). Empty = from campaign start.
+GOLDEN_START = "2026-10-31T00:00:00+02:00"
 # Fields the golden ghost form must send.
 GOLDEN_REQUIRED = "name,phone,email"
 

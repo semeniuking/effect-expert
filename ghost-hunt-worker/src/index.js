@@ -13,12 +13,12 @@
  * Requests with `X-Debug-Key: DEBUG_KEY` ignore campaign dates, can preview other periods
  * (`/layout?offset=1`), use the 'test' golden ghost and may reset it via POST /debug/reset.
  */
-import { buildLayout, seedFor } from './layout.js';
+import { buildLayout, categoryHandles, seedFor } from './layout.js';
 
 const RATE_LIMIT_ATTEMPTS = 10;
 const RATE_LIMIT_WINDOW_S = 600;
 const MAX_FIELD_LENGTH = 200;
-const CLIENT_EVENTS = ['tracker_open', 'promo_copy', 'promo_apply', 'golden_found'];
+const CLIENT_EVENTS = ['tracker_open', 'promo_copy', 'promo_apply', 'golden_found', 'popup_start'];
 
 export default {
   /**
@@ -122,7 +122,7 @@ async function getLayout(url, env, debug) {
       ends_at: new Date(endsAt).toISOString(),
       total: secretCode(env).length,
       ghosts: layout.ghosts,
-      golden: { available: !golden?.claimed_at },
+      golden: { live: goldenLive(env, debug), available: goldenLive(env, debug) && !golden?.claimed_at },
     },
     200,
     debug ? noStore : { 'Cache-Control': 'public, max-age=60' }
@@ -157,16 +157,17 @@ async function loadOrCreateLayout(env, period) {
     // Fall back to the most recent layout so the game keeps working if the store is unreachable.
     const latest = await env.DB.prepare('SELECT json FROM layouts ORDER BY period DESC LIMIT 1').first();
     if (latest) return JSON.parse(latest.json);
-    pool = { products: [], collections: [] };
+    pool = { products: [], collections: [], categories: {} };
   }
 
   const layout = {
     ghosts: buildLayout({
       seed: await seedFor(env.LAYOUT_SALT, period),
       total: secretCode(env).length,
-      distribution: env.DISTRIBUTION || 'home:1,collection:1,product:3',
+      distribution: distribution(env),
       products: pool.products,
       collections: pool.collections,
+      categories: pool.categories,
     }),
   };
 
@@ -204,10 +205,25 @@ async function fetchPool(env) {
 
   const { collections = [] } = await fetchJson(`${shop}/collections.json?limit=250`);
 
-  return {
-    products: products
+  /** @param {any[]} list */
+  const toPool = (list) =>
+    list
       .filter((product) => product.images?.length)
-      .map((product) => ({ handle: product.handle, images: product.images.length })),
+      .map((product) => ({ handle: product.handle, images: product.images.length }));
+
+  // Product lists of the categories named in DISTRIBUTION (e.g. product@glue|pre-care).
+  /** @type {Record<string, {handle: string, images: number}[]>} */
+  const categories = {};
+  for (const handle of categoryHandles(distribution(env), secretCode(env).length)) {
+    const data = await fetchJson(`${shop}/collections/${encodeURIComponent(handle)}/products.json?limit=250`).catch(
+      () => null
+    );
+    categories[handle] = toPool(data?.products || []);
+  }
+
+  return {
+    categories,
+    products: toPool(products),
     collections: collections
       .filter((collection) => !exclude.has(collection.handle) && collection.products_count !== 0)
       .map((collection) => collection.handle),
@@ -285,6 +301,8 @@ async function postVerify(request, env, ctx, debug) {
  */
 async function postGoldenClaim(request, env, ctx, debug) {
   if (!debug && !campaignState(env).active) return json({ error: 'inactive' }, 403);
+
+  if (!goldenLive(env, debug)) return json({ ok: false, error: 'golden_not_started' }, 403);
 
   const body = await readBody(request);
   const { fields, errors } = validateClaim(body, env);
@@ -449,14 +467,16 @@ async function getStats(env) {
               SUM(type = 'promo_copy') AS promo_copies,
               SUM(type = 'promo_apply') AS promo_applies,
               SUM(type = 'tracker_open') AS tracker_opens,
-              SUM(type = 'golden_found') AS golden_found
+              SUM(type = 'golden_found') AS golden_found,
+              SUM(type = 'popup_start') AS popup_starts
          FROM events GROUP BY day ORDER BY day DESC`
     ).all(),
     env.DB.prepare(
       `SELECT n, COUNT(DISTINCT player) AS players FROM events WHERE type = 'catch' GROUP BY n ORDER BY n`
     ).all(),
     env.DB.prepare(
-      `SELECT COUNT(DISTINCT CASE WHEN type = 'catch' THEN player END) AS players,
+      `SELECT COUNT(DISTINCT CASE WHEN type = 'popup_start' THEN player END) AS popup_starts,
+              COUNT(DISTINCT CASE WHEN type = 'catch' THEN player END) AS players,
               COUNT(DISTINCT CASE WHEN type = 'complete' THEN player END) AS completed,
               COUNT(DISTINCT CASE WHEN type = 'verify_ok' THEN player END) AS got_promo,
               COUNT(DISTINCT CASE WHEN type = 'promo_apply' THEN player END) AS applied_promo
@@ -490,7 +510,7 @@ async function getDashboard(env) {
   const dayRows = stats.by_day
     .map(
       (/** @type {any} */ row) =>
-        `<tr><td>${esc(row.day)}</td><td>${row.players}</td><td>${row.catches}</td><td>${row.completed}</td><td>${row.codes_ok}</td><td>${row.codes_wrong}</td><td>${row.promo_copies}</td><td>${row.promo_applies}</td><td>${row.golden_found}</td></tr>`
+        `<tr><td>${esc(row.day)}</td><td>${row.players}</td><td>${row.catches}</td><td>${row.completed}</td><td>${row.codes_ok}</td><td>${row.codes_wrong}</td><td>${row.promo_copies}</td><td>${row.promo_applies}</td><td>${row.golden_found}</td><td>${row.popup_starts}</td></tr>`
     )
     .join('');
   const ghostRows = stats.by_ghost
@@ -514,6 +534,7 @@ async function getDashboard(env) {
 </style></head><body><main>
 <h1>👻 Ghost Hunt — статистика</h1>
 <div class="cards">
+  <div class="card"><b>${totals.popup_starts ?? 0}</b>натиснули «Розпочати пошуки»</div>
   <div class="card"><b>${totals.players ?? 0}</b>гравців (впіймали хоч одного)</div>
   <div class="card"><b>${totals.completed ?? 0}</b>знайшли всіх привидів</div>
   <div class="card"><b>${totals.got_promo ?? 0}</b>отримали промокод</div>
@@ -521,8 +542,8 @@ async function getDashboard(env) {
 </div>
 <p><b>Золотий привид:</b> ${winner}</p>
 <h2>По днях (за Києвом)</h2>
-<div class="scroll"><table><tr><th>День</th><th>Гравці</th><th>Впіймано</th><th>Всі привиди</th><th>Код ✓</th><th>Код ✗</th><th>Скопіювали</th><th>Застосували</th><th>Золотий знайшли</th></tr>${
-    dayRows || '<tr><td colspan="9">Ще немає даних</td></tr>'
+<div class="scroll"><table><tr><th>День</th><th>Гравці</th><th>Впіймано</th><th>Всі привиди</th><th>Код ✓</th><th>Код ✗</th><th>Скопіювали</th><th>Застосували</th><th>Золотий знайшли</th><th>Почали з попапу</th></tr>${
+    dayRows || '<tr><td colspan="10">Ще немає даних</td></tr>'
   }</table></div>
 <h2>По привидах</h2>
 <div class="scroll"><table><tr><th>Привид</th><th>Гравців впіймало</th></tr>${
@@ -571,6 +592,24 @@ function campaignState(env) {
   const started = !startsAt || now >= Date.parse(startsAt);
   const ended = !!endsAt && now > Date.parse(endsAt);
   return { active: started && !ended, startsAt, endsAt };
+}
+
+/**
+ * The golden ghost appears at GOLDEN_START (empty = from the campaign start). Debug ignores it.
+ * @param {Record<string, any>} env
+ * @param {boolean} debug
+ */
+function goldenLive(env, debug) {
+  if (debug || !env.GOLDEN_START) return true;
+  return Date.now() >= Date.parse(env.GOLDEN_START);
+}
+
+/**
+ * @param {Record<string, any>} env
+ * @returns {string}
+ */
+function distribution(env) {
+  return env.DISTRIBUTION || 'home:1,collection:1,product:3';
 }
 
 /**

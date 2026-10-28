@@ -36,6 +36,8 @@
         "x": {{ settings.ghost_hunt_golden_x | json }},
         "y": {{ settings.ghost_hunt_golden_y | json }}
       },
+      "popup": {{ settings.ghost_hunt_popup_enabled | json }},
+      "soldOut": {{ settings.ghost_hunt_promo_sold_out | json }},
       "routes": {
         "root": {{ routes.root_url | json }},
         "cart": {{ routes.cart_url | json }},
@@ -113,7 +115,112 @@
         class="dialog-modal ghost-hunt__dialog color-{{ settings.popover_color_scheme }}"
         scroll-lock
         aria-labelledby="GhostHuntTitle"
+        data-ghost-phase="white"
       >
+        {%- comment -%} Announcement popup. Two phases: "white" (5 ghosts, −10%) and "golden" (from GOLDEN_START). {%- endcomment -%}
+        <div
+          class="ghost-hunt__panel ghost-hunt__intro"
+          ref="introPanel"
+          hidden
+        >
+          <div
+            class="ghost-hunt__intro-hero"
+            aria-hidden="true"
+          >
+            <img
+              class="ghost-hunt__intro-ghost"
+              data-phase="white"
+              src="{{ 'ghost-white.png' | asset_url }}"
+              alt=""
+              width="200"
+              height="183"
+            >
+            <img
+              class="ghost-hunt__intro-ghost"
+              data-phase="golden"
+              src="{{ 'ghost-gold.png' | asset_url }}"
+              alt=""
+              width="200"
+              height="185"
+              loading="lazy"
+            >
+          </div>
+
+          {%- if settings.ghost_hunt_popup_dates != blank -%}
+            <p class="ghost-hunt__dates">{{ settings.ghost_hunt_popup_dates }}</p>
+          {%- endif -%}
+
+          <h2
+            id="GhostHuntIntroTitle"
+            class="ghost-hunt__title ghost-hunt__intro-title"
+            tabindex="-1"
+            autofocus
+          >
+            <span data-phase="white">{{ settings.ghost_hunt_popup_title }}</span>
+            <span data-phase="golden">{{ settings.ghost_hunt_popup_golden_title }}</span>
+          </h2>
+
+          <div
+            class="ghost-hunt__text rte"
+            data-phase="white"
+          >
+            {{ settings.ghost_hunt_popup_text }}
+          </div>
+          <div
+            class="ghost-hunt__text rte"
+            data-phase="golden"
+          >
+            {{ settings.ghost_hunt_popup_golden_text }}
+          </div>
+
+          <ol
+            class="ghost-hunt__steps"
+            data-phase="white"
+          >
+            <li>{{ 'ghost_hunt.step_1' | t }}</li>
+            <li>{{ 'ghost_hunt.step_2' | t }}</li>
+            <li>{{ 'ghost_hunt.step_3' | t }}</li>
+          </ol>
+
+          <div
+            class="ghost-hunt__offer"
+            data-phase="white"
+          >
+            <p class="ghost-hunt__offer-main">{{ settings.ghost_hunt_popup_offer }}</p>
+            {%- if settings.ghost_hunt_popup_offer_note != blank -%}
+              <p class="ghost-hunt__offer-note">{{ settings.ghost_hunt_popup_offer_note }}</p>
+            {%- endif -%}
+          </div>
+          <div
+            class="ghost-hunt__offer ghost-hunt__offer--golden"
+            data-phase="golden"
+          >
+            <p class="ghost-hunt__offer-main">{{ settings.ghost_hunt_popup_golden_offer }}</p>
+            {%- if settings.ghost_hunt_popup_golden_offer_note != blank -%}
+              <p class="ghost-hunt__offer-note">{{ settings.ghost_hunt_popup_golden_offer_note }}</p>
+            {%- endif -%}
+          </div>
+
+
+          <div class="ghost-hunt__actions">
+            <button
+              type="button"
+              class="button ghost-hunt__start"
+              on:click="/startHunt"
+            >
+              <span data-phase="white">{{ settings.ghost_hunt_popup_cta }}</span>
+              <span data-phase="golden">{{ settings.ghost_hunt_popup_golden_cta }}</span>
+            </button>
+            <button
+              type="button"
+              class="button-unstyled ghost-hunt__later"
+              on:click="/closeDialog"
+            >
+              {{ 'ghost_hunt.later' | t }}
+            </button>
+          </div>
+        </div>
+
         <div
           class="ghost-hunt__panel"
           ref="progressPanel"
@@ -130,6 +237,8 @@
             <h2
               id="GhostHuntTitle"
               class="ghost-hunt__title"
+              tabindex="-1"
+              autofocus
             >
               {{ settings.ghost_hunt_title }}
             </h2>
@@ -190,6 +299,14 @@
             ></p>
           </form>
 
+          <p
+            class="ghost-hunt__soldout"
+            ref="soldOut"
+            hidden
+          >
+            {{ 'ghost_hunt.sold_out' | t }}
+          </p>
+
           <div
             class="ghost-hunt__result"
             ref="result"
@@ -235,6 +352,8 @@
           <div
             class="ghost-hunt__text rte"
             ref="goldenIntro"
+            tabindex="-1"
+            autofocus
           >
             {{ settings.ghost_hunt_golden_text }}
           </div>

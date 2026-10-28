@@ -6,6 +6,17 @@
 const HOME_ANCHORS = 6;
 const COLLECTION_ANCHORS = 8;
 const PRODUCT_ANCHORS = 4;
+const TYPES = ['home', 'collection', 'product'];
+
+/**
+ * @typedef {object} Spec
+ * @property {'home' | 'collection' | 'product'} type
+ * @property {string[] | null} handles - categories to draw from; null = the whole store pool
+ */
+
+/**
+ * @typedef {{handle: string, images: number}} PoolProduct
+ */
 
 /**
  * @param {number} seed - 32-bit seed
@@ -40,21 +51,42 @@ export async function seedFor(salt, period) {
 }
 
 /**
- * Parses "home:1,collection:1,product:3" into ['home', 'collection', 'product', 'product', 'product'].
+ * Parses the DISTRIBUTION setting. Each comma-separated entry is `type[@handle|handle][:count]`:
+ *   "home:1,collection:1,product:3"                    — anywhere in the store
+ *   "collection@glue,product@glue|pre-care:2"          — limited to those category handles
+ * The list is padded with `product` (or trimmed) to `total` entries.
+ *
  * @param {string} distribution
  * @param {number} total - number of white ghosts (length of the secret code)
- * @returns {string[]}
+ * @returns {Spec[]}
  */
 export function parseDistribution(distribution, total) {
-  const types = [];
+  /** @type {Spec[]} */
+  const specs = [];
   for (const part of String(distribution || '').split(',')) {
-    const [type, count] = part.split(':').map((s) => s.trim());
-    if (!['home', 'collection', 'product'].includes(type)) continue;
-    const amount = Number(count) || 0;
-    for (let i = 0; i < amount; i++) types.push(type);
+    const match = part.trim().match(/^(\w+)(?:@([^:]+))?(?::(\d+))?$/);
+    if (!match || !TYPES.includes(match[1])) continue;
+    const type = /** @type {Spec['type']} */ (match[1]);
+    const handles = match[2] ? match[2].split('|').map((h) => h.trim()).filter(Boolean) : null;
+    const amount = match[3] === undefined ? 1 : Number(match[3]);
+    for (let i = 0; i < amount; i++) specs.push({ type, handles: handles?.length ? handles : null });
   }
-  while (types.length < total) types.push('product');
-  return types.slice(0, total);
+  while (specs.length < total) specs.push({ type: 'product', handles: null });
+  return specs.slice(0, total);
+}
+
+/**
+ * Every category handle referenced by product specs (their product lists must be fetched).
+ * @param {string} distribution
+ * @param {number} total
+ * @returns {string[]}
+ */
+export function categoryHandles(distribution, total) {
+  const handles = new Set();
+  for (const spec of parseDistribution(distribution, total)) {
+    if (spec.type === 'product') for (const handle of spec.handles || []) handles.add(handle);
+  }
+  return [...handles];
 }
 
 /**
@@ -62,55 +94,68 @@ export function parseDistribution(distribution, total) {
  * @param {number} options.seed
  * @param {number} options.total
  * @param {string} options.distribution
- * @param {{handle: string, images: number}[]} options.products
- * @param {string[]} options.collections
+ * @param {PoolProduct[]} options.products - store-wide product pool
+ * @param {string[]} options.collections - store-wide collection pool
+ * @param {Record<string, PoolProduct[]>} [options.categories] - products per category handle
  * @returns {{n: number, type: string, handle?: string, anchor: number, x: number, y: number, rot: number}[]}
  */
-export function buildLayout({ seed, total, distribution, products, collections }) {
+export function buildLayout({ seed, total, distribution, products, collections, categories = {} }) {
   const random = mulberry32(seed);
-  const int = (max) => Math.floor(random() * max);
-  const between = (min, max) => Math.round(min + random() * (max - min));
+  const int = (/** @type {number} */ max) => Math.floor(random() * max);
+  const between = (/** @type {number} */ min, /** @type {number} */ max) => Math.round(min + random() * (max - min));
+  /** @template T @param {T[]} list @returns {T | undefined} */
+  const pick = (list) => (list.length ? list[int(list.length)] : undefined);
 
-  const types = parseDistribution(distribution, total);
+  const specs = parseDistribution(distribution, total);
 
   // Fisher–Yates so ghost #1 is not always on the same page type.
-  for (let i = types.length - 1; i > 0; i--) {
+  for (let i = specs.length - 1; i > 0; i--) {
     const j = int(i + 1);
-    [types[i], types[j]] = [types[j], types[i]];
+    [specs[i], specs[j]] = [specs[j], specs[i]];
   }
 
-  const productPool = [...products];
-  const collectionPool = [...collections];
+  const usedProducts = new Set();
+  const usedCollections = new Set();
   const usedHomeAnchors = new Set();
 
-  return types.map((type, index) => {
+  return specs.map((spec, index) => {
     const ghost = {
       n: index + 1,
-      type,
+      type: spec.type,
       anchor: 0,
       x: between(10, 75),
       y: between(10, 75),
       rot: between(-20, 20),
     };
 
-    if (type === 'product' && productPool.length) {
-      const product = productPool.splice(int(productPool.length), 1)[0];
-      // Refill when there are fewer products than product ghosts.
-      if (!productPool.length) productPool.push(...products);
-      ghost.handle = product.handle;
-      ghost.anchor = int(Math.max(1, Math.min(product.images, PRODUCT_ANCHORS)));
-    } else if (type === 'collection' && collectionPool.length) {
-      ghost.handle = collectionPool.splice(int(collectionPool.length), 1)[0];
-      if (!collectionPool.length) collectionPool.push(...collections);
-      ghost.anchor = int(COLLECTION_ANCHORS);
-    } else {
-      ghost.type = 'home';
-      let anchor = int(HOME_ANCHORS);
-      for (let i = 0; usedHomeAnchors.has(anchor) && i < HOME_ANCHORS; i++) anchor = (anchor + 1) % HOME_ANCHORS;
-      usedHomeAnchors.add(anchor);
-      ghost.anchor = anchor;
+    if (spec.type === 'product') {
+      const pool = spec.handles ? spec.handles.flatMap((handle) => categories[handle] || []) : products;
+      const fresh = pool.filter((product) => !usedProducts.has(product.handle));
+      const product = pick(fresh.length ? fresh : pool);
+      if (product) {
+        usedProducts.add(product.handle);
+        ghost.handle = product.handle;
+        ghost.anchor = int(Math.max(1, Math.min(product.images, PRODUCT_ANCHORS)));
+        return ghost;
+      }
+    } else if (spec.type === 'collection') {
+      const pool = spec.handles || collections;
+      const fresh = pool.filter((handle) => !usedCollections.has(handle));
+      const handle = pick(fresh.length ? fresh : pool);
+      if (handle) {
+        usedCollections.add(handle);
+        ghost.handle = handle;
+        ghost.anchor = int(COLLECTION_ANCHORS);
+        return ghost;
+      }
     }
 
+    // Home page, or the fallback when a pool is empty.
+    ghost.type = 'home';
+    let anchor = int(HOME_ANCHORS);
+    for (let i = 0; usedHomeAnchors.has(anchor) && i < HOME_ANCHORS; i++) anchor = (anchor + 1) % HOME_ANCHORS;
+    usedHomeAnchors.add(anchor);
+    ghost.anchor = anchor;
     return ghost;
   });
 }

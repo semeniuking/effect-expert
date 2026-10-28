@@ -493,6 +493,252 @@
   width: 100%;
 }
 
+/* ---------- Announcement popup ---------- */
+
+/* Show only the parts of the current phase (white: 5 ghosts / −10%, golden: the 3 000 грн ghost). */
+.ghost-hunt__dialog[data-ghost-phase='white'] [data-phase='golden'],
+.ghost-hunt__dialog[data-ghost-phase='golden'] [data-phase='white'] {
+  display: none;
+}
+
+.ghost-hunt__intro {
+  justify-items: center;
+  text-align: center;
+  padding-top: 8px;
+}
+
+@media screen and (max-width: 749px) {
+  .ghost-hunt__intro {
+    padding-top: 0;
+  }
+}
+
+.ghost-hunt__intro-hero {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 120px;
+  margin-bottom: -4px;
+}
+
+/* Soft halo behind the ghost */
+.ghost-hunt__intro-hero::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(var(--color-foreground-rgb) / 0.1), transparent);
+}
+
+.ghost-hunt__dialog[data-ghost-phase='golden'] .ghost-hunt__intro-hero::before {
+  background: radial-gradient(closest-side, rgb(255 190 30 / 0.45), transparent);
+}
+
+.ghost-hunt__intro-ghost {
+  position: relative;
+  width: 104px;
+  height: auto;
+  filter: drop-shadow(0 10px 14px rgb(0 0 0 / 0.18));
+  animation: ghost-hunt-float 3.2s ease-in-out infinite;
+}
+
+.ghost-hunt__dates {
+  margin: 0;
+  padding: 4px 12px;
+  border: 1px solid var(--color-foreground);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ghost-hunt__intro-title {
+  font-size: clamp(26px, 7.5vw, 34px);
+}
+
+.ghost-hunt__intro .ghost-hunt__text {
+  max-width: 34ch;
+}
+
+.ghost-hunt__steps {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: ghost-step;
+  text-align: left;
+}
+
+.ghost-hunt__steps li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1.35;
+  counter-increment: ghost-step;
+}
+
+.ghost-hunt__steps li::before {
+  content: counter(ghost-step);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-foreground);
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ghost-hunt__offer {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--gh-radius);
+  background: var(--color-foreground);
+  color: var(--color-background);
+}
+
+.ghost-hunt__offer p {
+  margin: 0;
+}
+
+.ghost-hunt__offer-main {
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.ghost-hunt__offer-main strong {
+  display: block;
+  margin-bottom: 2px;
+  font-family: var(--font-heading--family);
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.ghost-hunt__offer-note {
+  margin-top: 8px !important;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.ghost-hunt__offer--golden {
+  border: 1px solid #d9a521;
+  background: linear-gradient(135deg, #fff6d6, #f3d27a);
+  color: #1b1325;
+}
+
+.ghost-hunt__actions {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+}
+
+.ghost-hunt__start {
+  width: 100%;
+}
+
+.ghost-hunt__later {
+  justify-self: center;
+  min-height: var(--minimum-touch-target, 44px);
+  padding: 0 12px;
+  color: var(--gh-muted);
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.ghost-hunt__soldout {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px dashed var(--gh-line);
+  border-radius: var(--gh-radius);
+  background: var(--gh-tint);
+  font-size: 14px;
+}
+
+.ghost-hunt__soldout[hidden] {
+  display: none;
+}
+
+/* Initial focus lands on the panel title (not a field), so phones don't pop the keyboard. */
+.ghost-hunt__dialog [tabindex='-1']:focus {
+  outline: none;
+}
+
+@media screen and (max-width: 749px) {
+  .ghost-hunt__intro {
+    gap: 12px;
+  }
+
+  .ghost-hunt__intro-hero {
+    width: 104px;
+    height: 88px;
+  }
+
+  .ghost-hunt__intro-ghost {
+    width: 76px;
+  }
+
+  .ghost-hunt__intro-title {
+    font-size: clamp(24px, 7vw, 30px);
+  }
+
+  .ghost-hunt__intro .ghost-hunt__text {
+    font-size: 14px;
+  }
+
+  .ghost-hunt__steps {
+    gap: 8px;
+  }
+
+  .ghost-hunt__steps li {
+    grid-template-columns: 24px 1fr;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .ghost-hunt__steps li::before {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .ghost-hunt__offer {
+    padding: 12px;
+  }
+
+  .ghost-hunt__offer-main {
+    font-size: 15px;
+  }
+
+  .ghost-hunt__offer-main strong {
+    font-size: 34px;
+  }
+
+  /* Keep the main button reachable while the sheet scrolls. */
+  .ghost-hunt__intro .ghost-hunt__actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    padding-top: 14px;
+    background: linear-gradient(to bottom, transparent, var(--color-background) 14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost-hunt__intro-ghost {
+    animation: none;
+  }
+}
+
 /* ---------- Toast ---------- */
 
 .ghost-hunt__toast {

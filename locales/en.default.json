@@ -359,6 +359,11 @@
     "email": "Email",
     "consent": "I agree to be contacted about the prize",
     "submit": "Claim the prize",
-    "invalid": "Please check the highlighted fields."
+    "invalid": "Please check the highlighted fields.",
+    "later": "Later",
+    "step_1": "Browse the site and look closely at the photos",
+    "step_2": "Tap a ghost to get one digit of the code",
+    "step_3": "Enter the 5-digit code in the 👻 tracker",
+    "sold_out": "All 100 promo codes have been claimed. Thanks for playing!"
   }
 }

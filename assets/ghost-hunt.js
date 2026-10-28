@@ -368,6 +368,9 @@ function overlayImage(ghost, image, spot) {
  * @property {HTMLElement} goldenSuccess
  * @property {HTMLElement} goldenTaken
  * @property {HTMLElement} toast
+ * @property {HTMLElement} introPanel
+ * @property {HTMLElement} soldOut
+ * @property {HTMLElement} [bar]
  */
 
 /**
@@ -428,6 +431,7 @@ class GhostHuntApp extends DialogComponent {
     this.#render();
     this.#placeAll();
     if (this.debug) this.#renderDebugPanel();
+    this.#maybeShowPopup();
 
     const main = document.getElementById('MainContent');
     if (main) {
@@ -564,12 +568,69 @@ class GhostHuntApp extends DialogComponent {
   }
 
   /** @param {'progress' | 'golden'} panel */
+  /** @param {'progress' | 'golden' | 'intro'} panel */
   #openPanel(panel) {
-    const { progressPanel, goldenPanel } = this.refs;
+    const { progressPanel, goldenPanel, introPanel, dialog } = this.refs;
     progressPanel.hidden = panel !== 'progress';
     goldenPanel.hidden = panel !== 'golden';
+    introPanel.hidden = panel !== 'intro';
+    dialog.setAttribute('aria-labelledby', panel === 'intro' ? 'GhostHuntIntroTitle' : 'GhostHuntTitle');
     this.#render();
     this.showDialog();
+  }
+
+  /* ------------------------------ Announcement ----------------------------- */
+
+  /** "golden" once the golden ghost is live and unclaimed, otherwise "white". */
+  #popupPhase() {
+    const golden = this.layout?.golden;
+    return golden?.live && golden?.available ? 'golden' : 'white';
+  }
+
+  /** @param {string} phase */
+  #popupKey(phase) {
+    return `ghostHunt:popup:${debugKey ? 'debug:' : ''}${phase}`;
+  }
+
+  /** Shows the announcement once per phase per browser (again when the golden ghost appears). */
+  #maybeShowPopup() {
+    if (!config.popup || !this.layout?.active || config.page.type === 'cart') return;
+
+    const phase = this.#popupPhase();
+    try {
+      if (localStorage.getItem(this.#popupKey(phase))) return;
+    } catch {
+      // No storage: still show it, at worst once per page view.
+    }
+
+    setTimeout(() => {
+      if (document.querySelector('dialog[open]')) return;
+      this.showPopup(phase);
+    }, 1200);
+  }
+
+  /** @param {'white' | 'golden'} phase */
+  showPopup(phase) {
+    this.refs.dialog.dataset.ghostPhase = phase;
+    try {
+      localStorage.setItem(this.#popupKey(phase), String(Date.now()));
+    } catch {}
+    track('ghost_hunt_popup_view', { phase });
+    this.#openPanel('intro');
+  }
+
+  /**
+   * "Start searching" (or a category link): counts the start, then closes the popup.
+   * Category links navigate on their own.
+   * @param {MouseEvent} event
+   */
+  startHunt(event) {
+    const phase = this.refs.dialog.dataset.ghostPhase || 'white';
+    beacon('popup_start');
+    track('ghost_hunt_popup_start', { phase });
+    if (/** @type {HTMLElement} */ (event.target).closest('a[href]')) return;
+    this.closeDialog();
+    this.#pulseTracker();
   }
 
   #render() {
@@ -578,7 +639,7 @@ class GhostHuntApp extends DialogComponent {
     const count = Object.keys(found).length;
     const { tracker, count: countEl, found: foundEl, slots, result, promo, applyLink, codeForm } = this.refs;
 
-    tracker.hidden = !(count > 0 || this.state.promo || this.debug);
+    tracker.hidden = !(this.layout?.active || count > 0 || this.state.promo || this.debug);
     countEl.textContent = `${count}/${total}`;
     foundEl.textContent = format(config.strings.foundCount, { count, total });
     this.refs.bar?.style.setProperty('width', `${Math.min(100, (count / total) * 100)}%`);
@@ -595,6 +656,11 @@ class GhostHuntApp extends DialogComponent {
         return item;
       })
     );
+
+    // All 100 codes used: keep the hunt (digits, golden ghost) but stop offering the code.
+    const soldOut = !!config.soldOut && !this.state.promo;
+    this.refs.soldOut.hidden = !soldOut;
+    if (soldOut) codeForm.hidden = true;
 
     if (this.state.promo) {
       codeForm.hidden = true;
@@ -824,6 +890,8 @@ class GhostHuntApp extends DialogComponent {
       <ol>${rows}${goldenRow}</ol>
       <div class="ghost-hunt-debug__row">
         <button type="button" data-action="open">Open tracker</button>
+        <button type="button" data-action="popup-white">Popup: white</button>
+        <button type="button" data-action="popup-golden">Popup: golden</button>
         <button type="button" data-action="reset">Reset my progress</button>
         <button type="button" data-action="golden">Reset test golden</button>
         <button type="button" data-action="exit">Exit debug</button>
@@ -844,11 +912,16 @@ class GhostHuntApp extends DialogComponent {
       const next = action === 'today' ? 0 : offset + (action === 'next' ? 1 : -1);
       sessionSet(OFFSET_KEY, next || null);
       await this.#reload();
+    } else if (action === 'popup-white' || action === 'popup-golden') {
+      this.showPopup(action === 'popup-golden' ? 'golden' : 'white');
     } else if (action === 'open') {
       this.openProgress();
     } else if (action === 'reset') {
       this.state = { found: {} };
       saveState(this.state);
+      try {
+        for (const phase of ['white', 'golden']) localStorage.removeItem(this.#popupKey(phase));
+      } catch {}
       this.refs.codeForm.hidden = false;
       this.refs.result.hidden = true;
       this.refs.goldenForm.hidden = false;

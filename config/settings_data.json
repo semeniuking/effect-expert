@@ -72,7 +72,7 @@
     "variant_button_width": "equal-width-buttons",
     "ghost_hunt_enabled": true,
     "ghost_hunt_api_url": "https://ghost-hunt.ghost-hunt-worker.workers.dev",
-    "ghost_hunt_size": 96,
+    "ghost_hunt_size": 36,
     "ghost_hunt_golden_enabled": true,
     "ghost_hunt_golden_product": "balance-mix-brown",
     "content_for_index": [],
