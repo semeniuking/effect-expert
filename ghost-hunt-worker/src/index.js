@@ -113,8 +113,11 @@ async function getLayout(url, env, debug) {
   const layout = await loadOrCreateLayout(env, period);
   const golden = await env.DB.prepare('SELECT claimed_at FROM golden WHERE id = ?').bind(goldenId).first();
   const goldenAvailable = goldenLive(env, debug) && !golden?.claimed_at;
-  // The spot is only revealed while the golden ghost can still be caught.
-  const goldenSpot = goldenAvailable ? await loadOrCreateGoldenSpot(env) : null;
+  // The spot is only revealed while the golden ghost can still be caught, and (outside debug) only to the
+  // product page it sits on (`?page=<handle>`), so the public layout doesn't give its location away.
+  const spot = goldenAvailable ? await loadOrCreateGoldenSpot(env) : null;
+  const revealed = spot && (debug || url.searchParams.get('page') === spot.handle);
+  const goldenSpot = spot ? (revealed ? spot : { hidden: true }) : null;
 
   return json(
     {

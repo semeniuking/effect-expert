@@ -176,12 +176,19 @@ async function api(path, body) {
  */
 async function fetchLayout({ force = false } = {}) {
   const offset = debugKey ? Number(sessionGet(OFFSET_KEY)) || 0 : 0;
-  const cached = sessionGet(LAYOUT_KEY);
+  // The Worker only reveals the golden ghost to the product page it sits on, so product pages ask with their handle.
+  const page = config.page.type === 'product' ? config.page.product : '';
+  const key = `${LAYOUT_KEY}${page ? `:${page}` : ''}`;
+  const cached = sessionGet(key);
 
   if (!force && !debugKey && cached && Date.now() - cached.ts < LAYOUT_TTL_MS) return cached.data;
 
-  const { data } = await api(`/layout${offset ? `?offset=${offset}` : ''}`);
-  if (!debugKey) sessionSet(LAYOUT_KEY, { ts: Date.now(), data });
+  const params = new URLSearchParams();
+  if (offset) params.set('offset', String(offset));
+  if (page) params.set('page', page);
+  const query = params.toString();
+  const { data } = await api(`/layout${query ? `?${query}` : ''}`);
+  if (!debugKey) sessionSet(key, { ts: Date.now(), data });
   return data;
 }
 
@@ -466,6 +473,8 @@ class GhostHuntApp extends DialogComponent {
   #goldenSpot() {
     const worker = this.layout?.golden;
     if (!worker?.available || !(config.golden.enabled || this.debug)) return null;
+    // The Worker has a spot but it isn't on this page.
+    if (worker.hidden) return null;
     if (worker.handle) return { handle: worker.handle, anchor: worker.anchor || 0, x: worker.x, y: worker.y };
     const settings = config.golden;
     return settings.product
