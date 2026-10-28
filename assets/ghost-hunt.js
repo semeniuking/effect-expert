@@ -453,21 +453,24 @@ class GhostHuntApp extends DialogComponent {
       .filter((/** @type {any} */ spot) => !this.state.found[spot.n])
       .map((/** @type {any} */ spot) => ({ ...spot, key: `n${spot.n}` }));
 
-    const golden = config.golden;
-    const goldenOn = (golden.enabled || this.debug) && golden.product && this.layout.golden?.available;
-    if (goldenOn && !this.state.golden) {
-      spots.push({
-        key: 'golden',
-        golden: true,
-        type: 'product',
-        handle: golden.product,
-        anchor: golden.anchor,
-        x: golden.x,
-        y: golden.y,
-        rot: 0,
-      });
-    }
+    const golden = this.#goldenSpot();
+    if (golden && !this.state.golden) spots.push({ ...golden, key: 'golden', golden: true, type: 'product', rot: 0 });
     return spots;
+  }
+
+  /**
+   * Where the golden ghost is: the Worker's random product page, or the theme-settings product as a fallback.
+   * "Show golden ghost" in theme settings stays the master switch.
+   * @returns {{handle: string, anchor: number, x: number, y: number} | null}
+   */
+  #goldenSpot() {
+    const worker = this.layout?.golden;
+    if (!worker?.available || !(config.golden.enabled || this.debug)) return null;
+    if (worker.handle) return { handle: worker.handle, anchor: worker.anchor || 0, x: worker.x, y: worker.y };
+    const settings = config.golden;
+    return settings.product
+      ? { handle: settings.product, anchor: settings.anchor, x: settings.x, y: settings.y }
+      : null;
   }
 
   #placeAll() {
@@ -581,10 +584,10 @@ class GhostHuntApp extends DialogComponent {
 
   /* ------------------------------ Announcement ----------------------------- */
 
-  /** "golden" once the golden ghost is live and unclaimed, otherwise "white". */
+  /** "combo" (both prizes) while the golden ghost can be caught, "white" once it's taken. */
   #popupPhase() {
     const golden = this.layout?.golden;
-    return golden?.live && golden?.available ? 'golden' : 'white';
+    return golden?.live && golden?.available ? 'combo' : 'white';
   }
 
   /** @param {string} phase */
@@ -592,7 +595,7 @@ class GhostHuntApp extends DialogComponent {
     return `ghostHunt:popup:${debugKey ? 'debug:' : ''}${phase}`;
   }
 
-  /** Shows the announcement once per phase per browser (again when the golden ghost appears). */
+  /** Shows the announcement once per phase per browser. */
   #maybeShowPopup() {
     if (!config.popup || !this.layout?.active || config.page.type === 'cart') return;
 
@@ -609,7 +612,7 @@ class GhostHuntApp extends DialogComponent {
     }, 1200);
   }
 
-  /** @param {'white' | 'golden'} phase */
+  /** @param {'white' | 'combo'} phase */
   showPopup(phase) {
     this.refs.dialog.dataset.ghostPhase = phase;
     try {
@@ -869,11 +872,12 @@ class GhostHuntApp extends DialogComponent {
       .join('');
 
     const golden = config.golden;
-    const goldenRow = golden.product
-      ? `<li><a href="${root}products/${golden.product}">GOLD ${golden.product} · photo ${golden.anchor + 1}</a> ${
-          layout.golden?.available ? '(test available)' : '(test claimed)'
-        }${golden.enabled ? '' : ' · off for customers'}</li>`
-      : '<li>GOLD: no product set in theme settings</li>';
+    const spot = this.#goldenSpot();
+    const goldenRow = spot
+      ? `<li><a href="${root}products/${spot.handle}">GOLD ${spot.handle} · photo ${spot.anchor + 1}</a>${
+          golden.enabled ? '' : ' · off for customers'
+        }</li>`
+      : `<li>GOLD: ${layout.golden?.available === false ? 'test claimed (reset below)' : 'no spot'}</li>`;
 
     const offset = Number(sessionGet(OFFSET_KEY)) || 0;
     const until = new Date(layout.ends_at).toLocaleString();
@@ -890,8 +894,8 @@ class GhostHuntApp extends DialogComponent {
       <ol>${rows}${goldenRow}</ol>
       <div class="ghost-hunt-debug__row">
         <button type="button" data-action="open">Open tracker</button>
-        <button type="button" data-action="popup-white">Popup: white</button>
-        <button type="button" data-action="popup-golden">Popup: golden</button>
+        <button type="button" data-action="popup-golden">Popup: both prizes</button>
+        <button type="button" data-action="popup-white">Popup: after golden caught</button>
         <button type="button" data-action="reset">Reset my progress</button>
         <button type="button" data-action="golden">Reset test golden</button>
         <button type="button" data-action="exit">Exit debug</button>
@@ -913,14 +917,14 @@ class GhostHuntApp extends DialogComponent {
       sessionSet(OFFSET_KEY, next || null);
       await this.#reload();
     } else if (action === 'popup-white' || action === 'popup-golden') {
-      this.showPopup(action === 'popup-golden' ? 'golden' : 'white');
+      this.showPopup(action === 'popup-golden' ? 'combo' : 'white');
     } else if (action === 'open') {
       this.openProgress();
     } else if (action === 'reset') {
       this.state = { found: {} };
       saveState(this.state);
       try {
-        for (const phase of ['white', 'golden']) localStorage.removeItem(this.#popupKey(phase));
+        for (const phase of ['white', 'combo']) localStorage.removeItem(this.#popupKey(phase));
       } catch {}
       this.refs.codeForm.hidden = false;
       this.refs.result.hidden = true;

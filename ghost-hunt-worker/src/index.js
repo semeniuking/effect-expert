@@ -13,7 +13,7 @@
  * Requests with `X-Debug-Key: DEBUG_KEY` ignore campaign dates, can preview other periods
  * (`/layout?offset=1`), use the 'test' golden ghost and may reset it via POST /debug/reset.
  */
-import { buildLayout, categoryHandles, seedFor } from './layout.js';
+import { buildGoldenSpot, buildLayout, categoryHandles, seedFor } from './layout.js';
 
 const RATE_LIMIT_ATTEMPTS = 10;
 const RATE_LIMIT_WINDOW_S = 600;
@@ -112,6 +112,9 @@ async function getLayout(url, env, debug) {
   const { period, endsAt } = currentPeriod(env, offset);
   const layout = await loadOrCreateLayout(env, period);
   const golden = await env.DB.prepare('SELECT claimed_at FROM golden WHERE id = ?').bind(goldenId).first();
+  const goldenAvailable = goldenLive(env, debug) && !golden?.claimed_at;
+  // The spot is only revealed while the golden ghost can still be caught.
+  const goldenSpot = goldenAvailable ? await loadOrCreateGoldenSpot(env) : null;
 
   return json(
     {
@@ -122,7 +125,7 @@ async function getLayout(url, env, debug) {
       ends_at: new Date(endsAt).toISOString(),
       total: secretCode(env).length,
       ghosts: layout.ghosts,
-      golden: { live: goldenLive(env, debug), available: goldenLive(env, debug) && !golden?.claimed_at },
+      golden: { live: goldenLive(env, debug), available: goldenAvailable, ...(goldenSpot || {}) },
     },
     200,
     debug ? noStore : { 'Cache-Control': 'public, max-age=60' }
@@ -181,6 +184,33 @@ async function loadOrCreateLayout(env, period) {
   }
 
   return layout;
+}
+
+/**
+ * The golden ghost's spot is chosen once for the whole campaign (stored as period -1) and never moves.
+ * @param {Record<string, any>} env
+ * @returns {Promise<{handle: string, anchor: number, x: number, y: number} | null>}
+ */
+async function loadOrCreateGoldenSpot(env) {
+  const stored = await env.DB.prepare('SELECT json FROM layouts WHERE period = -1').first();
+  if (stored) return JSON.parse(stored.json);
+
+  let products = [];
+  try {
+    products = (await fetchPool(env)).products;
+  } catch (error) {
+    console.error('Golden pool fetch failed', error);
+    return null;
+  }
+
+  const spot = buildGoldenSpot({ seed: await seedFor(env.LAYOUT_SALT, -1), products });
+  if (!spot) return null;
+
+  await env.DB.prepare('INSERT OR IGNORE INTO layouts (period, json, created_at) VALUES (-1, ?, ?)')
+    .bind(JSON.stringify(spot), new Date().toISOString())
+    .run();
+  const saved = await env.DB.prepare('SELECT json FROM layouts WHERE period = -1').first();
+  return saved ? JSON.parse(saved.json) : spot;
 }
 
 /**

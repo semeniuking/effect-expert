@@ -2440,7 +2440,7 @@
         "id": "ghost_hunt_popup_enabled",
         "label": "Показувати попап-анонс",
         "default": true,
-        "info": "Показується один раз кожному відвідувачу. З 31.10 (коли з'являється золотий привид) — ще раз, у «золотій» версії."
+        "info": "Показується один раз кожному відвідувачу. Поки золотого привида не знайшли — з обома призами; після — лише з білими привидами."
       },
       {
         "type": "text",
@@ -2457,20 +2457,20 @@
       {
         "type": "richtext",
         "id": "ghost_hunt_popup_text",
-        "label": "Текст",
+        "label": "Текст (коли золотого вже знайшли)",
         "default": "<p>На наш сайт пробралися 5 привидів 👻 Вони сховалися десь на сайті, і кожен береже одну цифру секретного коду.</p>"
       },
       {
         "type": "inline_richtext",
         "id": "ghost_hunt_popup_offer",
         "label": "Пропозиція",
-        "default": "Збери код — отримай <strong>−10%</strong> на замовлення"
+        "default": "5 білих привидів <strong>−10%</strong>"
       },
       {
         "type": "text",
         "id": "ghost_hunt_popup_offer_note",
         "label": "Примітка до пропозиції",
-        "default": "Лише для перших 100 учасників"
+        "default": "Для перших 100 учасників"
       },
       {
         "type": "text",
@@ -2480,37 +2480,25 @@
       },
       {
         "type": "header",
-        "content": "Попап-анонс: золотий привид"
-      },
-      {
-        "type": "text",
-        "id": "ghost_hunt_popup_golden_title",
-        "label": "Заголовок",
-        "default": "З'явився золотий привид!"
+        "content": "Попап-анонс: золотий привид (поки його не знайшли)"
       },
       {
         "type": "richtext",
         "id": "ghost_hunt_popup_golden_text",
         "label": "Текст",
-        "default": "<p>Він лише один і ховається десь на сайті. А білі привиди досі дарують −10%.</p>"
+        "default": "<p>На сайті сховалися 5 білих привидів і один золотий 👻 Білі бережуть цифри секретного коду, а золотий — головний приз.</p>"
       },
       {
         "type": "inline_richtext",
         "id": "ghost_hunt_popup_golden_offer",
         "label": "Приз",
-        "default": "Сертифікат на <strong>3 000 грн</strong>"
+        "default": "Золотий привид <strong>3 000 грн</strong>"
       },
       {
         "type": "text",
         "id": "ghost_hunt_popup_golden_offer_note",
         "label": "Примітка до призу",
-        "default": "Тому, хто знайде його першим"
-      },
-      {
-        "type": "text",
-        "id": "ghost_hunt_popup_golden_cta",
-        "label": "Кнопка",
-        "default": "Шукати золотого"
+        "default": "Сертифікат тому, хто знайде першим"
       }
     ]
   }

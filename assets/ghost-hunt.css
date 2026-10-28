@@ -495,9 +495,9 @@
 
 /* ---------- Announcement popup ---------- */
 
-/* Show only the parts of the current phase (white: 5 ghosts / −10%, golden: the 3 000 грн ghost). */
+/* Phase "combo": both prizes; phase "white": golden ghost already caught. */
 .ghost-hunt__dialog[data-ghost-phase='white'] [data-phase='golden'],
-.ghost-hunt__dialog[data-ghost-phase='golden'] [data-phase='white'] {
+.ghost-hunt__dialog[data-ghost-phase='combo'] [data-phase='white-only'] {
   display: none;
 }
 
@@ -531,8 +531,34 @@
   background: radial-gradient(closest-side, rgb(var(--color-foreground-rgb) / 0.1), transparent);
 }
 
-.ghost-hunt__dialog[data-ghost-phase='golden'] .ghost-hunt__intro-hero::before {
-  background: radial-gradient(closest-side, rgb(255 190 30 / 0.45), transparent);
+.ghost-hunt__dialog[data-ghost-phase='combo'] .ghost-hunt__intro-hero {
+  width: 200px;
+}
+
+.ghost-hunt__dialog[data-ghost-phase='combo'] .ghost-hunt__intro-hero::before {
+  inset: 4px 0;
+  background: radial-gradient(closest-side, rgb(255 190 30 / 0.35), transparent);
+}
+
+/* White + gold ghost pair, the gold one slightly in front */
+.ghost-hunt__dialog[data-ghost-phase='combo'] .ghost-hunt__intro-hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ghost-hunt__dialog[data-ghost-phase='combo'] .ghost-hunt__intro-ghost {
+  width: 84px;
+  margin: 0 -10px;
+}
+
+.ghost-hunt__intro-ghost--gold {
+  z-index: 1;
+  animation-delay: -1.6s !important;
+}
+
+.ghost-hunt__dialog[data-ghost-phase='combo'] .ghost-hunt__intro-ghost--gold {
+  width: 96px;
 }
 
 .ghost-hunt__intro-ghost {
@@ -594,7 +620,21 @@
   font-weight: 700;
 }
 
+.ghost-hunt__offers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  grid-auto-flow: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.ghost-hunt__dialog[data-ghost-phase='white'] .ghost-hunt__offers {
+  grid-auto-flow: row;
+}
+
 .ghost-hunt__offer {
+  display: grid;
+  align-content: center;
   width: 100%;
   padding: 16px;
   border-radius: var(--gh-radius);
@@ -832,4 +872,24 @@
     animation: none;
     opacity: 0;
   }
+}
+
+/* Two prize boxes side by side: tighter type so "3 000 грн" fits on phones. */
+.ghost-hunt__dialog[data-ghost-phase='combo'] .ghost-hunt__offer {
+  padding: 14px 10px;
+}
+
+.ghost-hunt__dialog[data-ghost-phase='combo'] .ghost-hunt__offer-main {
+  font-size: 14px;
+}
+
+.ghost-hunt__dialog[data-ghost-phase='combo'] .ghost-hunt__offer-main strong {
+  margin: 4px 0 2px;
+  font-size: clamp(24px, 7vw, 34px);
+  white-space: nowrap;
+}
+
+.ghost-hunt__dialog[data-ghost-phase='combo'] .ghost-hunt__offer-note {
+  font-size: 10px;
+  letter-spacing: 0.04em;
 }

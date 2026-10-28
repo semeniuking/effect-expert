@@ -90,6 +90,29 @@ export function categoryHandles(distribution, total) {
 }
 
 /**
+ * The golden ghost's spot: a random product page from the whole store, on photo 1 (or 2).
+ * Built once per campaign (the caller seeds it with a fixed period) so it never moves.
+ *
+ * @param {object} options
+ * @param {number} options.seed
+ * @param {PoolProduct[]} options.products
+ * @returns {{handle: string, anchor: number, x: number, y: number} | null}
+ */
+export function buildGoldenSpot({ seed, products }) {
+  const random = mulberry32(seed);
+  const int = (/** @type {number} */ max) => Math.floor(random() * max);
+  if (!products.length) return null;
+
+  const product = products[int(products.length)];
+  return {
+    handle: product.handle,
+    anchor: product.images > 1 ? int(2) : 0,
+    x: 15 + int(61),
+    y: 15 + int(61),
+  };
+}
+
+/**
  * @param {object} options
  * @param {number} options.seed
  * @param {number} options.total

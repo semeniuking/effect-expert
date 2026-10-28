@@ -115,9 +115,13 @@
         class="dialog-modal ghost-hunt__dialog color-{{ settings.popover_color_scheme }}"
         scroll-lock
         aria-labelledby="GhostHuntTitle"
-        data-ghost-phase="white"
+        data-ghost-phase="combo"
       >
-        {%- comment -%} Announcement popup. Two phases: "white" (5 ghosts, −10%) and "golden" (from GOLDEN_START). {%- endcomment -%}
+        {%- comment -%}
+          Announcement popup. Phase "combo" (golden ghost still free): both prizes. Phase "white" (golden ghost
+          already caught): only the 5 white ghosts / −10%. Elements marked data-phase="golden" show in combo only,
+          data-phase="white-only" in white only.
+        {%- endcomment -%}
         <div
           class="ghost-hunt__panel ghost-hunt__intro"
           ref="introPanel"
@@ -129,20 +133,18 @@
           >
             <img
               class="ghost-hunt__intro-ghost"
-              data-phase="white"
               src="{{ 'ghost-white.png' | asset_url }}"
               alt=""
               width="200"
               height="183"
             >
             <img
-              class="ghost-hunt__intro-ghost"
+              class="ghost-hunt__intro-ghost ghost-hunt__intro-ghost--gold"
               data-phase="golden"
               src="{{ 'ghost-gold.png' | asset_url }}"
               alt=""
               width="200"
               height="185"
-              loading="lazy"
             >
           </div>
 
@@ -156,51 +158,46 @@
             tabindex="-1"
             autofocus
           >
-            <span data-phase="white">{{ settings.ghost_hunt_popup_title }}</span>
-            <span data-phase="golden">{{ settings.ghost_hunt_popup_golden_title }}</span>
+            {{ settings.ghost_hunt_popup_title }}
           </h2>
 
-          <div
-            class="ghost-hunt__text rte"
-            data-phase="white"
-          >
-            {{ settings.ghost_hunt_popup_text }}
-          </div>
           <div
             class="ghost-hunt__text rte"
             data-phase="golden"
           >
             {{ settings.ghost_hunt_popup_golden_text }}
           </div>
-
-          <ol
-            class="ghost-hunt__steps"
-            data-phase="white"
+          <div
+            class="ghost-hunt__text rte"
+            data-phase="white-only"
           >
+            {{ settings.ghost_hunt_popup_text }}
+          </div>
+
+          <ol class="ghost-hunt__steps">
             <li>{{ 'ghost_hunt.step_1' | t }}</li>
             <li>{{ 'ghost_hunt.step_2' | t }}</li>
             <li>{{ 'ghost_hunt.step_3' | t }}</li>
+            <li data-phase="golden">{{ 'ghost_hunt.step_4' | t }}</li>
           </ol>
 
-          <div
-            class="ghost-hunt__offer"
-            data-phase="white"
-          >
-            <p class="ghost-hunt__offer-main">{{ settings.ghost_hunt_popup_offer }}</p>
-            {%- if settings.ghost_hunt_popup_offer_note != blank -%}
-              <p class="ghost-hunt__offer-note">{{ settings.ghost_hunt_popup_offer_note }}</p>
-            {%- endif -%}
+          <div class="ghost-hunt__offers">
+            <div class="ghost-hunt__offer">
+              <p class="ghost-hunt__offer-main">{{ settings.ghost_hunt_popup_offer }}</p>
+              {%- if settings.ghost_hunt_popup_offer_note != blank -%}
+                <p class="ghost-hunt__offer-note">{{ settings.ghost_hunt_popup_offer_note }}</p>
+              {%- endif -%}
+            </div>
+            <div
+              class="ghost-hunt__offer ghost-hunt__offer--golden"
+              data-phase="golden"
+            >
+              <p class="ghost-hunt__offer-main">{{ settings.ghost_hunt_popup_golden_offer }}</p>
+              {%- if settings.ghost_hunt_popup_golden_offer_note != blank -%}
+                <p class="ghost-hunt__offer-note">{{ settings.ghost_hunt_popup_golden_offer_note }}</p>
+              {%- endif -%}
+            </div>
           </div>
-          <div
-            class="ghost-hunt__offer ghost-hunt__offer--golden"
-            data-phase="golden"
-          >
-            <p class="ghost-hunt__offer-main">{{ settings.ghost_hunt_popup_golden_offer }}</p>
-            {%- if settings.ghost_hunt_popup_golden_offer_note != blank -%}
-              <p class="ghost-hunt__offer-note">{{ settings.ghost_hunt_popup_golden_offer_note }}</p>
-            {%- endif -%}
-          </div>
-
 
           <div class="ghost-hunt__actions">
             <button
@@ -208,8 +205,7 @@
               class="button ghost-hunt__start"
               on:click="/startHunt"
             >
-              <span data-phase="white">{{ settings.ghost_hunt_popup_cta }}</span>
-              <span data-phase="golden">{{ settings.ghost_hunt_popup_golden_cta }}</span>
+              {{ settings.ghost_hunt_popup_cta }}
             </button>
             <button
               type="button"

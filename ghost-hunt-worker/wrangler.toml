@@ -26,8 +26,8 @@ EXCLUDE_COLLECTIONS = ""
 # ISO dates (Kyiv time shown as +02:00/+03:00). Empty = always on.
 CAMPAIGN_START = "2026-10-28T00:00:00+02:00"
 CAMPAIGN_END = "2026-10-31T23:59:59+02:00"
-# When the golden ghost appears (and the popup switches to its golden version). Empty = from campaign start.
-GOLDEN_START = "2026-10-31T00:00:00+02:00"
+# When the golden ghost appears. Empty = for the whole campaign (its spot: a random product page, fixed for the campaign).
+GOLDEN_START = ""
 # Fields the golden ghost form must send.
 GOLDEN_REQUIRED = "name,phone,email"
 
