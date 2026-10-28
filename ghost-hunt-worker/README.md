@@ -16,9 +16,9 @@ Deployed at **https://ghost-hunt.ghost-hunt-worker.workers.dev** (D1 `ghost-hunt
 
 ## Launch configuration (28–31.10.2026)
 
-- `DISTRIBUTION = "collection@rozhidnyky,collection@eyelashes,collection@glue,collection@pre-care,product@rozhidnyky|eyelashes|glue|pre-care"`: one ghost on each category page (on a product card) and one on a product page from those categories. Entries are `type[@category|category][:count]`; `type` is `home`, `collection` or `product`.
+- `DISTRIBUTION = "product@rozhidnyky,product@eyelashes,product@glue,product@pre-care,product@rozhidnyky|eyelashes|glue|pre-care"`: all 5 white ghosts on product pages, one product from each category plus one more from any of them (photo 1–4). Entries are `type[@category|category][:count]`; `type` is `home`, `collection` or `product`.
 - `CAMPAIGN_START` / `CAMPAIGN_END`: outside these dates the game, popup and tracker disappear.
-- `GOLDEN_START = "2026-10-31T00:00:00+02:00"`: the golden ghost appears, and the announcement popup switches to its golden version (shown once more to everyone). Claims before that get 403 `golden_not_started`. Debug mode ignores it.
+- `GOLDEN_START = ""`: the golden ghost is live for the whole campaign. Its spot is a random product page outside `GOLDEN_EXCLUDE` (the 4 game categories), on photo 3 or later (last photo for products with fewer photos), chosen once per campaign (stored as layout period -1). It is only revealed in `/layout` while still unclaimed.
 - Shopify discount `GHOSTHUNT10`: 10%, no minimum, **100 uses total**, once per customer. When it runs out, tick "Промокоди закінчились" in Theme settings → Ghost Hunt.
 - Golden winner: their contacts are on the dashboard (and in Telegram if `TELEGRAM_*` secrets are set). Issue a 3 000 грн gift card in Shopify → Products → Gift cards to their email.
 

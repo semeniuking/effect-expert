@@ -90,12 +90,13 @@ export function categoryHandles(distribution, total) {
 }
 
 /**
- * The golden ghost's spot: a random product page from the whole store, on photo 1 (or 2).
- * Built once per campaign (the caller seeds it with a fixed period) so it never moves.
+ * The golden ghost's spot: a random product page, buried on a later photo (3rd or further when the product has
+ * that many; otherwise its last photo). Products with 3+ photos are preferred. Built once per campaign (the caller
+ * seeds it with a fixed period) so it never moves.
  *
  * @param {object} options
  * @param {number} options.seed
- * @param {PoolProduct[]} options.products
+ * @param {PoolProduct[]} options.products - candidates (already filtered to "less obvious" products)
  * @returns {{handle: string, anchor: number, x: number, y: number} | null}
  */
 export function buildGoldenSpot({ seed, products }) {
@@ -103,13 +104,13 @@ export function buildGoldenSpot({ seed, products }) {
   const int = (/** @type {number} */ max) => Math.floor(random() * max);
   if (!products.length) return null;
 
-  const product = products[int(products.length)];
-  return {
-    handle: product.handle,
-    anchor: product.images > 1 ? int(2) : 0,
-    x: 15 + int(61),
-    y: 15 + int(61),
-  };
+  const deep = products.filter((product) => product.images >= 3);
+  const pool = deep.length ? deep : products;
+  const product = pool[int(pool.length)];
+  const last = Math.max(0, product.images - 1);
+  const anchor = product.images >= 3 ? 2 + int(Math.min(last, 5) - 1) : last;
+
+  return { handle: product.handle, anchor, x: 15 + int(61), y: 15 + int(61) };
 }
 
 /**

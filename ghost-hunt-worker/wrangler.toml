@@ -18,7 +18,7 @@ SHUFFLE_HOURS = "24"
 SHUFFLE_TZ_OFFSET_MIN = "120"
 # Where the 5 white ghosts go. Total must equal the length of SECRET_CODE.
 # Entries: type[@category|category][:count]; type = home | collection (category page) | product.
-DISTRIBUTION = "collection@rozhidnyky,collection@eyelashes,collection@glue,collection@pre-care,product@rozhidnyky|eyelashes|glue|pre-care"
+DISTRIBUTION = "product@rozhidnyky,product@eyelashes,product@glue,product@pre-care,product@rozhidnyky|eyelashes|glue|pre-care"
 # Optional collection handle limiting which products can get a ghost (falls back to all products).
 POOL_COLLECTION = "ghost-hunt-pool"
 # Collection handles that never get a ghost.
@@ -28,6 +28,8 @@ CAMPAIGN_START = "2026-10-28T00:00:00+02:00"
 CAMPAIGN_END = "2026-10-31T23:59:59+02:00"
 # When the golden ghost appears. Empty = for the whole campaign (its spot: a random product page, fixed for the campaign).
 GOLDEN_START = ""
+# Collections whose products never get the golden ghost: the game categories, so it sits on a less obvious product page.
+GOLDEN_EXCLUDE = "rozhidnyky,eyelashes,glue,pre-care"
 # Fields the golden ghost form must send.
 GOLDEN_REQUIRED = "name,phone,email"
 

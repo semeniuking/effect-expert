@@ -198,6 +198,17 @@ async function loadOrCreateGoldenSpot(env) {
   let products = [];
   try {
     products = (await fetchPool(env)).products;
+    // "Less obvious" products: skip anything in the main categories / best-sellers (GOLDEN_EXCLUDE).
+    const shop = String(env.SHOP_URL || '').replace(/\/+$/, '');
+    const excluded = new Set();
+    for (const handle of splitList(env.GOLDEN_EXCLUDE)) {
+      const data = await fetchJson(`${shop}/collections/${encodeURIComponent(handle)}/products.json?limit=250`).catch(
+        () => null
+      );
+      for (const product of data?.products || []) excluded.add(product.handle);
+    }
+    const hidden = products.filter((product) => !excluded.has(product.handle));
+    if (hidden.length) products = hidden;
   } catch (error) {
     console.error('Golden pool fetch failed', error);
     return null;
