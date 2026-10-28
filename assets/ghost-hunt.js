@@ -170,6 +170,17 @@ async function api(path, body) {
   return { status: response.status, data };
 }
 
+/** Product handle sent with /layout: the Worker only reveals the golden ghost to its own product page. */
+function layoutPage() {
+  return config.page.type === 'product' ? config.page.product : '';
+}
+
+/** Session cache key for the layout; per product page, because the golden part differs per page. */
+function layoutCacheKey() {
+  const page = layoutPage();
+  return `${LAYOUT_KEY}${page ? `:${page}` : ''}`;
+}
+
 /**
  * @param {{force?: boolean}} [options]
  * @returns {Promise<any>}
@@ -177,8 +188,8 @@ async function api(path, body) {
 async function fetchLayout({ force = false } = {}) {
   const offset = debugKey ? Number(sessionGet(OFFSET_KEY)) || 0 : 0;
   // The Worker only reveals the golden ghost to the product page it sits on, so product pages ask with their handle.
-  const page = config.page.type === 'product' ? config.page.product : '';
-  const key = `${LAYOUT_KEY}${page ? `:${page}` : ''}`;
+  const page = layoutPage();
+  const key = layoutCacheKey();
   const cached = sessionGet(key);
 
   if (!force && !debugKey && cached && Date.now() - cached.ts < LAYOUT_TTL_MS) return cached.data;
@@ -814,7 +825,7 @@ class GhostHuntApp extends DialogComponent {
     track('ghost_hunt_golden_claim', { result: outcome });
     this.state.golden = outcome;
     saveState(this.state);
-    sessionSet(LAYOUT_KEY, null);
+    sessionSet(layoutCacheKey(), null);
     goldenForm.hidden = true;
     goldenSuccess.hidden = outcome !== 'won';
     goldenTaken.hidden = outcome !== 'taken';
