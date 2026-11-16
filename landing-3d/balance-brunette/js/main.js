@@ -16,7 +16,7 @@ card.position.y = -0.05;
 card.receiveShadow = true;
 stage.scene.add(card);
 
-const tray = createLashTray({ perStrip: mobile ? 110 : 260 });
+const tray = createLashTray({ perStrip: mobile ? 110 : 260, renderer: stage.renderer });
 stage.scene.add(tray.group);
 window.__tray = tray;
 
