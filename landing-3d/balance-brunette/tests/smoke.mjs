@@ -18,6 +18,8 @@ const opt = (name, def) => {
 };
 const W = parseInt(opt('w', '1440'), 10);
 const H = parseInt(opt('h', '900'), 10);
+const suffix = opt('url-suffix', '');
+const tag = opt('tag', 'boot');
 const chapterArg = opt('chapters', '');
 const chapters = chapterArg ? chapterArg.split(',').filter(Boolean) : null;
 
@@ -53,14 +55,14 @@ try {
   const page = await browser.newPage({ viewport: { width: W, height: H } });
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
-  await page.goto(`http://localhost:${port}/index.html`, { waitUntil: 'load' });
+  await page.goto(`http://localhost:${port}/index.html${suffix}`, { waitUntil: 'load' });
   await page.waitForFunction(() => window.__ready === true, null, { timeout: 60000 });
 
   const hasStory = await page.evaluate(() => !!window.__story);
-  const shots = hasStory ? (chapters || ['boot']) : ['boot'];
+  const shots = hasStory ? (chapters || [tag]) : [tag];
 
   for (const id of shots) {
-    if (id !== 'boot') {
+    if (id !== tag) {
       await page.evaluate((c) => window.__story.goTo(c), id);
       await page.waitForTimeout(1500);
     }
