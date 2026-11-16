@@ -169,7 +169,7 @@ stage.onFrame((dt) => {
   const id = s.callout;
   if (id) {
     anchorVec.copy(anchorFn(id));
-    if (id.startsWith('tape:')) { // tape is hidden under fibres mid-strip: pin to its exposed end
+    if (id.startsWith('tape:') && id !== 'tape:19') { // tape is hidden under fibres mid-strip: pin to its exposed end
       tray.group.worldToLocal(anchorVec).x += 2.5;
       tray.group.localToWorld(anchorVec);
     }
