@@ -21,6 +21,7 @@ const H = parseInt(opt('h', '900'), 10);
 const suffix = opt('url-suffix', '');
 const tag = opt('tag', 'boot');
 const chapterArg = opt('chapters', '');
+const ALL = ['hero','case','tray','color','taper','tips','tape','labels','configure'];
 const chapters = chapterArg ? chapterArg.split(',').filter(Boolean) : null;
 
 const MIME = {
@@ -53,25 +54,30 @@ try {
     args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
   });
   const page = await browser.newPage({ viewport: { width: W, height: H } });
+  page.setDefaultTimeout(240000);
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
   await page.goto(`http://localhost:${port}/index.html${suffix}`, { waitUntil: 'load' });
   await page.waitForFunction(() => window.__ready === true, null, { timeout: 60000 });
 
   const hasStory = await page.evaluate(() => !!window.__story);
-  const shots = hasStory ? (chapters || [tag]) : [tag];
+  const shots = hasStory ? (chapters || ALL) : [tag];
 
   for (const id of shots) {
     if (id !== tag) {
       await page.evaluate((c) => window.__story.goTo(c), id);
-      await page.waitForTimeout(1500);
+      await page.waitForTimeout(2500);
     }
     // Let a couple of software-GL frames land.
     await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    await page.waitForTimeout(700); // callout label swap + fade
     const file = path.join(outDir, `${W}x${H}-${id}.png`);
     await page.screenshot({ path: file });
-    const canvasPng = await page.locator('#stage').screenshot();
-    const png = canvasPng;
+    const box = await page.evaluate(() => {
+      const r = document.getElementById('stage').getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height };
+    });
+    const png = await page.screenshot({ clip: box });
     // Canvas pixel std-dev, computed in the page from the screenshot.
     const sd = await page.evaluate(async (b64) => {
       const img = new Image();
