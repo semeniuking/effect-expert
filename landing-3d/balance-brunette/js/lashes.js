@@ -12,12 +12,13 @@ const TAPE_W = 0.25; // along Z
 const TAPE_T = 0.06; // along Y
 const ROW_LIFT = 0.008; // each row sits slightly above the previous so rows layer
 const COLS = 64; // fibre columns per texture tile
-const ENV_INTENSITY = 0.3; // dark fibres wash out pink/grey under the full room reflection
-const BASE_COLOR = '#3a2420';
+const ENV_INTENSITY = 0.05; // dark fibres wash out pink/grey under the full room reflection
+const BASE_COLOR = '#2a1410';
+let TRAY_PRESS = 0.3; // fibres lie pressed under the lid; 1 = natural curl (animated by Task 4 via setPress)
 const THICK = {
-  '0.05': { repeat: 8, normal: 0.7 },
-  '0.07': { repeat: 6.25, normal: 1.0 },
-  '0.1': { repeat: 4.5, normal: 1.3 },
+  '0.05': { repeat: 8, normal: 0.45 },
+  '0.07': { repeat: 6.25, normal: 0.6 },
+  '0.1': { repeat: 4.5, normal: 0.8 },
 };
 
 export const rowBaseZ = (i) => -3.6 + i * ROW_PITCH;
@@ -71,8 +72,8 @@ export function createFibreTextures(size = 1024, renderer = null) {
       const rv = Math.round(255 * (rough[col] - 0.05 * Math.abs(t)));
       dr.data[i] = dr.data[i + 1] = dr.data[i + 2] = rv; dr.data[i + 3] = 255;
       let a = 255;
-      if (v > 0.66) {
-        const k = Math.min(1, (v - 0.66) / (tipEnd[col] - 0.66));
+      if (v > 0.7) {
+        const k = Math.min(1, (v - 0.7) / (tipEnd[col] - 0.7));
         const s = k * k * (3 - 2 * k);
         a = Math.abs(t) < 1 - s ? 255 : 0;
       }
@@ -96,7 +97,7 @@ export function createFibreTextures(size = 1024, renderer = null) {
 }
 
 // Ribbon along the fibre curve. Local frame: origin at base centre-left, forward = -Z, up = +Y (cm).
-export function buildRibbonGeometry(curlKey, lengthMm, seed = 0) {
+export function buildRibbonGeometry(curlKey, lengthMm, seed = 0, press = TRAY_PRESS) {
   const pts = lashCurve(curlKey, lengthMm, NY);
   const rand = rng(seed);
   const p1 = rand() * 6.28, p2 = rand() * 6.28, p3 = rand() * 6.28;
@@ -112,7 +113,7 @@ export function buildRibbonGeometry(curlKey, lengthMm, seed = 0) {
       const k = 1 + wav * v * v;
       const n = j * (NX + 1) + i;
       pos[n * 3] = STRIP_X0 + u * W;
-      pos[n * 3 + 1] = (pts[j][1] / 10) * k;
+      pos[n * 3 + 1] = (pts[j][1] / 10) * k * press;
       pos[n * 3 + 2] = (-pts[j][0] / 10) * (1 + 0.01 * Math.sin(u * 15 + p3) * v);
       uv[n * 2] = u;
       uv[n * 2 + 1] = v;
@@ -147,6 +148,7 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
   const tapeGeo = new THREE.BoxGeometry(STRIP_X1 - STRIP_X0, TAPE_T, TAPE_W);
   const baseCol = new THREE.Color(BASE_COLOR);
 
+  let press = TRAY_PRESS;
   let curCurl = curl, curThickness = thickness, highlight = null;
   const stripCx = (STRIP_X0 + STRIP_X1) / 2;
   const rows = [], tapes = [], mats = [];
@@ -172,10 +174,10 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
 
     const mat = new THREE.MeshPhysicalMaterial({
       color: BASE_COLOR,
-      roughness: 0.3,
-      clearcoat: 0.5,
+      roughness: 0.4,
+      clearcoat: 0.2,
       clearcoatRoughness: 0.25,
-      sheen: 0.5,
+      sheen: 0.12,
       sheenRoughness: 0.5,
       sheenColor: new THREE.Color('#6b4a3e'),
       anisotropy: 0.7,
@@ -185,12 +187,12 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
       alphaMap: textures.alphaMap,
       envMapIntensity: ENV_INTENSITY,
       side: THREE.DoubleSide,
-      alphaToCoverage: true,
+      alphaTest: 0.5,
       transparent: false,
     });
     mats.push(mat);
 
-    const mesh = new THREE.Mesh(buildRibbonGeometry(curCurl, lengthMm, 100 + i * 31), mat);
+    const mesh = new THREE.Mesh(buildRibbonGeometry(curCurl, lengthMm, 100 + i * 31, press), mat);
     mesh.position.set(0, y0, baseZ);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
@@ -210,9 +212,13 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
   function rebuild() {
     for (const row of rows) {
       const old = row.mesh.geometry;
-      row.mesh.geometry = buildRibbonGeometry(curCurl, row.lengthMm, 100 + row.index * 31);
+      row.mesh.geometry = buildRibbonGeometry(curCurl, row.lengthMm, 100 + row.index * 31, press);
       old.dispose();
     }
+  }
+  function setPress(f) {
+    press = f;
+    rebuild();
   }
   function setCurl(key) {
     if (!CURLS[key]) throw new Error('Unknown curl ' + key);
@@ -246,7 +252,7 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
       const pts = lashCurve(curCurl, row.lengthMm, NY);
       const at = { base: 0, taper: Math.round((2 / 3) * NY), tip: NY }[parts[2]];
       if (at === undefined) throw new Error('Unknown anchor ' + name);
-      v.set(stripCx, y0 + pts[at][1] / 10, row.baseZ - pts[at][0] / 10);
+      v.set(stripCx, y0 + (pts[at][1] / 10) * press, row.baseZ - pts[at][0] / 10);
     } else throw new Error('Unknown anchor ' + name);
     group.updateMatrixWorld(true);
     return group.localToWorld(v);
@@ -260,5 +266,5 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
     tapeMat.dispose();
   }
 
-  return { group, rows, setCurl, setThickness, setHighlight, getAnchor, dispose };
+  return { group, rows, setPress, setCurl, setThickness, setHighlight, getAnchor, dispose };
 }
