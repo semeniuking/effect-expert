@@ -1,0 +1,103 @@
+// Smoke harness: node tests/smoke.mjs [--w 1440 --h 900] [--chapters a,b,c]
+import { createRequire } from 'node:module';
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const require = createRequire(import.meta.url);
+const { chromium } = require('playwright');
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const outDir = path.join(root, 'tests', 'out');
+
+const args = process.argv.slice(2);
+const opt = (name, def) => {
+  const i = args.indexOf('--' + name);
+  return i >= 0 && args[i + 1] ? args[i + 1] : def;
+};
+const W = parseInt(opt('w', '1440'), 10);
+const H = parseInt(opt('h', '900'), 10);
+const chapterArg = opt('chapters', '');
+const chapters = chapterArg ? chapterArg.split(',').filter(Boolean) : null;
+
+const MIME = {
+  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
+  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
+  '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2',
+};
+
+const server = http.createServer((req, res) => {
+  let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  if (p.endsWith('/')) p += 'index.html';
+  const file = path.normalize(path.join(root, p));
+  if (!file.startsWith(root)) { res.writeHead(403).end(); return; }
+  fs.readFile(file, (err, data) => {
+    if (err) { res.writeHead(404).end('not found'); return; }
+    res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream' });
+    res.end(data);
+  });
+});
+await new Promise((r) => server.listen(0, '127.0.0.1', r));
+const port = server.address().port;
+
+fs.mkdirSync(outDir, { recursive: true });
+const errors = [];
+let browser;
+let code = 0;
+try {
+  browser = await chromium.launch({
+    args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
+  });
+  const page = await browser.newPage({ viewport: { width: W, height: H } });
+  page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+  page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+  await page.goto(`http://localhost:${port}/index.html`, { waitUntil: 'load' });
+  await page.waitForFunction(() => window.__ready === true, null, { timeout: 60000 });
+
+  const hasStory = await page.evaluate(() => !!window.__story);
+  const shots = hasStory ? (chapters || ['boot']) : ['boot'];
+
+  for (const id of shots) {
+    if (id !== 'boot') {
+      await page.evaluate((c) => window.__story.goTo(c), id);
+      await page.waitForTimeout(1500);
+    }
+    // Let a couple of software-GL frames land.
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    const file = path.join(outDir, `${W}x${H}-${id}.png`);
+    await page.screenshot({ path: file });
+    const png = fs.readFileSync(file);
+    // Canvas pixel std-dev, computed in the page from the screenshot.
+    const sd = await page.evaluate(async (b64) => {
+      const img = new Image();
+      img.src = 'data:image/png;base64,' + b64;
+      await img.decode();
+      const c = document.createElement('canvas');
+      c.width = img.width; c.height = img.height;
+      const g = c.getContext('2d');
+      g.drawImage(img, 0, 0);
+      const d = g.getImageData(0, 0, c.width, c.height).data;
+      let n = 0, s = 0, s2 = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        const l = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+        s += l; s2 += l * l; n++;
+      }
+      const m = s / n;
+      return Math.sqrt(Math.max(0, s2 / n - m * m));
+    }, png.toString('base64'));
+    console.log(`${path.relative(root, file)}  std-dev=${sd.toFixed(2)}`);
+    if (!(sd > 6)) errors.push(`blank frame "${id}" (std-dev ${sd.toFixed(2)} <= 6)`);
+  }
+} catch (e) {
+  errors.push(String(e && e.message || e));
+} finally {
+  if (browser) await browser.close();
+  server.close();
+}
+if (errors.length) {
+  console.error('SMOKE FAIL:\n  ' + errors.join('\n  '));
+  code = 1;
+} else console.log('SMOKE PASS');
+process.exit(code);
