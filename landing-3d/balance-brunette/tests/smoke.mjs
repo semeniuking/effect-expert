@@ -32,7 +32,7 @@ const server = http.createServer((req, res) => {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (p.endsWith('/')) p += 'index.html';
   const file = path.normalize(path.join(root, p));
-  if (!file.startsWith(root)) { res.writeHead(403).end(); return; }
+  if (!file.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
   fs.readFile(file, (err, data) => {
     if (err) { res.writeHead(404).end('not found'); return; }
     res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream' });
@@ -68,7 +68,8 @@ try {
     await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
     const file = path.join(outDir, `${W}x${H}-${id}.png`);
     await page.screenshot({ path: file });
-    const png = fs.readFileSync(file);
+    const canvasPng = await page.locator('#stage').screenshot();
+    const png = canvasPng;
     // Canvas pixel std-dev, computed in the page from the screenshot.
     const sd = await page.evaluate(async (b64) => {
       const img = new Image();
