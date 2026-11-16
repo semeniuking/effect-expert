@@ -73,7 +73,9 @@ function edgeLines(geo, mat) {
   return l;
 }
 
-function printCard(texture, { paperBack = true } = {}) {
+function printCard(texture, opts = {}) {
+  const { paperBack = true } = opts;
+  opts = { env: 0.35, ...opts };
   const g = new THREE.Group();
   const paper = new THREE.Mesh(
     new THREE.BoxGeometry(CARD_W, CARD_T, CARD_H),
@@ -81,13 +83,17 @@ function printCard(texture, { paperBack = true } = {}) {
   );
   paper.receiveShadow = true;
   const mat = new THREE.MeshStandardMaterial({
-    map: texture, roughness: 0.6, metalness: 0,
+    map: texture, roughness: 0.8, metalness: 0, envMapIntensity: opts.env,
     polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
   });
   const face = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W, CARD_H), mat);
   face.rotation.x = -Math.PI / 2;
   face.position.y = CARD_T / 2 + 0.0008;
   face.receiveShadow = true;
+  // Bind the scene environment so this material's own envMapIntensity applies (keeps dark ink dark).
+  face.onBeforeRender = (_r, scene) => {
+    if (!mat.envMap && scene.environment) { mat.envMap = scene.environment; mat.needsUpdate = true; }
+  };
   if (paperBack) g.add(paper);
   g.add(face);
   g.userData.face = face;
@@ -121,7 +127,7 @@ export function createCase({ renderer, portrait, lengths, curl = 'L', thickness 
   tray.name = 'tray';
 
   const insertTex = makeInsertTexture({ lengths, curl, thickness, anisotropy: aniso });
-  const insert = printCard(insertTex);
+  const insert = printCard(insertTex, { env: 0.6 });
   const insertSurfaceY = FLOOR_T + CARD_T + 0.002;
   insert.position.set(0, FLOOR_T + CARD_T / 2 + 0.002, 0);
   insert.name = 'insert-card';
@@ -143,7 +149,7 @@ export function createCase({ renderer, portrait, lengths, curl = 'L', thickness 
   // Lid print behaves like a film on the clear lid: visible from outside, see-through from inside
   // (the real open case shows an empty clear lid).
   const lidCard = printCard(lidTex, { paperBack: false });
-  lidCard.position.set(OUT_W / 2, OUT_H - WALL - CARD_T / 2 - 0.004, 0); // under the ceiling, print up
+  lidCard.position.set(OUT_W / 2, OUT_H + 0.004, 0); // flush on the outside of the lid top, print up (never sampled through transmission)
   lidCard.name = 'lid-card';
   lid.add(lidCard);
 
@@ -184,14 +190,14 @@ export function createCase({ renderer, portrait, lengths, curl = 'L', thickness 
   addAnchor('clasp', group, OUT_W / 2 + 0.15, OUT_H * 0.6, 0);
   addAnchor('logo', group, LAYOUT.insertLogo.x, insertSurfaceY, LAYOUT.insertLogo.z);
   addAnchor('wordmark', group, LAYOUT.insertWordmark.x, insertSurfaceY, LAYOUT.insertWordmark.z);
-  addAnchor('lid-card', lid, OUT_W / 2, OUT_H - WALL + 0.01, 0);
+  addAnchor('lid-card', lid, OUT_W / 2, OUT_H + 0.01, 0);
 
-  const redrawAll = () => { insertTex.userData.redraw(); lidTex.userData.redraw(); };
+  let curInsertTex = insertTex;
+  const redrawAll = () => { curInsertTex.userData.redraw(); lidTex.userData.redraw(); };
   if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
     document.fonts.ready.then(redrawAll).catch(() => {});
   }
 
-  let curInsertTex = insertTex;
   const state = { lengths, curl, thickness };
 
   function setLidOpen(t) {

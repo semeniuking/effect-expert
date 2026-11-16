@@ -9,7 +9,7 @@ const CW = 2048;
 const CH = 4096;
 const SX = CW / CARD_W; // px per cm, horizontal
 const SY = CH / CARD_H; // px per cm, vertical
-const K = SX / SY; // vertical squash that makes glyphs undistorted despite the anisotropic mapping
+const K = SY / SX; // vertical scale (0.886) that makes glyphs undistorted despite the anisotropic mapping
 
 const INK = '#111111';
 const PAPER = '#fbfbfa';
@@ -169,16 +169,16 @@ function drawSwatch(g, x, z0, z1, flip) {
   g.rect(X, Z, Wp, Hp);
   g.clip();
   const base = g.createLinearGradient(X, 0, X + Wp, 0);
-  base.addColorStop(0, '#120807');
-  base.addColorStop(0.5, '#1d0f0c');
-  base.addColorStop(1, '#0d0605');
+  base.addColorStop(0, '#0a0403');
+  base.addColorStop(0.5, '#120908');
+  base.addColorStop(1, '#080303');
   g.fillStyle = base;
   g.fillRect(X, Z, Wp, Hp);
   // soft curved sheen like fibres catching light
   const cy = flip ? Z + Hp * 0.2 : Z + Hp * 0.78;
   for (let k = 0; k < 3; k++) {
     const rg = g.createRadialGradient(X + Wp * 0.85, cy + k * 40, 10, X + Wp * 0.85, cy + k * 40, Wp * (0.9 - k * 0.15));
-    rg.addColorStop(0, `rgba(135,60,52,${0.5 - k * 0.12})`);
+    rg.addColorStop(0, `rgba(120,50,44,${0.17 - k * 0.045})`);
     rg.addColorStop(1, 'rgba(70,28,24,0)');
     g.fillStyle = rg;
     g.fillRect(X, Z, Wp, Hp);
@@ -189,7 +189,7 @@ function drawSwatch(g, x, z0, z1, flip) {
   g.lineWidth = 1.2;
   for (let i = 0; i < 260; i++) {
     const fx = X + rnd() * Wp;
-    const a = 0.03 + rnd() * 0.07;
+    const a = 0.012 + rnd() * 0.03;
     g.strokeStyle = rnd() > 0.4 ? `rgba(150,85,70,${a})` : `rgba(0,0,0,${a * 2})`;
     g.beginPath();
     g.moveTo(fx, Z);

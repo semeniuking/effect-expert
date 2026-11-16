@@ -22,6 +22,7 @@ const views = {
   'case-half': { pos: [-8, 24, 26], target: [-2, 1, 0], fov: 32 },
   'case-open': { pos: [0, 44, 8], target: [-3.8, 0, 0], fov: 30 },
   'case-open-low': { pos: [-4, 12, 20], target: [-3.8, 0.5, 0], fov: 32 },
+  'tags': { pos: [-2.4, 7, 2.5], target: [-2.4, 0.2, 0.3], fov: 30 },
   'case-hinge': { pos: [-9, 6, -3], target: [-3.8, 0.9, -5.6], fov: 30 },
 };
 
@@ -48,7 +49,7 @@ if (v === 'cards') {
   const c = createCase({ renderer: stage.renderer, portrait, lengths: LENGTHS, curl: 'L', thickness: '0.07' });
   stage.scene.add(c.group);
   window.__case = c;
-  const open = v.startsWith('case-open') ? 1 : v === 'case-half' ? 0.5 : v === 'case-hinge' ? 1 : 0;
+  const open = (v.startsWith('case-open') || v === 'tags') ? 1 : v === 'case-half' ? 0.5 : v === 'case-hinge' ? 1 : 0;
   c.setLidOpen(open);
   const tray = q.get('notray') ? { group: new THREE.Group() } : createLashTray({ perStrip: mobile ? 110 : 260 });
   tray.group.position.y = c.insertSurfaceY;
