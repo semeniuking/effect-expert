@@ -91,37 +91,27 @@ const tray = createLashTray({
 tray.group.position.y = caseApi.insertSurfaceY;
 caseApi.group.add(tray.group);
 stage.scene.add(caseApi.group);
-const contact = stage.addContactShadow(caseApi.group, { opacity: 0.8, darkness: 1, blur: 2.4 });
+// ?empty: debug view of the bare acrylic case (no cards, no lashes) to judge glass clarity.
+if (new URLSearchParams(location.search).has('empty')) {
+  ['insert-card', 'lid-card'].forEach((n) => { const o = caseApi.group.getObjectByName(n); if (o) o.visible = false; });
+  tray.group.visible = false;
+}
+const contact = stage.addContactShadow(caseApi.group, { opacity: new URLSearchParams(location.search).has('noshadow') ? 0 : 0.2, darkness: 0.8, blur: 3.5 });
 let shadowKey = '';
 // Photographic finish: bokeh + grain + vignette. Desktop only; mobile / reduced motion render directly.
 const post = createPost(stage, { enabled: !mobileGfx && !reducedMotion });
 if (post) stage.render = (dt) => post.render(dt);
 let focus = 10;
+let curPress = 0.3;
 applyLang();
 
 // Row brightness fade (setHighlight snaps, so fade the material colours here).
 const rowMats = tray.rows.map((r) => r.mesh.material);
 const baseCol = rowMats[0].color.clone();
-const rowF = tray.rows.map(() => 0.5);
-// rowF: 0 = dimmed, 0.5 = neutral, 1 = highlighted. Dimmed rows go darker AND greyer; the highlighted
-// row is lifted to the measured lit Brunette (#544742-ish) so it separates clearly from its neighbours.
-const LIT = new THREE.Color('#62504a');
-const GREY = new THREE.Color();
-const tmpC = new THREE.Color();
-function rowTarget(h, k) { return h == null ? 0.5 : h === k ? 1 : 0; }
-function applyRowF() {
-  rowMats.forEach((m, k) => {
-    const f = rowF[k];
-    if (f >= 0.5) m.color.copy(baseCol).lerp(LIT, (f - 0.5) * 2);
-    else {
-      const t = f * 2; // 0..1
-      tmpC.copy(baseCol).multiplyScalar(0.3 + 0.7 * t);
-      const l = tmpC.r * 0.2126 + tmpC.g * 0.7152 + tmpC.b * 0.0722;
-      GREY.setRGB(l, l, l);
-      m.color.copy(tmpC).lerp(GREY, 0.45 * (1 - t));
-    }
-  });
-}
+const rowF = tray.rows.map(() => 1);
+// rowF: 1 = full colour; the active row keeps its normal brunette, every other row dims ~45 %.
+function rowTarget(h, k) { return h == null || h === k ? 1 : 0.55; }
+function applyRowF() { rowMats.forEach((m, k) => m.color.copy(baseCol).multiplyScalar(rowF[k])); }
 
 // ---------- scroll state ----------
 let pTarget = 0;
@@ -187,6 +177,14 @@ stage.onFrame((dt) => {
   applyViewOffset(stage.camera, cv.clientWidth, cv.clientHeight, narrow, s.curtain);
   curtainEl.style.opacity = s.curtain.toFixed(3);
 
+  // Fibres lie pressed under the closed lid and spring to natural curl for the macro chapters.
+  // Quantised so the geometry is rebuilt only a handful of times per transition, never per frame.
+  const pq = Math.round(s.press * 10) / 10;
+  if (pq !== curPress) { curPress = pq; tray.setPress(pq); }
+  // Macro lighting rig: the studio env hits the vertical curl faces weakly, so lift the fibres' env share
+  // as the strips spring up (tray view keeps the dark #170907-ish read).
+  const envI = 0.4 + clamp01((s.press - 0.3) / 0.7) * 2.2;
+  for (const m of rowMats) m.envMapIntensity = envI;
   caseApi.setLidOpen(smooth(s.lid));
   const heroW = s.index === 0 ? 1 - s.blend : 0;
   caseApi.group.rotation.y = s.yaw + Math.sin(time * 0.55) * (8 * Math.PI / 180) * heroW;
