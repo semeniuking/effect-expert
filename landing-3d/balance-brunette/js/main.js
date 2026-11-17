@@ -6,6 +6,7 @@ import { loadFonts } from './textures.js';
 import { CHAPTERS, sampleStory } from './story.js';
 import { COPY } from './copy.js';
 import { createCallouts } from './callouts.js';
+import { createPost } from './post.js';
 
 const PRODUCT_URL = 'https://effect-expert.com/products/balance-mix-brunette';
 const LENGTHS = [6, 6, 7, 7, 8, 8, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12, 13];
@@ -66,15 +67,23 @@ $('lang').addEventListener('click', () => {
 });
 
 // ---------- 3D ----------
-const stage = createStage($('stage'), { mobile: narrowMq.matches || lowPower });
+const mobileGfx = narrowMq.matches || lowPower;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stage = createStage($('stage'), { mobile: mobileGfx });
 const callouts = createCallouts($('callouts'));
 
 await loadFonts();
 const portrait = new Image();
 portrait.src = 'assets/portrait.jpg';
 await portrait.decode();
+const loadImg = async (src) => {
+  const im = new Image();
+  im.src = src;
+  try { await im.decode(); return im; } catch (e) { return null; }
+};
+const swatches = await Promise.all(['assets/swatch-top.jpg', 'assets/swatch-bot.jpg'].map(loadImg));
 
-const caseApi = createCase({ renderer: stage.renderer, portrait, lengths: LENGTHS, curl: 'L', thickness: '0.07' });
+const caseApi = createCase({ renderer: stage.renderer, portrait, swatches, lengths: LENGTHS, curl: 'L', thickness: '0.07' });
 const tray = createLashTray({
   curl: 'L', thickness: '0.07', lengths: LENGTHS, renderer: stage.renderer,
   perStrip: narrowMq.matches || lowPower ? 110 : 260,
@@ -82,14 +91,37 @@ const tray = createLashTray({
 tray.group.position.y = caseApi.insertSurfaceY;
 caseApi.group.add(tray.group);
 stage.scene.add(caseApi.group);
+const contact = stage.addContactShadow(caseApi.group, { opacity: 0.8, darkness: 1, blur: 2.4 });
+let shadowKey = '';
+// Photographic finish: bokeh + grain + vignette. Desktop only; mobile / reduced motion render directly.
+const post = createPost(stage, { enabled: !mobileGfx && !reducedMotion });
+if (post) stage.render = (dt) => post.render(dt);
+let focus = 10;
 applyLang();
 
 // Row brightness fade (setHighlight snaps, so fade the material colours here).
 const rowMats = tray.rows.map((r) => r.mesh.material);
 const baseCol = rowMats[0].color.clone();
-const rowF = tray.rows.map(() => 1);
-function rowTarget(h, k) { return h == null ? 1 : h === k ? 2.6 : 0.08; }
-function applyRowF() { rowMats.forEach((m, k) => m.color.copy(baseCol).multiplyScalar(rowF[k])); }
+const rowF = tray.rows.map(() => 0.5);
+// rowF: 0 = dimmed, 0.5 = neutral, 1 = highlighted. Dimmed rows go darker AND greyer; the highlighted
+// row is lifted to the measured lit Brunette (#544742-ish) so it separates clearly from its neighbours.
+const LIT = new THREE.Color('#62504a');
+const GREY = new THREE.Color();
+const tmpC = new THREE.Color();
+function rowTarget(h, k) { return h == null ? 0.5 : h === k ? 1 : 0; }
+function applyRowF() {
+  rowMats.forEach((m, k) => {
+    const f = rowF[k];
+    if (f >= 0.5) m.color.copy(baseCol).lerp(LIT, (f - 0.5) * 2);
+    else {
+      const t = f * 2; // 0..1
+      tmpC.copy(baseCol).multiplyScalar(0.3 + 0.7 * t);
+      const l = tmpC.r * 0.2126 + tmpC.g * 0.7152 + tmpC.b * 0.0722;
+      GREY.setRGB(l, l, l);
+      m.color.copy(tmpC).lerp(GREY, 0.45 * (1 - t));
+    }
+  });
+}
 
 // ---------- scroll state ----------
 let pTarget = 0;
@@ -158,6 +190,9 @@ stage.onFrame((dt) => {
   caseApi.setLidOpen(smooth(s.lid));
   const heroW = s.index === 0 ? 1 - s.blend : 0;
   caseApi.group.rotation.y = s.yaw + Math.sin(time * 0.55) * (8 * Math.PI / 180) * heroW;
+  // Contact shadow only depends on lid angle + yaw: re-render when they change (quantised), not per frame.
+  const key = `${(smooth(s.lid) * 90).toFixed(0)}|${(caseApi.group.rotation.y * 200).toFixed(0)}`;
+  if (key !== shadowKey) { shadowKey = key; caseApi.group.updateMatrixWorld(true); contact.update(); }
 
   // highlight fade (~350 ms)
   const fk = snap ? 1 : 1 - Math.exp(-dt / 0.12);
@@ -180,6 +215,12 @@ stage.onFrame((dt) => {
     callouts.set(id ? anchorVec : null, id ? COPY[lang].chapters[s.active].callout : '');
   }
   callouts.update(stage.camera, cv.clientWidth, cv.clientHeight);
+
+  if (post) { // focus on the chapter's callout anchor, eased so the pull between chapters is smooth
+    const want = id ? stage.camera.position.distanceTo(anchorVec) : focus;
+    focus += (want - focus) * (snap ? 1 : 1 - Math.exp(-dt / 0.2));
+    post.setDof(s.dof, focus);
+  }
 
   setPanels(s);
   progressEl.style.transform = `scaleX(${pSmooth.toFixed(4)})`;
