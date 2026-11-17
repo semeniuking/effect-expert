@@ -12,13 +12,14 @@ const TAPE_W = 0.25; // along Z
 const TAPE_T = 0.06; // along Y
 const ROW_LIFT = 0.008; // each row sits slightly above the previous so rows layer
 const COLS = 64; // fibre columns per texture tile
-const ENV_INTENSITY = 0.05; // dark fibres wash out pink/grey under the full room reflection
-const BASE_COLOR = '#2a1410';
+const ENV_INTENSITY = 0.4; // fibres are matte silk: take a measured share of the studio env
+const BASE_COLOR = '#26150f';
+const ANISO_ROT = 0; // tangent = u (across the fibres): the highlight is a band across them
 let TRAY_PRESS = 0.3; // fibres lie pressed under the lid; 1 = natural curl (animated by Task 4 via setPress)
 const THICK = {
-  '0.05': { repeat: 8, normal: 0.45 },
-  '0.07': { repeat: 6.25, normal: 0.6 },
-  '0.1': { repeat: 4.5, normal: 0.8 },
+  '0.05': { repeat: 8, normal: 0.22 },
+  '0.07': { repeat: 6.25, normal: 0.3 },
+  '0.1': { repeat: 4.5, normal: 0.4 },
 };
 
 export const rowBaseZ = (i) => -3.6 + i * ROW_PITCH;
@@ -42,7 +43,11 @@ export function createFibreTextures(size = 1024, renderer = null) {
   const sum = w.reduce((a, b) => a + b, 0);
   const edges = [0];
   for (const x of w) edges.push(edges[edges.length - 1] + (x / sum) * size);
-  const tipEnd = Array.from({ length: COLS }, () => 1 + (rand() - 0.5) * 0.04);
+  // Every fibre finishes at its own point, 0..3 % short of the full length: a fine fringe, not a cut.
+  const tipEnd = Array.from({ length: COLS }, () => 1 - rand() * 0.03);
+  // Per-fibre lightness (+-7 %) and a hair of warm/cool drift, so the body is never one flat colour.
+  const light = Array.from({ length: COLS }, () => 1 + (rand() - 0.5) * 0.14);
+  const warm = Array.from({ length: COLS }, () => (rand() - 0.5) * 0.03);
   const rough = Array.from({ length: COLS }, () => 0.82 + rand() * 0.18);
   const cDepth = Array.from({ length: COLS }, () => 0.85 + rand() * 0.3);
 
@@ -51,10 +56,11 @@ export function createFibreTextures(size = 1024, renderer = null) {
     c.width = c.height = size;
     return c;
   };
-  const cn = mk(), cr = mk(), ca = mk();
+  const cn = mk(), cr = mk(), ca = mk(), cc = mk();
   const dn = cn.getContext('2d').createImageData(size, size);
   const dr = cr.getContext('2d').createImageData(size, size);
   const da = ca.getContext('2d').createImageData(size, size);
+  const dc = cc.getContext('2d').createImageData(size, size);
 
   let col = 0;
   for (let x = 0; x < size; x++) {
@@ -78,22 +84,29 @@ export function createFibreTextures(size = 1024, renderer = null) {
         a = Math.abs(t) < 1 - s ? 255 : 0;
       }
       da.data[i] = da.data[i + 1] = da.data[i + 2] = a; da.data[i + 3] = 255;
+      // colour map: mean ~0.92 so the material colour stays the reference; slightly lighter mid-fibre.
+      const m = 0.92 * light[col] * (1 - 0.05 * t * t);
+      dc.data[i] = Math.min(255, Math.round(255 * m * (1 + warm[col])));
+      dc.data[i + 1] = Math.min(255, Math.round(255 * m));
+      dc.data[i + 2] = Math.min(255, Math.round(255 * m * (1 - warm[col])));
+      dc.data[i + 3] = 255;
     }
   }
   cn.getContext('2d').putImageData(dn, 0, 0);
   cr.getContext('2d').putImageData(dr, 0, 0);
   ca.getContext('2d').putImageData(da, 0, 0);
+  cc.getContext('2d').putImageData(dc, 0, 0);
 
   const aniso = renderer ? renderer.capabilities.getMaxAnisotropy() : 8;
-  const tex = (c) => {
+  const tex = (c, srgb = false) => {
     const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.NoColorSpace;
+    t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
     t.wrapS = THREE.RepeatWrapping;
     t.wrapT = THREE.ClampToEdgeWrapping;
     t.anisotropy = aniso;
     return t;
   };
-  return { normalMap: tex(cn), roughnessMap: tex(cr), alphaMap: tex(ca) };
+  return { normalMap: tex(cn), roughnessMap: tex(cr), alphaMap: tex(ca), colorMap: tex(cc, true) };
 }
 
 // Ribbon along the fibre curve. Local frame: origin at base centre-left, forward = -Z, up = +Y (cm).
@@ -144,7 +157,7 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
 
   // perStrip is only a quality hint now: low counts (mobile) get a 512 px texture.
   const textures = createFibreTextures(perStrip <= 150 ? 512 : 1024, renderer);
-  const tapeMat = new THREE.MeshStandardMaterial({ color: '#f3e9b5', roughness: 0.55 });
+  const tapeMat = new THREE.MeshStandardMaterial({ color: '#f3e9b5', roughness: 0.7 });
   const tapeGeo = new THREE.BoxGeometry(STRIP_X1 - STRIP_X0, TAPE_T, TAPE_W);
   const baseCol = new THREE.Color(BASE_COLOR);
 
@@ -166,36 +179,34 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
 
     const tape = new THREE.Mesh(tapeGeo, tapeMat);
     tape.position.set(stripCx, TAPE_T / 2 + lift, baseZ);
-    tape.receiveShadow = true;
-    tape.castShadow = true;
     tape.name = `tape-${i}`;
     group.add(tape);
     tapes.push(tape);
 
+    // Matte silk, not vinyl: no clearcoat, a soft anisotropic band across the fibres, warm sheen.
     const mat = new THREE.MeshPhysicalMaterial({
       color: BASE_COLOR,
-      roughness: 0.4,
-      clearcoat: 0.2,
-      clearcoatRoughness: 0.25,
-      sheen: 0.12,
-      sheenRoughness: 0.5,
-      sheenColor: new THREE.Color('#6b4a3e'),
-      anisotropy: 0.7,
-      anisotropyRotation: 0,
+      map: textures.colorMap,
+      roughness: 0.55,
+      specularIntensity: 0.42,
+      sheen: 0.4,
+      sheenRoughness: 0.4,
+      sheenColor: new THREE.Color('#8a5a46'),
+      anisotropy: 0.8,
+      anisotropyRotation: ANISO_ROT,
       normalMap: textures.normalMap,
       roughnessMap: textures.roughnessMap,
       alphaMap: textures.alphaMap,
       envMapIntensity: ENV_INTENSITY,
       side: THREE.DoubleSide,
       alphaTest: 0.5,
+      alphaToCoverage: true,
       transparent: false,
     });
     mats.push(mat);
 
     const mesh = new THREE.Mesh(buildRibbonGeometry(curCurl, lengthMm, 100 + i * 31, press), mat);
     mesh.position.set(0, y0, baseZ);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
     mesh.name = `row-${i}`;
     // material.envMapIntensity is ignored for scene.environment, so bind it on first render.
     mesh.onBeforeRender = (_r, scene) => {
@@ -233,7 +244,7 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
   function setHighlight(i) {
     highlight = i == null ? null : i;
     rows.forEach((row, k) => {
-      const f = highlight == null || highlight === k ? 1 : 0.25;
+      const f = highlight == null || highlight === k ? 1 : 0.3;
       mats[k].color.copy(baseCol).multiplyScalar(f);
     });
   }
