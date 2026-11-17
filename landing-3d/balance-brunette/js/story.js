@@ -7,7 +7,7 @@ export const CHAPTERS = [
   { id: 'tray', cam: { pos: [-3.8, 46, 1], target: [-3.8, 0, 0], fov: 28 }, camMobile: { pos: [-3.8, 69, 1], target: [-3.8, 0, 0], fov: 30 },
     lid: 1, yaw: 0, highlight: null, callout: 'wordmark' },
   { id: 'color', cam: { pos: [4.1, 6.0, 9.6], target: [0.1, 0.5, 1.0], fov: 20 }, camMobile: { pos: [4.4, 6.4, 10.2], target: [0.1, 0.5, 1.0], fov: 28 },
-    lid: 1, yaw: 0, highlight: 10, callout: 'row:10:tip', curtain: true, press: 1, dof: { aperture: 0.003, maxblur: 0.012 } },
+    lid: 1, yaw: 0, highlight: 10, callout: 'row:10:tip', curtain: true, press: 1, dof: { aperture: 0.002, maxblur: 0.008 } },
   { id: 'taper', cam: { pos: [2.6, 1.3, -1.6], target: [0.1, 0.35, -4.0], fov: 16 }, camMobile: { pos: [2.6, 1.3, -1.6], target: [0.1, 0.35, -4.0], fov: 30 },
     dof: { aperture: 0.0016, maxblur: 0.008 },
     lid: 1, yaw: 0, highlight: 0, callout: 'row:0:taper', curtain: true, press: 1 },

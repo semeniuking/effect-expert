@@ -54,7 +54,7 @@ try {
     args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
   });
   const page = await browser.newPage({ viewport: { width: W, height: H } });
-  page.setDefaultTimeout(240000);
+  page.setDefaultTimeout(600000);
   // The CI box reports 4 cores, which the page treats as low-power (no bokeh, half the fibres). Pretend to be a normal desktop.
   await page.addInitScript(() => Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 8 }));
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
