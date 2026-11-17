@@ -1,5 +1,5 @@
 :root {
-  --bg: #f2f1ef;
+  --bg: #f2f2f2;
   --ink: #111;
   --mute: rgba(17, 17, 17, 0.62);
   --hair: rgba(17, 17, 17, 0.28);
@@ -99,7 +99,7 @@ body {
 .callout.on { opacity: 1; }
 .callout-dot {
   position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%;
-  background: var(--ink); box-shadow: 0 0 0 4px rgba(242, 241, 239, 0.7);
+  background: var(--ink); box-shadow: 0 0 0 4px rgba(242, 242, 242, 0.7);
 }
 .callout.flip .callout-label { left: auto; right: 0; padding: 6px 12px 5px 10px; border-left: 0; border-right: 1px solid var(--ink); }
 .callout-line { position: absolute; left: 0; bottom: 4px; width: 1px; height: 64px; background: var(--ink); }
@@ -107,7 +107,7 @@ body {
   position: absolute; left: 0; bottom: 64px; white-space: nowrap;
   font-weight: 400; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
   transform: translateY(50%);
-  background: rgba(242, 241, 239, 0.88); padding: 6px 10px 5px 12px; border-left: 1px solid var(--ink);
+  background: rgba(242, 242, 242, 0.88); padding: 6px 10px 5px 12px; border-left: 1px solid var(--ink);
 }
 
 .hint {

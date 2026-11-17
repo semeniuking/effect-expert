@@ -1,52 +1,38 @@
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { createContactShadow } from './contact-shadow.js';
 
-const BG = '#f2f1ef';
+const BG = '#f2f2f2';
 
 export function createStage(canvas, { mobile = false } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = 1.0;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const maxPR = mobile ? 1.5 : 2;
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(BG);
   const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  const envScene = createStudioEnv();
+  scene.environment = pmrem.fromScene(envScene, 0.03).texture;
+  envScene.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
   pmrem.dispose();
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.5, 400);
   camera.position.set(0, 60, 40);
   camera.lookAt(0, 0, 0);
 
-  // Key light: upper-left-front, casts the soft shadow.
-  const key = new THREE.DirectionalLight(0xffffff, 2.2);
-  key.position.set(-30, 50, 30);
-  key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
-  const sc = key.shadow.camera;
-  sc.left = -30; sc.right = 30; sc.top = 30; sc.bottom = -30; sc.near = 10; sc.far = 140;
-  key.shadow.radius = 6;
-  key.shadow.bias = -0.0004;
-  key.shadow.normalBias = 0.02;
-  scene.add(key);
+  // One weak, non-shadowing fill so the card keeps a little form; the softboxes do the real work.
+  const fill = new THREE.DirectionalLight(0xffffff, 0.25);
+  fill.position.set(-20, 50, 30);
+  scene.add(fill);
 
-  // Soft rim from behind.
-  const rim = new THREE.DirectionalLight(0xfff4ea, 0.9);
-  rim.position.set(25, 20, -45);
-  scene.add(rim);
-
-  // Shadow catcher at y = 0.
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(400, 400),
-    new THREE.ShadowMaterial({ opacity: 0.18 })
-  );
-  ground.rotation.x = -Math.PI / 2;
-  ground.receiveShadow = true;
-  scene.add(ground);
+  let contact = null;
+  function addContactShadow(subject, opts = {}) {
+    if (contact) contact.dispose();
+    contact = createContactShadow(renderer, scene, subject, { size: mobile ? 256 : 512, ...opts });
+    return contact;
+  }
 
   const callbacks = [];
   const tmpTarget = new THREE.Vector3();
@@ -60,6 +46,10 @@ export function createStage(canvas, { mobile = false } = {}) {
   }
 
   function onFrame(cb) { callbacks.push(cb); }
+  const resizeCbs = [];
+  const api = { renderer, scene, camera, setView, onFrame, resize, start, addContactShadow };
+  api.render = () => renderer.render(scene, camera);
+  api.onResize = (cb) => { resizeCbs.push(cb); };
 
   function resize() {
     const w = Math.max(1, canvas.clientWidth);
@@ -68,6 +58,7 @@ export function createStage(canvas, { mobile = false } = {}) {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    for (const cb of resizeCbs) cb(w, h, renderer.getPixelRatio());
   }
 
   let started = false;
@@ -82,9 +73,44 @@ export function createStage(canvas, { mobile = false } = {}) {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       for (const cb of callbacks) cb(dt);
-      renderer.render(scene, camera);
+      api.render(dt);
     });
   }
 
-  return { renderer, scene, camera, setView, onFrame, resize, start };
+  return api;
+}
+
+// Photo-studio environment: light-grey room lit by emissive softboxes. Gives long clean straight
+// highlights along the acrylic edges and a near-shadowless high-key fill.
+function createStudioEnv() {
+  const env = new THREE.Scene();
+  const room = new THREE.Mesh(
+    new THREE.BoxGeometry(80, 60, 80),
+    new THREE.MeshBasicMaterial({ color: '#7c7c7c', side: THREE.BackSide })
+  );
+  room.position.y = 22;
+  env.add(room);
+  const box = (w, h, intensity, pos, look) => {
+    const m = new THREE.Mesh(
+      new THREE.PlaneGeometry(w, h),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(intensity, intensity, intensity), side: THREE.DoubleSide })
+    );
+    m.position.set(...pos);
+    m.lookAt(...look);
+    env.add(m);
+  };
+  box(40, 40, 11, [0, 50, 0], [0, 0, 0]);          // top softbox, overhead
+  box(7, 44, 14, [-37, 22, 0], [0, 0, 0]);          // long strip-box left
+  box(7, 44, 14, [37, 22, 0], [0, 0, 0]);           // long strip-box right
+  box(40, 18, 2.5, [0, 18, 37], [0, 0, 0]);        // weaker front fill
+  // Black flags beside the strip-boxes: give the clear edges their dark, crisp definition.
+  const flag = (w, h, pos) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: '#0c0c0c', side: THREE.DoubleSide }));
+    m.position.set(...pos);
+    m.lookAt(0, pos[1], 0);
+    env.add(m);
+  };
+  flag(10, 50, [-35.5, 22, -16]); flag(10, 50, [-35.5, 22, 16]);
+  flag(10, 50, [35.5, 22, -16]); flag(10, 50, [35.5, 22, 16]);
+  return env;
 }
