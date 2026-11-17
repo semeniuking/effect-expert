@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { CURLS, THICKNESSES, TRAY_LENGTHS, lashCurve } from './lash-curve.js';
+import { rng, ribbonWarp, buildFringeData } from './fringe.js';
 
-// Each tray row is ONE continuous ribbon swept along the lash curve. Per-fibre detail (grooves,
-// gloss variation, tapered comb tips) comes from shared procedural textures.
-const NX = 48;
+// Hybrid lash row: an opaque ribbon for the body (alpha fades smoothly between v .55 and .8) plus a
+// bundle of real, individually tapered fibre strips for the tip fringe (see fringe.js).
+const NX = 24;
 const NY = 32;
 const ROW_PITCH = 0.5; // cm
 const STRIP_X0 = -2.4;
@@ -23,17 +24,6 @@ const THICK = {
 
 export const rowBaseZ = (i) => -3.6 + i * ROW_PITCH;
 
-function rng(seed) {
-  let s = seed >>> 0;
-  return () => {
-    s = (s + 0x6d2b79f5) >>> 0;
-    let t = s;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 // Generates normal / roughness / alpha maps once (tileable in u). v = 1 is the canvas top (tip).
 export function createFibreTextures(size = 1024, renderer = null) {
   const COLS = size >= 1024 ? 512 : 256; // fibre columns per tile: >= 2 px per fibre
@@ -43,8 +33,6 @@ export function createFibreTextures(size = 1024, renderer = null) {
   const sum = w.reduce((a, b) => a + b, 0);
   const edges = [0];
   for (const x of w) edges.push(edges[edges.length - 1] + (x / sum) * size);
-  // Every fibre finishes at its own point, 0..3 % short of the full length: a fine fringe, not a cut.
-  const tipEnd = Array.from({ length: COLS }, () => 1 - rand() * 0.03);
   // Per-fibre lightness (+-7 %) and a hair of warm/cool drift, so the body is never one flat colour.
   const light = Array.from({ length: COLS }, () => 1 + (rand() - 0.5) * 0.06);
   const warm = Array.from({ length: COLS }, () => (rand() - 0.5) * 0.01);
@@ -77,13 +65,10 @@ export function createFibreTextures(size = 1024, renderer = null) {
       dn.data[i] = r; dn.data[i + 1] = 128; dn.data[i + 2] = b; dn.data[i + 3] = 255;
       const rv = Math.round(255 * (rough[col] - 0.05 * Math.abs(t)));
       dr.data[i] = dr.data[i + 1] = dr.data[i + 2] = rv; dr.data[i + 3] = 255;
-      let a = 255;
-      const v0 = tipEnd[col] - 0.09; // short taper per fibre; the fringe comes from each fibre ending elsewhere
-      if (v > v0) {
-        const k = Math.min(1, (v - v0) / (tipEnd[col] - v0));
-        const s = k * k * (3 - 2 * k);
-        a = Math.abs(t) < 1 - s ? 255 : 0;
-      }
+      // Body is fully opaque to v .55, then fades smoothly (no per-column teeth) to 0 at v .8;
+      // the real fibre fringe (fringe.js) takes over from v .45.
+      const k = Math.min(1, Math.max(0, (v - 0.55) / 0.25));
+      const a = Math.round(255 * (1 - k * k * (3 - 2 * k)));
       da.data[i] = da.data[i + 1] = da.data[i + 2] = a; da.data[i + 3] = 255;
       // colour map: mean ~0.92 so the material colour stays the reference; slightly lighter mid-fibre.
       const m = 0.94 * light[col] * (1 - 0.03 * t * t);
@@ -113,8 +98,7 @@ export function createFibreTextures(size = 1024, renderer = null) {
 // Ribbon along the fibre curve. Local frame: origin at base centre-left, forward = -Z, up = +Y (cm).
 export function buildRibbonGeometry(curlKey, lengthMm, seed = 0, press = TRAY_PRESS) {
   const pts = lashCurve(curlKey, lengthMm, NY);
-  const rand = rng(seed);
-  const p1 = rand() * 6.28, p2 = rand() * 6.28, p3 = rand() * 6.28;
+  const warp = ribbonWarp(seed);
   const pos = new Float32Array((NX + 1) * (NY + 1) * 3);
   const uv = new Float32Array((NX + 1) * (NY + 1) * 2);
   const W = STRIP_X1 - STRIP_X0;
@@ -122,13 +106,10 @@ export function buildRibbonGeometry(curlKey, lengthMm, seed = 0, press = TRAY_PR
     const v = j / NY;
     for (let i = 0; i <= NX; i++) {
       const u = i / NX;
-      // Low-frequency irregularity of tip height / length along the strip (+-1.5 %).
-      const wav = 0.012 * Math.sin(u * 9.4 + p1) + 0.006 * Math.sin(u * 23 + p2);
-      const k = 1 + wav * v * v;
       const n = j * (NX + 1) + i;
       pos[n * 3] = STRIP_X0 + u * W;
-      pos[n * 3 + 1] = (pts[j][1] / 10) * k * press;
-      pos[n * 3 + 2] = (-pts[j][0] / 10) * (1 + 0.01 * Math.sin(u * 15 + p3) * v);
+      pos[n * 3 + 1] = (pts[j][1] / 10) * warp.heightK(u, v) * press;
+      pos[n * 3 + 2] = (-pts[j][0] / 10) * warp.lengthK(u, v);
       uv[n * 2] = u;
       uv[n * 2 + 1] = v;
     }
@@ -165,7 +146,25 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
   let press = TRAY_PRESS;
   let curCurl = curl, curThickness = thickness, highlight = null;
   const stripCx = (STRIP_X0 + STRIP_X1) / 2;
-  const rows = [], tapes = [], mats = [];
+  const rows = [], tapes = [], mats = [], fringeMats = [];
+  const fibreCount = perStrip <= 150 ? 90 : 180;
+  const fibreSegs = perStrip <= 150 ? 12 : 14;
+  const fringeOf = (row) => buildFringeData({
+    curl: curCurl, lengthMm: row.lengthMm, count: fibreCount, segments: fibreSegs, press,
+    thickness: curThickness, seed: 500 + row.index * 17, warpSeed: 100 + row.index * 31,
+    x0: STRIP_X0, x1: STRIP_X1,
+  });
+  const fringeGeo = (row) => {
+    const d = fringeOf(row);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(d.positions, 3));
+    g.setAttribute('uv', new THREE.BufferAttribute(d.uvs, 2));
+    g.setIndex(new THREE.BufferAttribute(d.indices, 1));
+    g.computeVertexNormals();
+    g.computeBoundingSphere();
+    g.computeBoundingBox();
+    return g;
+  };
 
   function applyThickness() {
     const th = THICK[curThickness];
@@ -192,7 +191,7 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
       specularIntensity: 0.42,
       sheen: 0.4,
       sheenRoughness: 0.4,
-      sheenColor: new THREE.Color('#8a5a46'),
+      sheenColor: new THREE.Color('#6a564e'),
       anisotropy: 0.8,
       anisotropyRotation: ANISO_ROT,
       normalMap: textures.normalMap,
@@ -200,24 +199,49 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
       alphaMap: textures.alphaMap,
       envMapIntensity: ENV_INTENSITY,
       side: THREE.DoubleSide,
-      alphaTest: 0.5,
+      alphaTest: 0,
       alphaToCoverage: true,
       transparent: false,
     });
     mats.push(mat);
+    // Fibre fringe: same silk, but no alpha map (the geometry itself is the fibre shape).
+    const fmat = mat.clone();
+    fmat.alphaMap = null;
+    fmat.normalMap = null; // a single 2 px column of the fibre normal map would tilt a whole hair
+    fmat.anisotropy = 0;
+    fmat.alphaTest = 0;
+    fmat.alphaToCoverage = false;
+    fmat.polygonOffset = true;
+    fmat.polygonOffsetFactor = -1;
+    fmat.polygonOffsetUnits = -1;
+    fringeMats.push(fmat);
 
     const mesh = new THREE.Mesh(buildRibbonGeometry(curCurl, lengthMm, 100 + i * 31, press), mat);
     mesh.position.set(0, y0, baseZ);
     mesh.name = `row-${i}`;
     // material.envMapIntensity is ignored for scene.environment, so bind it on first render.
     mesh.onBeforeRender = (_r, scene) => {
-      if (!mat.envMap && scene.environment) {
-        mat.envMap = scene.environment;
+      const env = scene.userData.lashEnv || scene.environment;
+      if (!mat.envMap && env) {
+        mat.envMap = env;
         mat.needsUpdate = true;
       }
     };
     group.add(mesh);
-    rows.push({ index: i, lengthMm, mesh, baseZ });
+    const row = { index: i, lengthMm, mesh, baseZ, fringe: null, materials: [mat, fmat] };
+    const fringe = new THREE.Mesh(fringeGeo(row), fmat);
+    fringe.position.copy(mesh.position);
+    fringe.name = `fringe-${i}`;
+    fringe.onBeforeRender = (_r, scene) => {
+      const env = scene.userData.lashEnv || scene.environment;
+      if (!fmat.envMap && env) {
+        fmat.envMap = env;
+        fmat.needsUpdate = true;
+      }
+    };
+    group.add(fringe);
+    row.fringe = fringe;
+    rows.push(row);
   });
   applyThickness();
 
@@ -226,6 +250,9 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
       const old = row.mesh.geometry;
       row.mesh.geometry = buildRibbonGeometry(curCurl, row.lengthMm, 100 + row.index * 31, press);
       old.dispose();
+      const oldF = row.fringe.geometry;
+      row.fringe.geometry = fringeGeo(row);
+      oldF.dispose();
     }
   }
   function setPress(f) {
@@ -241,12 +268,14 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
     if (!THICKNESSES.includes(t)) throw new Error('Unknown thickness ' + t);
     curThickness = t;
     applyThickness();
+    rebuild(); // fibre width scales with thickness
   }
   function setHighlight(i) {
     highlight = i == null ? null : i;
     rows.forEach((row, k) => {
       const f = highlight == null || highlight === k ? 1 : 0.3;
       mats[k].color.copy(baseCol).multiplyScalar(f);
+      fringeMats[k].color.copy(baseCol).multiplyScalar(f);
     });
   }
 
@@ -273,7 +302,8 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
   function dispose() {
     for (const t of Object.values(textures)) if (t.dispose) t.dispose();
     for (const m of mats) m.dispose();
-    for (const r of rows) r.mesh.geometry.dispose();
+    for (const m of fringeMats) m.dispose();
+    for (const r of rows) { r.mesh.geometry.dispose(); r.fringe.geometry.dispose(); }
     tapeGeo.dispose();
     tapeMat.dispose();
   }

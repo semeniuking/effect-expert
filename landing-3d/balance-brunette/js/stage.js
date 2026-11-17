@@ -14,8 +14,14 @@ export function createStage(canvas, { mobile = false } = {}) {
   scene.background = new THREE.Color(BG);
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envScene = createStudioEnv();
+  const disposeEnv = (e) => e.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
   scene.environment = pmrem.fromScene(envScene, 0.03).texture;
-  envScene.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
+  disposeEnv(envScene);
+  // Lash fibres only: same studio with a much stronger front softbox, so the curled faces that look
+  // at the camera in the macro chapters get the soft frontal light seen in the product photos.
+  const lashEnvScene = createStudioEnv(4);
+  scene.userData.lashEnv = pmrem.fromScene(lashEnvScene, 0.03).texture;
+  disposeEnv(lashEnvScene);
   pmrem.dispose();
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.5, 400);
@@ -82,7 +88,7 @@ export function createStage(canvas, { mobile = false } = {}) {
 
 // Photo-studio environment: light-grey room lit by emissive softboxes. Gives long clean straight
 // highlights along the acrylic edges and a near-shadowless high-key fill.
-function createStudioEnv() {
+function createStudioEnv(front = 1) {
   const env = new THREE.Scene();
   const room = new THREE.Mesh(
     new THREE.BoxGeometry(80, 60, 80),
@@ -107,7 +113,7 @@ function createStudioEnv() {
   light(12, 46, 10, [15, 50, 0], [15, 0, 0]);
   light(7, 44, 14, [-37, 22, 0], [0, 0, 0]);     // long strip-box left
   light(7, 44, 14, [37, 22, 0], [0, 0, 0]);      // long strip-box right
-  light(40, 18, 1.5, [0, 18, 37], [0, 0, 0]);    // weak front fill
+  light(40, 18, 1.5 * front, [0, 18, 37], [0, 0, 0]);    // weak front fill
   light(46, 52, 2.2, [0, 22, -38], [0, 22, 0]);  // white seamless backdrop: what a clear lid mirrors at 3/4 view
   // Black flags beside and behind the product: dark lines next to the bright ones define clear edges.
   flag(10, 50, [-35.5, 22, -16]); flag(10, 50, [-35.5, 22, 16]);

@@ -106,12 +106,13 @@ let curPress = 0.3;
 applyLang();
 
 // Row brightness fade (setHighlight snaps, so fade the material colours here).
-const rowMats = tray.rows.map((r) => r.mesh.material);
+const rowMats = tray.rows.map((r) => r.materials[0]);
+const allMats = tray.rows.flatMap((r) => r.materials); // ribbon + fibre fringe
 const baseCol = rowMats[0].color.clone();
 const rowF = tray.rows.map(() => 1);
 // rowF: 1 = full colour; the active row keeps its normal brunette, every other row dims ~45 %.
 function rowTarget(h, k) { return h == null || h === k ? 1 : 0.55; }
-function applyRowF() { rowMats.forEach((m, k) => m.color.copy(baseCol).multiplyScalar(rowF[k])); }
+function applyRowF() { tray.rows.forEach((r, k) => r.materials.forEach((m) => m.color.copy(baseCol).multiplyScalar(rowF[k]))); }
 
 // ---------- scroll state ----------
 let pTarget = 0;
@@ -183,8 +184,8 @@ stage.onFrame((dt) => {
   if (pq !== curPress) { curPress = pq; tray.setPress(pq); }
   // Macro lighting rig: the studio env hits the vertical curl faces weakly, so lift the fibres' env share
   // as the strips spring up (tray view keeps the dark #170907-ish read).
-  const envI = 0.4 + clamp01((s.press - 0.3) / 0.7) * 2.2;
-  for (const m of rowMats) m.envMapIntensity = envI;
+  const envI = 0.4 + clamp01((s.press - 0.3) / 0.7) * 0.8; // capped ~1.2: more washes the fibres to orange
+  for (const m of allMats) m.envMapIntensity = envI;
   caseApi.setLidOpen(smooth(s.lid));
   const heroW = s.index === 0 ? 1 - s.blend : 0;
   caseApi.group.rotation.y = s.yaw + Math.sin(time * 0.55) * (8 * Math.PI / 180) * heroW;

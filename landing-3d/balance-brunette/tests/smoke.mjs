@@ -55,6 +55,8 @@ try {
   });
   const page = await browser.newPage({ viewport: { width: W, height: H } });
   page.setDefaultTimeout(240000);
+  // The CI box reports 4 cores, which the page treats as low-power (no bokeh, half the fibres). Pretend to be a normal desktop.
+  await page.addInitScript(() => Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 8 }));
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
   await page.goto(`http://localhost:${port}/index.html${suffix}`, { waitUntil: 'load' });
