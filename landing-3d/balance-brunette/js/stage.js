@@ -86,31 +86,32 @@ function createStudioEnv() {
   const env = new THREE.Scene();
   const room = new THREE.Mesh(
     new THREE.BoxGeometry(80, 60, 80),
-    new THREE.MeshBasicMaterial({ color: '#7c7c7c', side: THREE.BackSide })
+    new THREE.MeshBasicMaterial({ color: '#666666', side: THREE.BackSide })
   );
   room.position.y = 22;
   env.add(room);
-  const box = (w, h, intensity, pos, look) => {
+  const panel = (w, h, color, pos, look) => {
     const m = new THREE.Mesh(
       new THREE.PlaneGeometry(w, h),
-      new THREE.MeshBasicMaterial({ color: new THREE.Color(intensity, intensity, intensity), side: THREE.DoubleSide })
+      new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide })
     );
     m.position.set(...pos);
     m.lookAt(...look);
     env.add(m);
   };
-  box(40, 40, 11, [0, 50, 0], [0, 0, 0]);          // top softbox, overhead
-  box(7, 44, 14, [-37, 22, 0], [0, 0, 0]);          // long strip-box left
-  box(7, 44, 14, [37, 22, 0], [0, 0, 0]);           // long strip-box right
-  box(40, 18, 2.5, [0, 18, 37], [0, 0, 0]);        // weaker front fill
-  // Black flags beside the strip-boxes: give the clear edges their dark, crisp definition.
-  const flag = (w, h, pos) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: '#0c0c0c', side: THREE.DoubleSide }));
-    m.position.set(...pos);
-    m.lookAt(0, pos[1], 0);
-    env.add(m);
-  };
+  const light = (w, h, k, pos, look) => panel(w, h, new THREE.Color(k, k, k), pos, look);
+  const flag = (w, h, pos) => panel(w, h, '#050505', pos, [0, pos[1], 0]);
+  // Two long overhead strips with a dark gap at the zenith: a camera looking straight down at the
+  // clear lid must not see a mirrored softbox, only the (dark) room through the glass.
+  light(12, 46, 10, [-15, 50, 0], [-15, 0, 0]);
+  light(12, 46, 10, [15, 50, 0], [15, 0, 0]);
+  light(7, 44, 14, [-37, 22, 0], [0, 0, 0]);     // long strip-box left
+  light(7, 44, 14, [37, 22, 0], [0, 0, 0]);      // long strip-box right
+  light(40, 18, 1.5, [0, 18, 37], [0, 0, 0]);    // weak front fill
+  light(46, 52, 2.2, [0, 22, -38], [0, 22, 0]);  // white seamless backdrop: what a clear lid mirrors at 3/4 view
+  // Black flags beside and behind the product: dark lines next to the bright ones define clear edges.
   flag(10, 50, [-35.5, 22, -16]); flag(10, 50, [-35.5, 22, 16]);
   flag(10, 50, [35.5, 22, -16]); flag(10, 50, [35.5, 22, 16]);
+  flag(46, 14, [0, 40, 12]);
   return env;
 }

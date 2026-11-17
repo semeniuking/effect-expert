@@ -51,7 +51,7 @@ function buildHalfGeometries() {
 function makeAcrylic() {
   // Crystal-clear moulded acrylic: nearly invisible, only crisp edge reflections and faint refraction.
   return new THREE.MeshPhysicalMaterial({
-    color: '#ffffff',
+    color: new THREE.Color(1.07, 1.07, 1.07), // makes up the light lost at the two glass interfaces
     metalness: 0,
     roughness: 0.01,
     transmission: 1,
@@ -60,7 +60,7 @@ function makeAcrylic() {
     clearcoat: 0,
     attenuationColor: new THREE.Color('#ffffff'),
     attenuationDistance: Infinity,
-    specularIntensity: 1,
+    specularIntensity: 0.7,
     envMapIntensity: 1.3,
     side: THREE.DoubleSide,
   });
