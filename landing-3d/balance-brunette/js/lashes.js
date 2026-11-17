@@ -11,15 +11,14 @@ const STRIP_X1 = 2.6;
 const TAPE_W = 0.25; // along Z
 const TAPE_T = 0.06; // along Y
 const ROW_LIFT = 0.008; // each row sits slightly above the previous so rows layer
-const COLS = 64; // fibre columns per texture tile
 const ENV_INTENSITY = 0.4; // fibres are matte silk: take a measured share of the studio env
-const BASE_COLOR = '#26150f';
+const BASE_COLOR = '#38221b';
 const ANISO_ROT = 0; // tangent = u (across the fibres): the highlight is a band across them
 let TRAY_PRESS = 0.3; // fibres lie pressed under the lid; 1 = natural curl (animated by Task 4 via setPress)
 const THICK = {
-  '0.05': { repeat: 8, normal: 0.22 },
-  '0.07': { repeat: 6.25, normal: 0.3 },
-  '0.1': { repeat: 4.5, normal: 0.4 },
+  '0.05': { fibres: 512, normal: 0.11 },
+  '0.07': { fibres: 400, normal: 0.15 },
+  '0.1': { fibres: 288, normal: 0.2 },
 };
 
 export const rowBaseZ = (i) => -3.6 + i * ROW_PITCH;
@@ -37,6 +36,7 @@ function rng(seed) {
 
 // Generates normal / roughness / alpha maps once (tileable in u). v = 1 is the canvas top (tip).
 export function createFibreTextures(size = 1024, renderer = null) {
+  const COLS = size >= 1024 ? 512 : 256; // fibre columns per tile: >= 2 px per fibre
   const rand = rng(424242);
   // Column boundaries with random width jitter, normalised to the tile.
   const w = Array.from({ length: COLS }, () => 0.8 + rand() * 0.4);
@@ -46,9 +46,9 @@ export function createFibreTextures(size = 1024, renderer = null) {
   // Every fibre finishes at its own point, 0..3 % short of the full length: a fine fringe, not a cut.
   const tipEnd = Array.from({ length: COLS }, () => 1 - rand() * 0.03);
   // Per-fibre lightness (+-7 %) and a hair of warm/cool drift, so the body is never one flat colour.
-  const light = Array.from({ length: COLS }, () => 1 + (rand() - 0.5) * 0.14);
-  const warm = Array.from({ length: COLS }, () => (rand() - 0.5) * 0.03);
-  const rough = Array.from({ length: COLS }, () => 0.82 + rand() * 0.18);
+  const light = Array.from({ length: COLS }, () => 1 + (rand() - 0.5) * 0.06);
+  const warm = Array.from({ length: COLS }, () => (rand() - 0.5) * 0.01);
+  const rough = Array.from({ length: COLS }, () => 0.94 + rand() * 0.06);
   const cDepth = Array.from({ length: COLS }, () => 0.85 + rand() * 0.3);
 
   const mk = () => {
@@ -78,14 +78,15 @@ export function createFibreTextures(size = 1024, renderer = null) {
       const rv = Math.round(255 * (rough[col] - 0.05 * Math.abs(t)));
       dr.data[i] = dr.data[i + 1] = dr.data[i + 2] = rv; dr.data[i + 3] = 255;
       let a = 255;
-      if (v > 0.7) {
-        const k = Math.min(1, (v - 0.7) / (tipEnd[col] - 0.7));
+      const v0 = tipEnd[col] - 0.09; // short taper per fibre; the fringe comes from each fibre ending elsewhere
+      if (v > v0) {
+        const k = Math.min(1, (v - v0) / (tipEnd[col] - v0));
         const s = k * k * (3 - 2 * k);
         a = Math.abs(t) < 1 - s ? 255 : 0;
       }
       da.data[i] = da.data[i + 1] = da.data[i + 2] = a; da.data[i + 3] = 255;
       // colour map: mean ~0.92 so the material colour stays the reference; slightly lighter mid-fibre.
-      const m = 0.92 * light[col] * (1 - 0.05 * t * t);
+      const m = 0.94 * light[col] * (1 - 0.03 * t * t);
       dc.data[i] = Math.min(255, Math.round(255 * m * (1 + warm[col])));
       dc.data[i + 1] = Math.min(255, Math.round(255 * m));
       dc.data[i + 2] = Math.min(255, Math.round(255 * m * (1 - warm[col])));
@@ -106,7 +107,7 @@ export function createFibreTextures(size = 1024, renderer = null) {
     t.anisotropy = aniso;
     return t;
   };
-  return { normalMap: tex(cn), roughnessMap: tex(cr), alphaMap: tex(ca), colorMap: tex(cc, true) };
+  return { cols: COLS, normalMap: tex(cn), roughnessMap: tex(cr), alphaMap: tex(ca), colorMap: tex(cc, true) };
 }
 
 // Ribbon along the fibre curve. Local frame: origin at base centre-left, forward = -Z, up = +Y (cm).
@@ -168,7 +169,7 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
 
   function applyThickness() {
     const th = THICK[curThickness];
-    for (const t of Object.values(textures)) t.repeat.set(th.repeat, 1);
+    for (const t of Object.values(textures)) if (t.repeat) t.repeat.set(th.fibres / textures.cols, 1);
     for (const m of mats) m.normalScale.set(th.normal, th.normal);
   }
 
@@ -270,7 +271,7 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
   }
 
   function dispose() {
-    for (const t of Object.values(textures)) t.dispose();
+    for (const t of Object.values(textures)) if (t.dispose) t.dispose();
     for (const m of mats) m.dispose();
     for (const r of rows) r.mesh.geometry.dispose();
     tapeGeo.dispose();
