@@ -4,7 +4,7 @@ import { makeInsertTexture, makeLidCardTexture, CARD_W, CARD_H, LAYOUT } from '.
 const OUT_W = 7.6, OUT_H = 0.9, OUT_D = 16.4;
 const WALL = 0.12;
 const RADIUS = 0.25;
-const BEVEL = 0.035;
+const BEVEL = 0.05;
 const FLOOR_T = 0.12;
 const CARD_T = 0.03;
 
@@ -49,39 +49,31 @@ function buildHalfGeometries() {
 }
 
 function makeAcrylic() {
+  // Crystal-clear moulded acrylic: nearly invisible, only crisp edge reflections and faint refraction.
   return new THREE.MeshPhysicalMaterial({
     color: '#ffffff',
     metalness: 0,
-    roughness: 0.04,
+    roughness: 0.01,
     transmission: 1,
-    thickness: 0.3,
+    thickness: WALL,
     ior: 1.49,
-    clearcoat: 0.45,
-    clearcoatRoughness: 0.02,
-    attenuationColor: new THREE.Color('#e9f3f1'),
-    attenuationDistance: 8,
+    clearcoat: 0,
+    attenuationColor: new THREE.Color('#ffffff'),
+    attenuationDistance: Infinity,
     specularIntensity: 1,
-    envMapIntensity: 0.6,
+    envMapIntensity: 1.3,
     side: THREE.DoubleSide,
   });
 }
 
-function edgeLines(geo, mat) {
-  // Thin bright lines on the sharp creases: sells the polished moulded edge.
-  const l = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 12), mat);
-  l.renderOrder = 3;
-  return l;
-}
-
 function printCard(texture, opts = {}) {
   const { paperBack = true } = opts;
-  opts = { env: 0.35, ...opts };
+  opts = { env: 0.43, ...opts };
   const g = new THREE.Group();
   const paper = new THREE.Mesh(
     new THREE.BoxGeometry(CARD_W, CARD_T, CARD_H),
-    new THREE.MeshStandardMaterial({ color: '#f4f4f1', roughness: 0.7 })
+    new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.7 })
   );
-  paper.receiveShadow = true;
   const mat = new THREE.MeshStandardMaterial({
     map: texture, roughness: 0.8, metalness: 0, envMapIntensity: opts.env,
     polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
@@ -89,7 +81,6 @@ function printCard(texture, opts = {}) {
   const face = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W, CARD_H), mat);
   face.rotation.x = -Math.PI / 2;
   face.position.y = CARD_T / 2 + 0.0008;
-  face.receiveShadow = true;
   // Bind the scene environment so this material's own envMapIntensity applies (keeps dark ink dark).
   face.onBeforeRender = (_r, scene) => {
     if (!mat.envMap && scene.environment) { mat.envMap = scene.environment; mat.needsUpdate = true; }
@@ -100,22 +91,19 @@ function printCard(texture, opts = {}) {
   return g;
 }
 
-export function createCase({ renderer, portrait, lengths, curl = 'L', thickness = '0.07' }) {
+export function createCase({ renderer, portrait, swatches, lengths, curl = 'L', thickness = '0.07' }) {
   const aniso = renderer ? renderer.capabilities.getMaxAnisotropy() : 8;
   const group = new THREE.Group();
   group.name = 'acrylic-case';
 
   const acrylic = makeAcrylic();
-  const edgeMat = new THREE.LineBasicMaterial({ color: '#6f8286', transparent: true, opacity: 0.6 });
   const { ring, floor } = buildHalfGeometries();
   const halfMeshes = [];
   const half = (parent) => {
     const g = new THREE.Group();
     for (const geo of [ring, floor]) {
       const m = new THREE.Mesh(geo, acrylic);
-      m.castShadow = true;
-      m.receiveShadow = true;
-      g.add(m, edgeLines(geo, edgeMat));
+      g.add(m);
       halfMeshes.push(m);
     }
     parent.add(g);
@@ -127,7 +115,7 @@ export function createCase({ renderer, portrait, lengths, curl = 'L', thickness 
   tray.name = 'tray';
 
   const insertTex = makeInsertTexture({ lengths, curl, thickness, anisotropy: aniso });
-  const insert = printCard(insertTex, { env: 0.6 });
+  const insert = printCard(insertTex, { env: 0.43 });
   const insertSurfaceY = FLOOR_T + CARD_T + 0.002;
   insert.position.set(0, FLOOR_T + CARD_T / 2 + 0.002, 0);
   insert.name = 'insert-card';
@@ -145,7 +133,7 @@ export function createCase({ renderer, portrait, lengths, curl = 'L', thickness 
   lid.add(lidBody);
   group.add(lid);
 
-  const lidTex = makeLidCardTexture(portrait, { anisotropy: aniso });
+  const lidTex = makeLidCardTexture(portrait, { anisotropy: aniso, swatches });
   // Lid print behaves like a film on the clear lid: visible from outside, see-through from inside
   // (the real open case shows an empty clear lid).
   const lidCard = printCard(lidTex, { paperBack: false });
@@ -160,7 +148,6 @@ export function createCase({ renderer, portrait, lengths, curl = 'L', thickness 
   const mk = (geo, x, y, z, parent) => {
     const m = new THREE.Mesh(geo, acrylic);
     m.position.set(x, y, z);
-    m.castShadow = true;
     parent.add(m);
     return m;
   };
@@ -223,5 +210,5 @@ export function createCase({ renderer, portrait, lengths, curl = 'L', thickness 
   }
 
   setLidOpen(0);
-  return { group, lid, setLidOpen, setPrint, insertSurfaceY, getAnchor, halfMeshes, acrylic, edgeMat };
+  return { group, lid, setLidOpen, setPrint, insertSurfaceY, getAnchor, halfMeshes, acrylic };
 }

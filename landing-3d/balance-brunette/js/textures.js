@@ -12,7 +12,7 @@ const SY = CH / CARD_H; // px per cm, vertical
 const K = SY / SX; // vertical scale (0.886) that makes glyphs undistorted despite the anisotropic mapping
 
 const INK = '#111111';
-const PAPER = '#fbfbfa';
+const PAPER = '#ffffff';
 const FONT = 'Jost, "Helvetica Neue", Arial, sans-serif';
 
 const ROW_PITCH = 0.5;
@@ -161,9 +161,20 @@ export function makeInsertTexture({ lengths, curl = 'L', thickness = '0.07', ani
   return t;
 }
 
-function drawSwatch(g, x, z0, z1, flip) {
+// Real swatch photo (crop of the studio shot) cover-fitted into the bar; procedural fallback below.
+function drawSwatch(g, x, z0, z1, flip, img) {
   const w = 1.24;
   const X = px(x - w / 2), Z = pz(z0), Wp = w * SX, Hp = (z1 - z0) * SY;
+  if (img && (img.naturalWidth || img.width)) {
+    const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    let sw = iw, sh = iw * (Hp / Wp);
+    if (sh > ih) { sh = ih; sw = ih * (Wp / Hp); }
+    g.save();
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(img, (iw - sw) / 2, (ih - sh) / 2, sw, sh, X, Z, Wp, Hp);
+    g.restore();
+    return;
+  }
   g.save();
   g.beginPath();
   g.rect(X, Z, Wp, Hp);
@@ -199,15 +210,15 @@ function drawSwatch(g, x, z0, z1, flip) {
   g.restore();
 }
 
-export function drawLid(canvas, portrait) {
+export function drawLid(canvas, portrait, swatches) {
   const g = canvas.getContext('2d');
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.fillStyle = PAPER;
   g.fillRect(0, 0, CW, CH);
 
   const cx = 0.07;
-  drawSwatch(g, cx, -CARD_H / 2, -CARD_H / 2 + CARD_H * 0.2, true);
-  drawSwatch(g, cx, CARD_H / 2 - CARD_H * 0.143, CARD_H / 2, false);
+  drawSwatch(g, cx, -CARD_H / 2, -CARD_H / 2 + CARD_H * 0.2, true, swatches && swatches[0]);
+  drawSwatch(g, cx, CARD_H / 2 - CARD_H * 0.143, CARD_H / 2, false, swatches && swatches[1]);
 
   drawLogo(g, cx, -CARD_H / 2 + CARD_H * 0.309, 4.06);
 
@@ -230,12 +241,12 @@ export function drawLid(canvas, portrait) {
   return canvas;
 }
 
-export function makeLidCardTexture(portrait, { anisotropy = 8 } = {}) {
+export function makeLidCardTexture(portrait, { anisotropy = 8, swatches } = {}) {
   const [canvas] = newCanvas();
-  drawLid(canvas, portrait);
+  drawLid(canvas, portrait, swatches);
   const t = finishTexture(canvas, anisotropy);
   t.name = 'lid-card';
-  t.userData.redraw = () => { drawLid(canvas, portrait); t.needsUpdate = true; };
+  t.userData.redraw = () => { drawLid(canvas, portrait, swatches); t.needsUpdate = true; };
   return t;
 }
 
