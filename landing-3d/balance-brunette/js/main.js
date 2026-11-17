@@ -112,7 +112,15 @@ const baseCol = rowMats[0].color.clone();
 const rowF = tray.rows.map(() => 1);
 // rowF: 1 = full colour; the active row keeps its normal brunette, every other row dims ~45 %.
 function rowTarget(h, k) { return h == null || h === k ? 1 : 0.55; }
-function applyRowF() { tray.rows.forEach((r, k) => r.materials.forEach((m) => m.color.copy(baseCol).multiplyScalar(rowF[k]))); }
+// Macro chapters: the lit fibre body is a cool neutral brown (#453832-#544742 in the photos), not the warm
+// near-black of the tray view, so the base colour moves toward LIT as the strips spring up (press 0.3 -> 1).
+const litCol = new THREE.Color('#54443d');
+const mixCol = new THREE.Color();
+let macroM = 0;
+function applyRowF() {
+  mixCol.copy(baseCol).lerp(litCol, macroM);
+  tray.rows.forEach((r, k) => r.materials.forEach((m) => m.color.copy(mixCol).multiplyScalar(rowF[k])));
+}
 
 // ---------- scroll state ----------
 let pTarget = 0;
@@ -186,6 +194,7 @@ stage.onFrame((dt) => {
   // as the strips spring up (tray view keeps the dark #170907-ish read).
   const envI = 0.4 + clamp01((s.press - 0.3) / 0.7) * 0.8; // capped ~1.2: more washes the fibres to orange
   for (const m of allMats) m.envMapIntensity = envI;
+  macroM = clamp01((s.press - 0.3) / 0.7);
   caseApi.setLidOpen(smooth(s.lid));
   const heroW = s.index === 0 ? 1 - s.blend : 0;
   caseApi.group.rotation.y = s.yaw + Math.sin(time * 0.55) * (8 * Math.PI / 180) * heroW;

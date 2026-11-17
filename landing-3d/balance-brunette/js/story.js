@@ -12,7 +12,7 @@ export const CHAPTERS = [
     dof: { aperture: 0.0016, maxblur: 0.008 },
     lid: 1, yaw: 0, highlight: 0, callout: 'row:0:taper', curtain: true, press: 1 },
   { id: 'tips', cam: { pos: [3.4, 2.2, 4.2], target: [0.1, 0.3, -2.8], fov: 16 }, camMobile: { pos: [3.8, 2.4, 4.6], target: [0.1, 0.3, -2.8], fov: 24 },
-    lid: 1, yaw: 0, highlight: 3, callout: 'row:3:tip', curtain: true, press: 1, dof: { aperture: 0.004, maxblur: 0.012 } },
+    lid: 1, yaw: 0, highlight: 0, callout: 'row:0:tip', curtain: true, press: 1, dof: { aperture: 0.004, maxblur: 0.012 } },
   { id: 'tape', cam: { pos: [-2.2, 10.5, 13.5], target: [-0.6, 0.1, 5.4], fov: 32 }, camMobile: { pos: [-2.2, 12.5, 15.5], target: [-0.4, 0.1, 5.4], fov: 48 },
     lid: 1, yaw: 0, highlight: 19, callout: 'tape:19', curtain: true, press: 1, dof: { aperture: 0.0012, maxblur: 0.006 } },
   { id: 'labels', cam: { pos: [0, 11.5, -1.5], target: [0, 0, -4.4], fov: 40 }, camMobile: { pos: [0, 15, -1.5], target: [0, 0, -4.4], fov: 62 },

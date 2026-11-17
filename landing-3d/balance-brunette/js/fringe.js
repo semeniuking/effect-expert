@@ -53,8 +53,10 @@ export function buildFringeData({
   const pts = lashCurve(curl, lengthMm, 200);
   const warp = ribbonWarp(warpSeed);
   const rand = rng(seed ^ 0x9e3779b9);
-  const w0 = fibreWidth(thickness);
   const W = x1 - x0;
+  // Spec width is diameter x 1.6, but with only N fibres across the strip that leaves gaps where the tape and
+  // the card show through the body fade. Widen the fibre body to ~90 % of the pitch; the taper still ends in a point.
+  const w0 = Math.max(fibreWidth(thickness), (0.9 * W) / count);
   const vpf = (segments + 1) * 2;
   const pos = new Float32Array(count * vpf * 3);
   const uv = new Float32Array(count * vpf * 2);

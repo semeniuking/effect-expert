@@ -140,6 +140,9 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
   // perStrip is only a quality hint now: low counts (mobile) get a 512 px texture.
   const textures = createFibreTextures(perStrip <= 150 ? 512 : 1024, renderer);
   const tapeMat = new THREE.MeshStandardMaterial({ color: '#f3e9b5', roughness: 0.7 });
+  // Tapes of rows 0..18 sit under the next row's fibres: shade them (cheap occlusion) so the sparse tip taper
+  // of the row above never shows cream gaps. Only the last row's tape is exposed and keeps the real colour.
+  const tapeMatShaded = new THREE.MeshStandardMaterial({ color: '#3b2a22', roughness: 0.8 });
   const tapeGeo = new THREE.BoxGeometry(STRIP_X1 - STRIP_X0, TAPE_T, TAPE_W);
   const baseCol = new THREE.Color(BASE_COLOR);
 
@@ -177,7 +180,7 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
     const baseZ = rowBaseZ(i);
     const y0 = TAPE_T + lift + 0.004;
 
-    const tape = new THREE.Mesh(tapeGeo, tapeMat);
+    const tape = new THREE.Mesh(tapeGeo, i === lengths.length - 1 ? tapeMat : tapeMatShaded);
     tape.position.set(stripCx, TAPE_T / 2 + lift, baseZ);
     tape.name = `tape-${i}`;
     group.add(tape);
@@ -306,6 +309,7 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
     for (const r of rows) { r.mesh.geometry.dispose(); r.fringe.geometry.dispose(); }
     tapeGeo.dispose();
     tapeMat.dispose();
+    tapeMatShaded.dispose();
   }
 
   return { group, rows, setPress, setCurl, setThickness, setHighlight, getAnchor, dispose };
