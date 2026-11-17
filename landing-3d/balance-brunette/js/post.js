@@ -7,7 +7,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
 // Final, display-referred touch: barely-there film grain and a soft vignette.
 const FinishShader = {
-  uniforms: { tDiffuse: { value: null }, time: { value: 0 }, grain: { value: 0.012 }, vignette: { value: 0.06 } },
+  uniforms: { tDiffuse: { value: null }, time: { value: 0 }, grain: { value: 0.012 }, vignette: { value: 0.045 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
   fragmentShader: `
     uniform sampler2D tDiffuse; uniform float time, grain, vignette; varying vec2 vUv;
@@ -26,6 +26,9 @@ const FinishShader = {
 export function createPost(stage, { enabled = true } = {}) {
   if (!enabled) return null;
   const { renderer, scene, camera } = stage;
+  // The composer renders linear to a float target and OutputPass tone-maps afterwards, which also maps the
+  // background colour (Neutral compresses #f2f2f2 to #ededed). Pre-compensate so it lands on #f2f2f2 like the page.
+  scene.background = new THREE.Color().setRGB(1.034, 1.034, 1.034, THREE.LinearSRGBColorSpace);
   const size = renderer.getSize(new THREE.Vector2());
   const target = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: 4 });
   const composer = new EffectComposer(renderer, target);
