@@ -88,7 +88,7 @@ applyLang();
 const rowMats = tray.rows.map((r) => r.mesh.material);
 const baseCol = rowMats[0].color.clone();
 const rowF = tray.rows.map(() => 1);
-function rowTarget(h, k) { return h == null || h === k ? 1 : 0.25; }
+function rowTarget(h, k) { return h == null ? 1 : h === k ? 2.6 : 0.08; }
 function applyRowF() { rowMats.forEach((m, k) => m.color.copy(baseCol).multiplyScalar(rowF[k])); }
 
 // ---------- scroll state ----------

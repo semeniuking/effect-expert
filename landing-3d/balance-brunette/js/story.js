@@ -10,7 +10,7 @@ export const CHAPTERS = [
     lid: 1, yaw: 0, highlight: 10, callout: 'row:10:tip', curtain: true },
   { id: 'taper', cam: { pos: [2.6, 1.3, -1.6], target: [0.1, 0.35, -4.0], fov: 16 }, camMobile: { pos: [2.6, 1.3, -1.6], target: [0.1, 0.35, -4.0], fov: 30 },
     lid: 1, yaw: 0, highlight: 0, callout: 'row:0:taper', curtain: true },
-  { id: 'tips', cam: { pos: [6.0, 1.5, 3.2], target: [0.2, 0.25, 1.3], fov: 15 }, camMobile: { pos: [6.0, 1.5, 3.2], target: [0.2, 0.25, 1.3], fov: 28 },
+  { id: 'tips', cam: { pos: [1.4, 3.3, 3.6], target: [0.2, 0.15, 1.55], fov: 22 }, camMobile: { pos: [1.4, 3.3, 3.6], target: [0.2, 0.15, 1.55], fov: 40 },
     lid: 1, yaw: 0, highlight: 12, callout: 'row:12:tip', curtain: true },
   { id: 'tape', cam: { pos: [0.1, 3.7, 8.6], target: [0.1, 0.1, 6.5], fov: 44 }, camMobile: { pos: [0.1, 3.7, 8.6], target: [0.1, 0.1, 6.6], fov: 74 },
     lid: 1, yaw: 0, highlight: 19, callout: 'tape:19', curtain: true },
