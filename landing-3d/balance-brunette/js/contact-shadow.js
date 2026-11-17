@@ -33,7 +33,7 @@ export function createContactShadow(renderer, scene, subject, {
   group.add(blurPlane);
 
   const cam = new THREE.OrthographicCamera(-width / 2, width / 2, depth / 2, -depth / 2, 0, height);
-  cam.rotation.x = Math.PI; // look up
+  cam.rotation.x = Math.PI / 2; // look up
   group.add(cam);
 
   const depthMat = new THREE.MeshDepthMaterial();
