@@ -22,6 +22,43 @@ const FinishShader = {
     }`,
 };
 
+// Smooth depth of field. The stock BokehShader gathers 41 taps on four fixed rings, which turns fine fibre texture
+// into streaks and ghost copies at large blur. This one gathers 64 taps on a golden-angle disc (per-pixel rotated,
+// the residual noise sits under the film grain) and rejects sharp foreground samples so they do not halo.
+const SmoothBokehFrag = /* glsl */`
+  #include <common>
+  #include <packing>
+  varying vec2 vUv;
+  uniform sampler2D tColor, tDepth;
+  uniform float maxblur, aperture, nearClip, farClip, focus, aspect;
+  float viewZAt(vec2 uv) {
+    return perspectiveDepthToViewZ(unpackRGBAToDepth(texture2D(tDepth, uv)), nearClip, farClip);
+  }
+  float cocOf(float viewZ) { return clamp((focus + viewZ) * aperture, -maxblur, maxblur); }
+  void main() {
+    float z0 = viewZAt(vUv);
+    float r0 = abs(cocOf(z0));
+    vec4 c0 = texture2D(tColor, vUv);
+    if (r0 < 0.0004) { gl_FragColor = vec4(c0.rgb, 1.0); return; }
+    vec2 ac = vec2(1.0, aspect);
+    vec3 acc = c0.rgb;
+    float wsum = 1.0;
+    float rot = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) * 6.2831853;
+    for (int i = 0; i < 64; i++) {
+      float fi = float(i) + 0.5;
+      float r = sqrt(fi / 64.0) * r0;
+      float a = fi * 2.3999632 + rot;
+      vec2 uv = vUv + vec2(cos(a), sin(a)) * r * ac;
+      float zs = viewZAt(uv);
+      float rs = abs(cocOf(zs));
+      // a sample nearer than this pixel only counts if its own blur reaches this far (no sharp-edge halos)
+      float w = (zs > z0 + 0.01) ? smoothstep(r * 0.7, r, rs) : 1.0;
+      acc += texture2D(tColor, uv).rgb * w;
+      wsum += w;
+    }
+    gl_FragColor = vec4(acc / wsum, 1.0);
+  }`;
+
 // Returns null when post-processing is off (mobile / reduced motion): the caller renders directly.
 export function createPost(stage, { enabled = true } = {}) {
   if (!enabled) return null;
@@ -35,6 +72,8 @@ export function createPost(stage, { enabled = true } = {}) {
   composer.addPass(new RenderPass(scene, camera));
   const bokeh = new BokehPass(scene, camera, { focus: 10, aperture: 0, maxblur: 0 });
   bokeh.enabled = false;
+  bokeh.materialBokeh.fragmentShader = SmoothBokehFrag;
+  bokeh.materialBokeh.needsUpdate = true;
   // The pass renders scene depth itself: the flat background colour must not leak in as fake depth.
   const bokehRender = bokeh.render.bind(bokeh);
   bokeh.render = (...a) => { const bg = scene.background; scene.background = null; bokehRender(...a); scene.background = bg; };
