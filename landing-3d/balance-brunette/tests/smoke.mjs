@@ -101,6 +101,45 @@ try {
     console.log(`${path.relative(root, file)}  std-dev=${sd.toFixed(2)}`);
     if (!(sd > 6)) errors.push(`blank frame "${id}" (std-dev ${sd.toFixed(2)} <= 6)`);
   }
+
+  // Configurator: click every bend, then each thickness, then settle on D / 0.1. Geometry count must not grow
+  // (old geometries are disposed on rebuild) and nothing may log an error.
+  if (hasStory && (!chapters || chapters.includes('configure'))) {
+    await page.evaluate(() => window.__story.goTo('configure'));
+    await page.waitForTimeout(1500);
+    const frames = () => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    const settle = async () => {
+      await frames();
+      await page.waitForFunction(() => !window.__debug.pendingConfig());
+    };
+    await frames();
+    const before = await page.evaluate(() => window.__debug.geometries());
+    const bends = await page.$$eval('#seg-curl button', (bs) => bs.map((b) => b.dataset.curl));
+    const thicks = await page.$$eval('#seg-thick button', (bs) => bs.map((b) => b.dataset.thick));
+    if (bends.length !== 9 || thicks.length !== 3) errors.push(`configurator options: ${bends.length} bends, ${thicks.length} thicknesses`);
+    let worst = 0;
+    for (const b of bends) {
+      await page.click(`#seg-curl button[data-curl="${b}"]`);
+      await settle();
+      worst = Math.max(worst, await page.evaluate(() => window.__debug.lastRebuildMs()));
+    }
+    for (const t of thicks) {
+      await page.click(`#seg-thick button[data-thick="${t}"]`);
+      await settle();
+      worst = Math.max(worst, await page.evaluate(() => window.__debug.lastRebuildMs()));
+    }
+    await page.click('#seg-curl button[data-curl="D"]');
+    await settle();
+    await page.click('#seg-thick button[data-thick="0.1"]');
+    await settle();
+    await page.waitForTimeout(700);
+    const after = await page.evaluate(() => window.__debug.geometries());
+    const href = await page.$eval('.buy a', (a) => `${a.href}|${a.target}|${a.rel}`);
+    await page.screenshot({ path: path.join(outDir, `${W}x${H}-configure-D-0.1.png`) });
+    console.log(`configure: geometries before=${before} after=${after}, worst rebuild ${worst.toFixed(0)} ms, buy=${href}`);
+    if (Math.abs(after - before) > 2) errors.push(`geometry leak on configure: ${before} -> ${after}`);
+    if (!href.startsWith('https://effect-expert.com/products/balance-mix-brunette|_blank|noopener')) errors.push('buy link wrong: ' + href);
+  }
 } catch (e) {
   errors.push(String(e && e.message || e));
 } finally {

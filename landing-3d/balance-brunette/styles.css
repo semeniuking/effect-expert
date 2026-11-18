@@ -127,3 +127,49 @@ body {
   .callout-line { height: 48px; }
   .callout-label { bottom: 48px; font-size: 10px; }
 }
+
+/* loading veil: thin progress line until the first full frame */
+.veil {
+  position: fixed; inset: 0; z-index: 100; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+.veil.done { opacity: 0; visibility: hidden; pointer-events: none; }
+.veil-name { font-weight: 400; font-size: 10px; letter-spacing: 0.32em; padding-left: 0.32em; }
+.veil-line { display: block; width: min(180px, 40vw); height: 1px; background: var(--hair); overflow: hidden; }
+.veil-line b { display: block; height: 1px; width: 100%; background: var(--ink); transform-origin: 0 0; transform: scaleX(0.04); transition: transform 0.4s ease; }
+
+/* configurator (last chapter) */
+.cfg { margin: 26px 0 0; display: grid; gap: 18px; max-width: 420px; }
+.cfg-row { display: grid; gap: 8px; }
+.cfg-label { font-weight: 400; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--mute); display: flex; justify-content: space-between; }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--hair); }
+.seg button {
+  flex: 1 0 auto; min-width: 44px; min-height: 40px; padding: 0 10px; margin: 0; cursor: pointer;
+  font: inherit; font-weight: 400; font-size: 12px; letter-spacing: 0.08em; color: var(--ink);
+  background: transparent; border: 0; border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair);
+  margin-right: -1px; margin-bottom: -1px;
+}
+.seg button:hover { background: rgba(17, 17, 17, 0.06); }
+.seg button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+.seg button:focus-visible, .buy a:focus-visible, .lang:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.cfg-note { margin: 0; font-size: 14px; color: var(--mute); display: flex; gap: 22px; }
+.panel.side .buy { margin-top: 22px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .veil, .veil-line b, .callout { transition: none; }
+}
+@media (max-width: 768px) {
+  /* configurator becomes a bottom sheet */
+  .panel.side {
+    position: fixed; left: 0; right: 0; bottom: 0; width: auto;
+    background: var(--bg); border-top: 1px solid var(--hair);
+    padding: 16px 20px calc(16px + var(--sab)); max-height: 58svh; overflow-y: auto;
+  }
+  .panel.side .kicker { margin-bottom: 8px; }
+  .panel.side .title { font-size: clamp(24px, 7vw, 30px); margin-bottom: 8px; }
+  .panel.side .body { display: none; }
+  .cfg { margin-top: 12px; gap: 12px; max-width: none; }
+  .seg button { min-height: 36px; padding: 0 6px; font-size: 11px; }
+  .panel.side .buy { margin-top: 14px; justify-content: space-between; align-items: center; }
+}

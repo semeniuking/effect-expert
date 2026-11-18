@@ -7,6 +7,7 @@ import { CHAPTERS, sampleStory } from './story.js';
 import { COPY } from './copy.js';
 import { createCallouts } from './callouts.js';
 import { createPost } from './post.js';
+import { CURLS, THICKNESSES } from './lash-curve.js';
 
 const PRODUCT_URL = 'https://effect-expert.com/products/balance-mix-brunette';
 const LENGTHS = [6, 6, 7, 7, 8, 8, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12, 13];
@@ -15,6 +16,9 @@ const narrowMq = window.matchMedia('(max-width: 768px)');
 const lowPower = (navigator.hardwareConcurrency || 8) <= 4;
 
 const $ = (id) => document.getElementById(id);
+const veilBar = $('veil-bar');
+const veilProgress = (f) => { veilBar.style.transform = `scaleX(${f})`; };
+veilProgress(0.1);
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 const smooth = (t) => t * t * (3 - 2 * t);
 
@@ -35,14 +39,46 @@ const panels = CHAPTERS.map((c, i) => {
     '<p class="kicker"></p>' +
     `<${i === 0 ? 'h1' : 'h2'} class="title"></${i === 0 ? 'h1' : 'h2'}>` +
     '<p class="body"></p>' +
-    (i === N - 1 ? '<div class="buy"><span class="price"></span><a target="_blank" rel="noopener"></a></div>' : '');
+    (i === N - 1
+      ? '<div class="cfg">' +
+        '<div class="cfg-row"><span class="cfg-label" data-l="bend"></span><div class="seg" role="radiogroup" id="seg-curl"></div></div>' +
+        '<div class="cfg-row"><span class="cfg-label" data-l="thickness"></span><div class="seg" role="radiogroup" id="seg-thick"></div></div>' +
+        '<p class="cfg-note"><span id="cfg-length"></span><span id="cfg-color"></span></p>' +
+        '</div><div class="buy"><span class="price"></span><a target="_blank" rel="noopener"></a></div>'
+      : '');
   if (i === N - 1) p.classList.add('side');
   overlay.appendChild(p);
   return p;
 });
 
+// ---------- configurator (last chapter) ----------
+const cfg = { curl: 'L', thickness: '0.07' };
+const segCurl = $('seg-curl');
+const segThick = $('seg-thick');
+const mkSeg = (host, items, attr) => items.map((v) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('role', 'radio');
+  b.dataset[attr] = v;
+  b.textContent = v;
+  host.appendChild(b);
+  return b;
+});
+const curlBtns = mkSeg(segCurl, Object.keys(CURLS), 'curl');
+const thickBtns = mkSeg(segThick, THICKNESSES, 'thick');
+function syncSeg() {
+  curlBtns.forEach((b) => b.setAttribute('aria-checked', String(b.dataset.curl === cfg.curl)));
+  thickBtns.forEach((b) => b.setAttribute('aria-checked', String(b.dataset.thick === cfg.thickness)));
+}
+syncSeg();
+
 function applyLang() {
   const t = COPY[lang];
+  segCurl.setAttribute('aria-label', t.ui.bend);
+  segThick.setAttribute('aria-label', t.ui.thickness);
+  panels[N - 1].querySelectorAll('.cfg-label').forEach((el) => { el.textContent = t.ui[el.dataset.l]; });
+  $('cfg-length').textContent = `${t.ui.length}: ${t.ui.lengthNote}`;
+  $('cfg-color').textContent = `${t.ui.color}: ${t.ui.colorValue}`;
   document.documentElement.lang = lang;
   panels.forEach((p, i) => {
     const c = t.chapters[CHAPTERS[i].id];
@@ -70,24 +106,29 @@ $('lang').addEventListener('click', () => {
 const mobileGfx = narrowMq.matches || lowPower;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const stage = createStage($('stage'), { mobile: mobileGfx });
+veilProgress(0.2);
 const callouts = createCallouts($('callouts'));
 
 await loadFonts();
+veilProgress(0.35);
 const portrait = new Image();
 portrait.src = 'assets/portrait.jpg';
 await portrait.decode();
+veilProgress(0.5);
 const loadImg = async (src) => {
   const im = new Image();
   im.src = src;
   try { await im.decode(); return im; } catch (e) { return null; }
 };
 const swatches = await Promise.all(['assets/swatch-top.jpg', 'assets/swatch-bot.jpg'].map(loadImg));
+veilProgress(0.65);
 
 const caseApi = createCase({ renderer: stage.renderer, portrait, swatches, lengths: LENGTHS, curl: 'L', thickness: '0.07' });
 const tray = createLashTray({
   curl: 'L', thickness: '0.07', lengths: LENGTHS, renderer: stage.renderer,
   perStrip: narrowMq.matches || lowPower ? 110 : 260,
 });
+veilProgress(0.85);
 tray.group.position.y = caseApi.insertSurfaceY;
 caseApi.group.add(tray.group);
 stage.scene.add(caseApi.group);
@@ -105,6 +146,8 @@ let focus = 10;
 let curPress = 0.3;
 let curFringe;
 let curBare = false;
+// NOTE (round 5): the macro look below (bare / macroKey / macro env) is unused: no chapter sets `bare` any more.
+// Kept in place as a fallback; with bareMix 0 it is inert (key light intensity 0).
 // Macro key: a small soft source behind and above the far strip end (like the photo's backlight). Its distance
 // falloff darkens the strip body toward the camera and its direct anisotropic specular draws the satin band across
 // the fibres of the curl. Always in the scene (intensity 0 outside the curl-profile chapters: no shader recompiles).
@@ -138,6 +181,36 @@ function applyRowF() {
   tray.rows.forEach((r, k) => r.materials.forEach((m) => m.color.copy(mixCol).multiplyScalar(rowF[k])));
 }
 
+// Configure: geometry is rebuilt only on click (one frame later so the pressed state paints first), never per frame.
+// Old geometries are disposed inside setCurl/setThickness/setPrint (the smoke leak check enforces it).
+let pendingCfg = null;
+let lastRebuildMs = 0;
+function queueConfig(patch) {
+  const first = !pendingCfg;
+  pendingCfg = { ...(pendingCfg || {}), ...patch };
+  Object.assign(cfg, patch);
+  syncSeg();
+  if (!first) return;
+  requestAnimationFrame(() => {
+    const p = pendingCfg;
+    pendingCfg = null;
+    const t0 = performance.now();
+    if (p.curl) tray.setCurl(p.curl);
+    if (p.thickness) tray.setThickness(p.thickness);
+    caseApi.setPrint({ curl: cfg.curl, thickness: cfg.thickness });
+    lastRebuildMs = performance.now() - t0;
+    stage.invalidate();
+  });
+}
+segCurl.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (b && b.dataset.curl !== cfg.curl) queueConfig({ curl: b.dataset.curl });
+});
+segThick.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (b && b.dataset.thick !== cfg.thickness) queueConfig({ thickness: b.dataset.thick });
+});
+
 // ---------- scroll state ----------
 let pTarget = 0;
 let pSmooth = 0;
@@ -163,6 +236,7 @@ let curCallout = null;
 let time = 0;
 let snap = true;
 let frames = 0;
+let lastP = -1;
 const progressEl = $('progress');
 
 function setPanels(s) {
@@ -179,10 +253,13 @@ function setPanels(s) {
 // Keep the product clear of the text: shift the image right (desktop) or up (mobile).
 // In macro chapters the curtain column owns that area, so shift by exactly its size.
 const curtainEl = $('curtain');
-function applyViewOffset(cam, w, h, narrow, curtain) {
+function applyViewOffset(cam, w, h, narrow, curtain, sheet) {
   if (narrow) {
     const cur = curtainEl.offsetHeight / 2;
-    cam.setViewOffset(w, h, 0, h * 0.12 + (cur - h * 0.12) * curtain, w, h);
+    const base = h * 0.12 + (cur - h * 0.12) * curtain;
+    // configurator bottom sheet: lift the product by half the sheet height so it sits above it
+    const sh = Math.min(h * 0.58, panels[N - 1].offsetHeight) / 2;
+    cam.setViewOffset(w, h, 0, base + (sh - base) * sheet, w, h);
   } else {
     const cur = curtainEl.offsetWidth / 2;
     cam.setViewOffset(w, h, -(w * 0.13 + (cur - w * 0.13) * curtain), 0, w, h);
@@ -196,10 +273,14 @@ stage.onFrame((dt) => {
   if (Math.abs(pTarget - pSmooth) < 1e-5) pSmooth = pTarget;
   const narrow = narrowMq.matches;
   const s = sampleStory(CHAPTERS, pSmooth, { mobile: narrow });
+  // Render only on change (dirty flag): scrolling, easing still settling, hero sway, config clicks, resize.
+  let dirty = snap || pSmooth !== lastP || frames < 90;
+  lastP = pSmooth;
 
   stage.setView(s.cam);
   const cv = stage.renderer.domElement;
-  applyViewOffset(stage.camera, cv.clientWidth, cv.clientHeight, narrow, s.curtain);
+  const sheet = s.index === N - 1 ? 1 : s.index === N - 2 ? s.blend : 0;
+  applyViewOffset(stage.camera, cv.clientWidth, cv.clientHeight, narrow, s.curtain, sheet);
   curtainEl.style.opacity = s.curtain.toFixed(3);
 
   // Fibres lie pressed under the closed lid and spring to natural curl for the macro chapters.
@@ -224,14 +305,22 @@ stage.onFrame((dt) => {
   macroM = clamp01((s.press - 0.3) / 0.7);
   caseApi.setLidOpen(smooth(s.lid));
   const heroW = s.index === 0 ? 1 - s.blend : 0;
-  caseApi.group.rotation.y = s.yaw + Math.sin(time * 0.55) * (8 * Math.PI / 180) * heroW;
+  // Idle sway is off under prefers-reduced-motion.
+  const sway = reducedMotion ? 0 : Math.sin(time * 0.55) * (8 * Math.PI / 180) * heroW;
+  caseApi.group.rotation.y = s.yaw + sway;
+  if (heroW > 0 && !reducedMotion) dirty = true;
   // Contact shadow only depends on lid angle + yaw: re-render when they change (quantised), not per frame.
   const key = `${(smooth(s.lid) * 90).toFixed(0)}|${(caseApi.group.rotation.y * 200).toFixed(0)}`;
   if (key !== shadowKey) { shadowKey = key; caseApi.group.updateMatrixWorld(true); contact.update(); }
 
   // highlight fade (~350 ms)
   const fk = snap ? 1 : 1 - Math.exp(-dt / 0.12);
-  for (let r = 0; r < rowF.length; r++) rowF[r] += (rowTarget(s.highlight, r) - rowF[r]) * fk;
+  for (let r = 0; r < rowF.length; r++) {
+    const want = rowTarget(s.highlight, r);
+    rowF[r] += (want - rowF[r]) * fk;
+    if (Math.abs(want - rowF[r]) < 1e-3) rowF[r] = want;
+    else dirty = true;
+  }
   applyRowF();
 
   // callout
@@ -254,7 +343,10 @@ stage.onFrame((dt) => {
 
   if (post) { // focus on the chapter's callout anchor, eased so the pull between chapters is smooth
     const want = id ? stage.camera.position.distanceTo(anchorVec) : focus;
+    const f0 = focus;
     focus += (want - focus) * (snap ? 1 : 1 - Math.exp(-dt / 0.2));
+    if (Math.abs(want - focus) < 1e-3) focus = want;
+    if (focus !== f0) dirty = true;
     post.setDof(s.dof, focus);
   }
 
@@ -263,13 +355,27 @@ stage.onFrame((dt) => {
   $('hint').style.opacity = (1 - clamp01(pSmooth * N * 3)).toFixed(2);
 
   snap = false;
-  if (++frames === 2) window.__ready = true;
+  if (dirty) stage.invalidate();
+  if (++frames === 2) {
+    window.__ready = true;
+    veilProgress(1);
+    const veil = $('veil');
+    veil.classList.add('done');
+    setTimeout(() => veil.remove(), 900);
+  }
 });
 
-if (new URLSearchParams(location.search).has('debug')) window.__debug = {
+// Always-on test hooks (tiny); the full debug surface only with ?debug.
+window.__debug = {
+  geometries: () => stage.renderer.info.memory.geometries,
+  textures: () => stage.renderer.info.memory.textures,
+  lastRebuildMs: () => lastRebuildMs,
+  pendingConfig: () => !!pendingCfg,
+};
+if (new URLSearchParams(location.search).has('debug')) Object.assign(window.__debug, {
   THREE, tray, caseApi, stage, post, macroKey,
   macroEnv(opts) { stage.scene.userData.macroEnv = stage.buildMacroEnv(opts); if (curBare) setLashEnv(stage.scene.userData.macroEnv); },
-};
+});
 
 window.__story = {
   chapters: CHAPTERS, // exposed for tuning/tests

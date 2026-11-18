@@ -13,6 +13,8 @@ export const COPY = {
       colorValue: 'Brunette',
       mm: 'мм',
       lang: 'EN',
+      lengthNote: '6–13 мм',
+      loading: 'Завантаження',
     },
     chapters: {
       hero: { kicker: 'EFFECT EXPERT', title: 'Balance Mix Brunette', body: 'Палетка Balance — 20 ліній вій для досконалих ефектів.', callout: '' },
@@ -39,6 +41,8 @@ export const COPY = {
       colorValue: 'Brunette',
       mm: 'mm',
       lang: 'УК',
+      lengthNote: '6–13 mm',
+      loading: 'Loading',
     },
     chapters: {
       hero: { kicker: 'EFFECT EXPERT', title: 'Balance Mix Brunette', body: 'The Balance palette: 20 lash lines for flawless effects.', callout: '' },

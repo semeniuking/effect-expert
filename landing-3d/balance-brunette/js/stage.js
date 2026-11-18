@@ -64,6 +64,9 @@ export function createStage(canvas, { mobile = false } = {}) {
   const resizeCbs = [];
   const api = { renderer, scene, camera, setView, onFrame, resize, start, addContactShadow, buildMacroEnv };
   api.render = () => renderer.render(scene, camera);
+  // Dirty-flag rendering: callbacks run every frame, the (expensive) render only when something asked for it.
+  let dirty = true;
+  api.invalidate = () => { dirty = true; };
   api.onResize = (cb) => { resizeCbs.push(cb); };
 
   function resize() {
@@ -74,6 +77,7 @@ export function createStage(canvas, { mobile = false } = {}) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     for (const cb of resizeCbs) cb(w, h, renderer.getPixelRatio());
+    dirty = true;
   }
 
   let started = false;
@@ -84,11 +88,17 @@ export function createStage(canvas, { mobile = false } = {}) {
     resize();
     new ResizeObserver(resize).observe(canvas);
     last = performance.now();
-    renderer.setAnimationLoop((now) => {
+    const loop = (now) => {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       for (const cb of callbacks) cb(dt);
-      api.render(dt);
+      if (dirty) { dirty = false; api.render(dt); }
+    };
+    renderer.setAnimationLoop(loop);
+    // Pause entirely while the tab is hidden (saves battery); resume with a fresh clock and a repaint.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) renderer.setAnimationLoop(null);
+      else { last = performance.now(); dirty = true; renderer.setAnimationLoop(loop); }
     });
   }
 
