@@ -22,7 +22,16 @@ export function createStage(canvas, { mobile = false } = {}) {
   const lashEnvScene = createStudioEnv(4);
   scene.userData.lashEnv = pmrem.fromScene(lashEnvScene, 0.03).texture;
   disposeEnv(lashEnvScene);
-  pmrem.dispose();
+  // Curl-profile macro chapters (lash fibres only): a darker room and dim overhead so the flat strip body falls
+  // off to the dark warm brown of the photo, and a soft key from the camera/base side lighting the inner face of
+  // the curl. (The satin band comes from main.js's macro key light; `band` adds an env strip if ever needed.)
+  const buildMacroEnv = (opts) => {
+    const e = createStudioEnv(1, opts || {});
+    const t = pmrem.fromScene(e, 0.03).texture;
+    disposeEnv(e);
+    return t;
+  };
+  scene.userData.macroEnv = buildMacroEnv();
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.5, 400);
   camera.position.set(0, 60, 40);
@@ -53,7 +62,7 @@ export function createStage(canvas, { mobile = false } = {}) {
 
   function onFrame(cb) { callbacks.push(cb); }
   const resizeCbs = [];
-  const api = { renderer, scene, camera, setView, onFrame, resize, start, addContactShadow };
+  const api = { renderer, scene, camera, setView, onFrame, resize, start, addContactShadow, buildMacroEnv };
   api.render = () => renderer.render(scene, camera);
   api.onResize = (cb) => { resizeCbs.push(cb); };
 
@@ -88,11 +97,18 @@ export function createStage(canvas, { mobile = false } = {}) {
 
 // Photo-studio environment: light-grey room lit by emissive softboxes. Gives long clean straight
 // highlights along the acrylic edges and a near-shadowless high-key fill.
-function createStudioEnv(front = 1) {
+const MACRO_ENV = {
+  room: 0.2, top: 3, side: 14, front: 1.5, backdrop: 2.2,
+  key: 6, keyPos: [26, 16, 30], keySize: [30, 22],
+  band: 0, bandPos: [-36, 30, 6], bandSize: [5, 40],
+};
+
+function createStudioEnv(front = 1, macro = null) {
+  const m = macro ? { ...MACRO_ENV, ...macro } : null;
   const env = new THREE.Scene();
   const room = new THREE.Mesh(
     new THREE.BoxGeometry(80, 60, 80),
-    new THREE.MeshBasicMaterial({ color: '#666666', side: THREE.BackSide })
+    new THREE.MeshBasicMaterial({ color: m ? new THREE.Color(m.room, m.room, m.room) : '#666666', side: THREE.BackSide })
   );
   room.position.y = 22;
   env.add(room);
@@ -109,12 +125,17 @@ function createStudioEnv(front = 1) {
   const flag = (w, h, pos) => panel(w, h, '#050505', pos, [0, pos[1], 0]);
   // Two long overhead strips with a dark gap at the zenith: a camera looking straight down at the
   // clear lid must not see a mirrored softbox, only the (dark) room through the glass.
-  light(12, 46, 10, [-15, 50, 0], [-15, 0, 0]);
-  light(12, 46, 10, [15, 50, 0], [15, 0, 0]);
-  light(7, 44, 14, [-37, 22, 0], [0, 0, 0]);     // long strip-box left
-  light(7, 44, 14, [37, 22, 0], [0, 0, 0]);      // long strip-box right
-  light(40, 18, 1.5 * front, [0, 18, 37], [0, 0, 0]);    // weak front fill
-  light(46, 52, 2.2, [0, 22, -38], [0, 22, 0]);  // white seamless backdrop: what a clear lid mirrors at 3/4 view
+  const top = m ? m.top : 10, side = m ? m.side : 14;
+  light(12, 46, top, [-15, 50, 0], [-15, 0, 0]);
+  light(12, 46, top, [15, 50, 0], [15, 0, 0]);
+  light(7, 44, side, [-37, 22, 0], [0, 0, 0]);     // long strip-box left
+  light(7, 44, side, [37, 22, 0], [0, 0, 0]);      // long strip-box right
+  light(40, 18, m ? m.front : 1.5 * front, [0, 18, 37], [0, 0, 0]);    // weak front fill
+  light(46, 52, m ? m.backdrop : 2.2, [0, 22, -38], [0, 22, 0]);  // white seamless backdrop: what a clear lid mirrors at 3/4 view
+  if (m) {
+    if (m.key) light(m.keySize[0], m.keySize[1], m.key, m.keyPos, [0, 0, 0]);
+    if (m.band) light(m.bandSize[0], m.bandSize[1], m.band, m.bandPos, [0, 0, 0]);
+  }
   // Black flags beside and behind the product: dark lines next to the bright ones define clear edges.
   flag(10, 50, [-35.5, 22, -16]); flag(10, 50, [-35.5, 22, 16]);
   flag(10, 50, [35.5, 22, -16]); flag(10, 50, [35.5, 22, 16]);
