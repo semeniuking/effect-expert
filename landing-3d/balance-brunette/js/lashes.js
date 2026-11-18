@@ -183,6 +183,8 @@ export function createLashTray({ curl = 'L', thickness = '0.07', perStrip = 260,
   let curCurl = curl, curThickness = thickness, highlight = null;
   const stripCx = (STRIP_X0 + STRIP_X1) / 2;
   const rows = [], tapes = [], mats = [], fringeMats = [];
+  // NOTE (round 5): the 'macro' look is kept but UNUSED. Extreme macros read as CG, so no chapter sets `bare` any more
+  // and every chapter uses 'tray'. Do not delete: it is the fallback if a close-up is ever wanted again.
   // Two looks, switched on chapter change (never per frame):
   // - 'tray' (tray / tape / overview, round 3 look): ribbon fades out v .55-.8 under a 180-strand fringe on every row.
   // - 'macro' (curl-profile chapters): ribbon is one opaque sheet with even, tapered per-fibre ends (alpha), and only

@@ -6,18 +6,15 @@ export const CHAPTERS = [
     lid: 1, yaw: 0, highlight: null, callout: 'hinge' },
   { id: 'tray', cam: { pos: [-3.8, 46, 1], target: [-3.8, 0, 0], fov: 28 }, camMobile: { pos: [-3.8, 69, 1], target: [-3.8, 0, 0], fov: 30 },
     lid: 1, yaw: 0, highlight: null, callout: 'wordmark' },
-  // color + tips: side-on to the curl like the macro photo. The camera looks along the strips from beyond the
-  // +x end and slightly from the base side, so the far-end curl profile of the last (13 mm) row stands against the
-  // white card; rows 18 and 17 repeat the curl beside it and the near half of the strips falls into bokeh.
-  // The acrylic shell is hidden here (bare) as if the strips were lifted out of the case.
-  { id: 'color', cam: { pos: [3.7, 4.0, 6.14], target: [-2.3, 0.5, 5.3], fov: 18 }, camMobile: { pos: [3.7, 4.0, 6.14], target: [-2.3, 0.5, 5.3], fov: 32 },
-    lid: 1, yaw: 0, highlight: 19, callout: 'row:19:tip:x0', curtain: true, press: 1, bare: true, dof: { aperture: 0.01, maxblur: 0.03 } },
-  { id: 'taper', cam: { pos: [2.6, 1.3, -1.6], target: [0.1, 0.35, -4.0], fov: 16 }, camMobile: { pos: [2.6, 1.3, -1.6], target: [0.1, 0.35, -4.0], fov: 30 },
-    dof: { aperture: 0.0016, maxblur: 0.008 },
-    lid: 1, yaw: 0, highlight: 0, callout: 'row:0:taper', curtain: true, press: 1, bare: true }, // macro silk look between color and tips
-  // tips: closer and lower, 30 deg off the strip axis: the even tip edge runs across the top of the frame.
-  { id: 'tips', cam: { pos: [0.85, 1.7, 6.78], target: [-2.2, 0.95, 5.02], fov: 20 }, camMobile: { pos: [0.85, 1.7, 6.78], target: [-2.2, 0.95, 5.02], fov: 40 },
-    lid: 1, yaw: 0, highlight: 19, callout: 'row:19:tip:x0', curtain: true, press: 1, bare: true, dof: { aperture: 0.012, maxblur: 0.03 } },
+  // Round 5 ruling: extreme macros read as CG, tray/tape distance reads as a photo. No camera gets closer to the
+  // lashes than the tape chapter (~12.9 cm from its anchor); color / taper / tips use the tray look and differ by
+  // angle (3/4 oblique from above; from the base side down the rows: short rows far, long rows near; low oblique across the curled ends).
+  { id: 'color', cam: { pos: [6.5, 10.5, 10.5], target: [0.1, 0.3, 1.3], fov: 30 }, camMobile: { pos: [6.5, 10.5, 10.5], target: [0.1, 0.3, 1.3], fov: 40 },
+    lid: 1, yaw: 0, highlight: 10, callout: 'row:10:tip:x0', curtain: true, press: 1, dof: { aperture: 0.0015, maxblur: 0.007 } },
+  { id: 'taper', cam: { pos: [-4, 11, 12], target: [0.1, 0.3, -1.5], fov: 26 }, camMobile: { pos: [-4, 11, 12], target: [0.1, 0.3, -1.5], fov: 40 },
+    lid: 1, yaw: 0, highlight: 0, callout: 'row:0:taper', curtain: true, press: 1, dof: { aperture: 0.0012, maxblur: 0.006 } },
+  { id: 'tips', cam: { pos: [6, 5.5, -11.4], target: [0, 0.4, -0.5], fov: 26 }, camMobile: { pos: [6, 5.5, -11.4], target: [0, 0.4, -0.5], fov: 38 },
+    lid: 1, yaw: 0, highlight: 8, callout: 'row:8:tip:x0', curtain: true, press: 1, dof: { aperture: 0.0012, maxblur: 0.006 } },
   { id: 'tape', cam: { pos: [-2.2, 10.5, 13.5], target: [-0.6, 0.1, 5.4], fov: 32 }, camMobile: { pos: [-2.2, 12.5, 15.5], target: [-0.4, 0.1, 5.4], fov: 48 },
     lid: 1, yaw: 0, highlight: 19, callout: 'tape:19', curtain: true, press: 1, dof: { aperture: 0.0012, maxblur: 0.006 } },
   { id: 'labels', cam: { pos: [0, 11.5, -1.5], target: [0, 0, -4.4], fov: 40 }, camMobile: { pos: [0, 15, -1.5], target: [0, 0, -4.4], fov: 62 },
