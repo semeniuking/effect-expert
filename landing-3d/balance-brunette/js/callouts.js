@@ -16,6 +16,8 @@ export function createCallouts(root) {
   let lw = -1; // label width (px), measured lazily; -1 = stale
   let lastW = 0;
   const v = new THREE.Vector3();
+  // Web fonts arriving later change the label width: re-measure.
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { lw = -1; });
 
   function set(anchorWorld, labelText) {
     const next = anchorWorld ? labelText || '' : '';
@@ -47,7 +49,7 @@ export function createCallouts(root) {
     // Clamp the label inside the viewport (12 px margin): it extends right of the anchor, or left when flipped.
     if (width !== lastW) { lastW = width; lw = -1; }
     if (lw < 0) lw = label.offsetWidth;
-    const M = 12;
+    const M = 14;
     let lx = 0;
     if (flip) lx = Math.max(0, M - (x - lw));
     else lx = Math.min(0, width - M - (x + lw));

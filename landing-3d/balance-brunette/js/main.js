@@ -183,6 +183,10 @@ async function boot() {
   // Photographic finish: bokeh + grain + vignette. Desktop only; mobile / reduced motion render directly.
   const post = createPost(stage, { enabled: !mobileGfx && !reducedMotion });
   if (post) stage.render = (dt) => post.render(dt);
+  // Direct rendering (mobile / reduced motion) tone-maps the *transmitted* page background (Neutral: #f2f2f2 -> #ededed)
+  // inside the acrylic material, so the clear lid read as grey. The post path pre-compensates the background by 1.034
+  // instead; lift the lid body colour here (measured: 1.067 lands on the desktop lid level) so the open lid reads as clear acrylic over #f2f2f2 everywhere.
+  if (!post) caseApi.acrylic.color.multiplyScalar(1.067);
   wrapRenderLater();
   let focus = 10;
   let curPress = 0.3;
