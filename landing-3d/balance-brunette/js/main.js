@@ -103,6 +103,22 @@ const post = createPost(stage, { enabled: !mobileGfx && !reducedMotion });
 if (post) stage.render = (dt) => post.render(dt);
 let focus = 10;
 let curPress = 0.3;
+let curFringe;
+let curBare = false;
+// Macro key: a small soft source behind and above the far strip end (like the photo's backlight). Its distance
+// falloff darkens the strip body toward the camera and its direct anisotropic specular draws the satin band across
+// the fibres of the curl. Always in the scene (intensity 0 outside the curl-profile chapters: no shader recompiles).
+const macroKey = new THREE.PointLight(0xffffff, 0, 0, 2);
+macroKey.position.set(-6, 5, 9);
+stage.scene.add(macroKey);
+const MACRO_KEY = 60;
+function setLashEnv(env) {
+  for (const m of tray.rows.flatMap((r) => r.materials)) { m.envMap = env; m.needsUpdate = true; }
+}
+// Curl-profile chapters look along the strips from beyond the case wall: hide the acrylic shell there (as if the
+// strips were taken out of the case), so the curl silhouettes stand against the white card and background.
+const acrylicMeshes = [];
+caseApi.group.traverse((o) => { if (o.isMesh && o.material === caseApi.acrylic) acrylicMeshes.push(o); });
 applyLang();
 
 // Row brightness fade (setHighlight snaps, so fade the material colours here).
@@ -190,6 +206,17 @@ stage.onFrame((dt) => {
   // Quantised so the geometry is rebuilt only a handful of times per transition, never per frame.
   const pq = Math.round(s.press * 10) / 10;
   if (pq !== curPress) { curPress = pq; tray.setPress(pq); }
+  // Real tip strands on the active row only; rebuilt on highlight change, never per frame.
+  if (s.highlight !== curFringe) { curFringe = s.highlight; tray.setFringeRow(s.highlight); }
+  macroKey.intensity = MACRO_KEY * s.bareMix; // fades with the camera move (the shell/env swap at the midpoint)
+  const bare = !!s.bare;
+  if (bare !== curBare) {
+    curBare = bare;
+    for (const m of acrylicMeshes) m.visible = !bare;
+    tray.setMode(bare ? 'macro' : 'tray');
+    setLashEnv(bare ? stage.scene.userData.macroEnv : stage.scene.userData.lashEnv);
+    shadowKey = ''; // the shadow follows what is visible
+  }
   // Macro lighting rig: the studio env hits the vertical curl faces weakly, so lift the fibres' env share
   // as the strips spring up (tray view keeps the dark #170907-ish read).
   const envI = 0.4 + clamp01((s.press - 0.3) / 0.7) * 0.8; // capped ~1.2: more washes the fibres to orange
@@ -217,8 +244,9 @@ stage.onFrame((dt) => {
       tray.group.localToWorld(anchorVec);
     }
   }
-  if (id !== curCallout || lastCallout !== lang) {
-    curCallout = id;
+  const calloutKey = id ? `${id}|${s.active}` : null; // two chapters may pin the same anchor with different labels
+  if (calloutKey !== curCallout || lastCallout !== lang) {
+    curCallout = calloutKey;
     lastCallout = lang;
     callouts.set(id ? anchorVec : null, id ? COPY[lang].chapters[s.active].callout : '');
   }
@@ -237,6 +265,11 @@ stage.onFrame((dt) => {
   snap = false;
   if (++frames === 2) window.__ready = true;
 });
+
+if (new URLSearchParams(location.search).has('debug')) window.__debug = {
+  THREE, tray, caseApi, stage, post, macroKey,
+  macroEnv(opts) { stage.scene.userData.macroEnv = stage.buildMacroEnv(opts); if (curBare) setLashEnv(stage.scene.userData.macroEnv); },
+};
 
 window.__story = {
   chapters: CHAPTERS, // exposed for tuning/tests

@@ -61,6 +61,25 @@ test('mobile picks camMobile when present', () => {
   });
 });
 
+test('curl-profile chapters are bare (no acrylic shell) and bareMix follows the blend', () => {
+  const N = CHAPTERS.length;
+  for (const id of ['color', 'taper', 'tips']) {
+    const i = CHAPTERS.findIndex((c) => c.id === id);
+    const s = sampleStory(CHAPTERS, (i + 0.2) / N);
+    assert.equal(s.bare, true, id);
+    assert.equal(s.bareMix, 1, id);
+  }
+  for (const id of ['hero', 'tray', 'tape']) {
+    const i = CHAPTERS.findIndex((c) => c.id === id);
+    const s = sampleStory(CHAPTERS, (i + 0.2) / N);
+    assert.equal(s.bare, false, id);
+    assert.equal(s.bareMix, 0, id);
+  }
+  const i = CHAPTERS.findIndex((c) => c.id === 'tray'); // tray -> color: mid-move
+  const mid = sampleStory(CHAPTERS, (i + 0.4 + 0.6 * 0.5) / N);
+  assert.ok(mid.bareMix > 0.3 && mid.bareMix < 0.7);
+});
+
 test('copy complete in both languages', () => {
   for (const lang of ['uk', 'en']) {
     assert.ok(COPY[lang].ui);

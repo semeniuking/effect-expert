@@ -6,13 +6,18 @@ export const CHAPTERS = [
     lid: 1, yaw: 0, highlight: null, callout: 'hinge' },
   { id: 'tray', cam: { pos: [-3.8, 46, 1], target: [-3.8, 0, 0], fov: 28 }, camMobile: { pos: [-3.8, 69, 1], target: [-3.8, 0, 0], fov: 30 },
     lid: 1, yaw: 0, highlight: null, callout: 'wordmark' },
-  { id: 'color', cam: { pos: [4.1, 6.0, 9.6], target: [0.1, 0.5, 1.0], fov: 20 }, camMobile: { pos: [4.4, 6.4, 10.2], target: [0.1, 0.5, 1.0], fov: 28 },
-    lid: 1, yaw: 0, highlight: 10, callout: 'row:10:tip', curtain: true, press: 1, dof: { aperture: 0.002, maxblur: 0.008 } },
+  // color + tips: side-on to the curl like the macro photo. The camera looks along the strips from beyond the
+  // +x end and slightly from the base side, so the far-end curl profile of the last (13 mm) row stands against the
+  // white card; rows 18 and 17 repeat the curl beside it and the near half of the strips falls into bokeh.
+  // The acrylic shell is hidden here (bare) as if the strips were lifted out of the case.
+  { id: 'color', cam: { pos: [3.7, 4.0, 6.14], target: [-2.3, 0.5, 5.3], fov: 18 }, camMobile: { pos: [3.7, 4.0, 6.14], target: [-2.3, 0.5, 5.3], fov: 32 },
+    lid: 1, yaw: 0, highlight: 19, callout: 'row:19:tip:x0', curtain: true, press: 1, bare: true, dof: { aperture: 0.01, maxblur: 0.03 } },
   { id: 'taper', cam: { pos: [2.6, 1.3, -1.6], target: [0.1, 0.35, -4.0], fov: 16 }, camMobile: { pos: [2.6, 1.3, -1.6], target: [0.1, 0.35, -4.0], fov: 30 },
     dof: { aperture: 0.0016, maxblur: 0.008 },
-    lid: 1, yaw: 0, highlight: 0, callout: 'row:0:taper', curtain: true, press: 1 },
-  { id: 'tips', cam: { pos: [3.4, 2.2, 4.2], target: [0.1, 0.3, -2.8], fov: 16 }, camMobile: { pos: [3.8, 2.4, 4.6], target: [0.1, 0.3, -2.8], fov: 24 },
-    lid: 1, yaw: 0, highlight: 0, callout: 'row:0:tip', curtain: true, press: 1, dof: { aperture: 0.004, maxblur: 0.012 } },
+    lid: 1, yaw: 0, highlight: 0, callout: 'row:0:taper', curtain: true, press: 1, bare: true }, // macro silk look between color and tips
+  // tips: closer and lower, 30 deg off the strip axis: the even tip edge runs across the top of the frame.
+  { id: 'tips', cam: { pos: [0.85, 1.7, 6.78], target: [-2.2, 0.95, 5.02], fov: 20 }, camMobile: { pos: [0.85, 1.7, 6.78], target: [-2.2, 0.95, 5.02], fov: 40 },
+    lid: 1, yaw: 0, highlight: 19, callout: 'row:19:tip:x0', curtain: true, press: 1, bare: true, dof: { aperture: 0.012, maxblur: 0.03 } },
   { id: 'tape', cam: { pos: [-2.2, 10.5, 13.5], target: [-0.6, 0.1, 5.4], fov: 32 }, camMobile: { pos: [-2.2, 12.5, 15.5], target: [-0.4, 0.1, 5.4], fov: 48 },
     lid: 1, yaw: 0, highlight: 19, callout: 'tape:19', curtain: true, press: 1, dof: { aperture: 0.0012, maxblur: 0.006 } },
   { id: 'labels', cam: { pos: [0, 11.5, -1.5], target: [0, 0, -4.4], fov: 40 }, camMobile: { pos: [0, 15, -1.5], target: [0, 0, -4.4], fov: 62 },
@@ -52,6 +57,8 @@ export function sampleStory(chapters, p, { mobile = false } = {}) {
       maxblur: mix(a.dof ? a.dof.maxblur : 0, b.dof ? b.dof.maxblur : 0, s),
     },
     highlight: src.highlight,
+    bare: !!src.bare,
+    bareMix: t === 0 ? (a.bare ? 1 : 0) : mix(a.bare ? 1 : 0, b.bare ? 1 : 0, s),
     callout: src.callout,
     active: src.id,
     curtain: t === 0 ? (a.curtain ? 1 : 0) : mix(a.curtain ? 1 : 0, b.curtain ? 1 : 0, s),
