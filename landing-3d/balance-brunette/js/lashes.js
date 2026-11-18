@@ -18,7 +18,7 @@ const BASE_COLOR = '#38221b';
 // microfacet normals spread around its circumference, i.e. across the fibre, so the direction is u (rotation 0) and
 // the highlight stretches into a satin band ACROSS the fibres. (pi/2 = along the fibre tangent smears it along them.)
 const ANISO_ROT = 0;
-let TRAY_PRESS = 0.3; // fibres lie pressed under the lid; 1 = natural curl (animated by Task 4 via setPress)
+const TRAY_PRESS = 0.3; // fibres lie pressed under the lid; 1 = natural curl (animated by Task 4 via setPress)
 const THICK = {
   '0.05': { fibres: 512, normal: 0.11 },
   '0.07': { fibres: 400, normal: 0.15 },

@@ -21,6 +21,8 @@ const H = parseInt(opt('h', '900'), 10);
 const suffix = opt('url-suffix', '');
 const tag = opt('tag', 'boot');
 const chapterArg = opt('chapters', '');
+const NOGL = args.includes('--nogl');         // simulate no WebGL: the static fallback must replace the veil
+const BLOCKCDN = args.includes('--blockcdn'); // simulate a blocked three.js CDN
 const ALL = ['hero','case','tray','color','taper','tips','tape','labels','configure'];
 const chapters = chapterArg ? chapterArg.split(',').filter(Boolean) : null;
 
@@ -57,9 +59,31 @@ try {
   page.setDefaultTimeout(600000);
   // The CI box reports 4 cores, which the page treats as low-power (no bokeh, half the fibres). Pretend to be a normal desktop.
   await page.addInitScript(() => Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 8 }));
-  page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+  if (NOGL) await page.addInitScript(() => {
+    const orig = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+      return /webgl/i.test(String(type)) ? null : orig.call(this, type, ...rest);
+    };
+  });
+  if (BLOCKCDN) await page.route('**/cdn.jsdelivr.net/**', (r) => r.abort());
+  page.on('console', (m) => { if (m.type() === 'error' && !(NOGL || BLOCKCDN)) errors.push('console: ' + m.text()); });
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
   await page.goto(`http://localhost:${port}/index.html${suffix}`, { waitUntil: 'load' });
+  if (NOGL || BLOCKCDN) {
+    await page.waitForFunction(() => document.documentElement.classList.contains('no-3d') && !document.getElementById('veil'), null, { timeout: 30000 });
+    await page.waitForTimeout(800);
+    await page.screenshot({ path: path.join(outDir, `${W}x${H}-fallback${NOGL ? '-nogl' : '-nocdn'}.png`) });
+    const info = await page.evaluate(() => {
+      const a = document.querySelector('#fallback a');
+      const r = a.getBoundingClientRect();
+      const img = document.querySelector('#fallback img');
+      return { href: a.href, visible: r.width > 0 && r.height > 0 && r.bottom > 0, title: document.querySelector('#fallback .fb-title').textContent,
+        price: document.querySelector('#fallback .price').textContent, img: img.complete && img.naturalWidth > 0, failed: window.__failed };
+    });
+    console.log('fallback:', JSON.stringify(info));
+    if (!info.visible || !info.img || !info.href.includes('balance-mix-brunette') || !info.price) errors.push('fallback incomplete: ' + JSON.stringify(info));
+    throw Object.assign(new Error('__done'), { done: true });
+  }
   await page.waitForFunction(() => window.__ready === true, null, { timeout: 60000 });
 
   const hasStory = await page.evaluate(() => !!window.__story);
@@ -134,6 +158,18 @@ try {
     await settle();
     await page.waitForTimeout(700);
     const after = await page.evaluate(() => window.__debug.geometries());
+    // Keyboard: hidden panels are inert; the configure panel is not; arrows move the radio selection (roving tabindex).
+    const a11y = await page.evaluate(() => {
+      const ps = [...document.querySelectorAll('.panel')];
+      return { inert: ps.filter((p) => p.inert).length, total: ps.length, cfgInert: ps.at(-1).inert,
+        tabStops: document.querySelectorAll('#seg-curl button[tabindex="0"]').length };
+    });
+    if (a11y.cfgInert || a11y.inert !== a11y.total - 1 || a11y.tabStops !== 1) errors.push('panel inert/tabindex state wrong: ' + JSON.stringify(a11y));
+    await page.focus('#seg-curl button[aria-checked="true"]');
+    await page.keyboard.press('ArrowRight');
+    await settle();
+    const arrowed = await page.$eval('#seg-curl button[aria-checked="true"]', (b) => b.dataset.curl + '|' + (document.activeElement === b));
+    if (arrowed !== 'L|true') errors.push('arrow key did not move the selection: ' + arrowed);
     const href = await page.$eval('.buy a', (a) => `${a.href}|${a.target}|${a.rel}`);
     await page.screenshot({ path: path.join(outDir, `${W}x${H}-configure-D-0.1.png`) });
     console.log(`configure: geometries before=${before} after=${after}, worst rebuild ${worst.toFixed(0)} ms, buy=${href}`);
@@ -141,7 +177,7 @@ try {
     if (!href.startsWith('https://effect-expert.com/products/balance-mix-brunette|_blank|noopener')) errors.push('buy link wrong: ' + href);
   }
 } catch (e) {
-  errors.push(String(e && e.message || e));
+  if (!(e && e.done)) errors.push(String(e && e.message || e));
 } finally {
   if (browser) await browser.close();
   server.close();

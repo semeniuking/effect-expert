@@ -93,7 +93,7 @@ export function createContactShadow(renderer, scene, subject, {
   }
 
   function dispose() {
-    rt.dispose(); rtBlur.dispose(); planeGeo.dispose(); depthMat.dispose(); hBlur.dispose(); vBlur.dispose();
+    rt.dispose(); rtBlur.dispose(); planeGeo.dispose(); plane.material.dispose(); depthMat.dispose(); hBlur.dispose(); vBlur.dispose();
     scene.remove(group);
   }
 

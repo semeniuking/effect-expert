@@ -194,11 +194,8 @@ export function createCase({ renderer, portrait, swatches, lengths, curl = 'L', 
   function setPrint({ curl: c = state.curl, thickness: th = state.thickness } = {}) {
     state.curl = c;
     state.thickness = th;
-    const next = makeInsertTexture({ lengths: state.lengths, curl: c, thickness: th, anisotropy: aniso });
-    insert.userData.face.material.map = next;
-    insert.userData.face.material.needsUpdate = true;
-    curInsertTex.dispose();
-    curInsertTex = next;
+    // Reuse the existing canvas + texture (redraw + needsUpdate): no new 2048x4096 canvas per click.
+    curInsertTex.userData.redraw({ curl: c, thickness: th });
   }
 
   const tmp = new THREE.Vector3();

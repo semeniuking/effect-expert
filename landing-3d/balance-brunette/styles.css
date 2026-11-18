@@ -85,13 +85,17 @@ body {
 .buy { margin-top: 28px; display: flex; align-items: baseline; gap: 28px; }
 .buy .price { font-size: 28px; font-weight: 300; }
 .buy a {
+  display: inline-block; /* >= 44 px tall tap target; the underline stays hugging the text */
   color: var(--ink); text-decoration: none; font-weight: 400; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
-  border-bottom: 1px solid var(--ink); padding-bottom: 4px;
+  padding: 14px 0 4px; min-height: 44px; background: linear-gradient(var(--ink), var(--ink)) bottom / 100% 1px no-repeat;
+  background-origin: border-box;
 }
 
 @media (min-width: 769px) {
   .panel.side { position: fixed; left: auto; right: calc(var(--pad) + var(--sar)); bottom: calc(var(--pad) + var(--sab)); width: min(420px, 32vw); }
 }
+
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* callout */
 .callouts { position: fixed; inset: 0; z-index: 9; pointer-events: none; overflow: hidden; }
@@ -106,7 +110,7 @@ body {
 .callout-label {
   position: absolute; left: 0; bottom: 64px; white-space: nowrap;
   font-weight: 400; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
-  transform: translateY(50%);
+  transform: translate(var(--lx, 0px), 50%); /* --lx keeps the label inside the viewport (callouts.js) */
   background: rgba(242, 242, 242, 0.88); padding: 6px 10px 5px 12px; border-left: 1px solid var(--ink);
 }
 
@@ -172,4 +176,21 @@ body {
   .cfg { margin-top: 12px; gap: 12px; max-width: none; }
   .seg button { min-height: 36px; padding: 0 6px; font-size: 11px; }
   .panel.side .buy { margin-top: 14px; justify-content: space-between; align-items: center; }
+}
+
+/* static fallback page: no WebGL / blocked CDN / no JS / boot timeout. Normal document flow, no 3D. */
+.fallback { display: none; }
+html.no-3d .fallback, html.no-js .fallback {
+  display: grid; gap: 28px; align-items: center; max-width: 1040px; margin: 0 auto;
+  padding: calc(var(--sat) + 84px) var(--pad) calc(var(--pad) + var(--sab));
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 100vh; min-height: 100svh;
+}
+.fallback img { width: 100%; height: auto; display: block; mix-blend-mode: multiply; }
+html.no-3d .veil, html.no-js .veil,
+html.no-3d .stage, html.no-js .stage, html.no-3d .progress, html.no-js .progress,
+html.no-3d .overlay, html.no-js .overlay, html.no-3d .callouts, html.no-js .callouts,
+html.no-3d .hint, html.no-js .hint, html.no-3d .curtain, html.no-js .curtain,
+html.no-3d #story, html.no-js #story { display: none; }
+@media (max-width: 768px) {
+  html.no-3d .fallback, html.no-js .fallback { grid-template-columns: minmax(0, 1fr); gap: 20px; padding-top: calc(var(--sat) + 76px); }
 }

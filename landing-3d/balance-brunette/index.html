@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="uk">
+<html lang="uk" class="no-js">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -27,11 +27,27 @@
     }
   }
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+    // Boot safety net: any 3D failure (no WebGL, blocked CDN, no import-map support, decode/import error, 10 s timeout)
+    // lands on the static page (#fallback) instead of a stuck veil. main.js lifts the class if a slow boot finishes later.
+    (function () {
+      var d = document.documentElement;
+      d.classList.remove('no-js');
+      window.__fail3d = function (why) {
+        if (window.__ready) return;
+        d.classList.add('no-3d');
+        window.__failed = String((why && why.message) || why || 'failed');
+        var v = document.getElementById('veil');
+        if (v) { v.classList.add('done'); setTimeout(function () { v.remove(); }, 900); }
+      };
+      setTimeout(function () { if (!window.__ready) window.__fail3d('timeout'); }, 10000);
+    })();
+  </script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
 <body>
-  <div class="veil" id="veil" role="status" aria-live="polite"><span class="veil-name">EFFECT EXPERT</span><i class="veil-line"><b id="veil-bar"></b></i></div>
+  <div class="veil" id="veil" role="status" aria-live="polite"><span class="sr">Loading</span><span class="veil-name">EFFECT EXPERT</span><i class="veil-line"><b id="veil-bar"></b></i></div>
   <div class="stage"><canvas id="stage"></canvas></div>
   <div class="progress"><i id="progress"></i></div>
   <header class="top">
@@ -39,10 +55,21 @@
     <button class="lang" id="lang" type="button">EN</button>
   </header>
   <div class="curtain" id="curtain"></div>
-  <div class="overlay" id="overlay" aria-live="polite"></div>
+  <div class="overlay" id="overlay"></div>
+  <div class="sr" id="announce" role="status" aria-live="polite"></div>
   <div class="callouts" id="callouts"></div>
   <div class="hint" id="hint"></div>
   <main id="story"></main>
-  <script type="module" src="js/main.js"></script>
+  <!-- Static page: shown instead of the 3D story when it cannot run (no WebGL / JS / CDN). -->
+  <section class="fallback" id="fallback" lang="en">
+    <img src="reference/live-closed-front.jpg" alt="BALANCE MIX Brunette lash palette in its clear case" width="600" height="600">
+    <div class="fb-text">
+      <p class="kicker fb-kicker">EFFECT EXPERT</p>
+      <h1 class="title fb-title">Balance Mix Brunette</h1>
+      <p class="body fb-body">A palette of 20 lash lines from 6 to 13 mm for perfect effects.</p>
+      <div class="buy"><span class="price">480 ₴</span><a href="https://effect-expert.com/products/balance-mix-brunette" target="_blank" rel="noopener">Buy</a></div>
+    </div>
+  </section>
+  <script type="module" src="js/main.js" onerror="__fail3d('main.js failed to load')"></script>
 </body>
 </html>
