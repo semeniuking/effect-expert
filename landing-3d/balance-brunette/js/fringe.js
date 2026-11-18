@@ -23,12 +23,19 @@ export function ribbonWarp(seed) {
   };
 }
 
-export const FRINGE_V0 = 0.45; // fibres start here (v = fraction of lash length)
-export const TAPER_START = 2 / 3; // taper begins at 2/3 of the fibre's own length
-export const widthAt = (t, w0) => {
-  if (t <= TAPER_START) return w0;
-  const k = Math.min(1, (t - TAPER_START) / (1 - TAPER_START));
+// Round 4: the body is one opaque silky sheet (ribbon, alpha 1 to v .85); real strands only in the last ~12 %.
+export const FRINGE_V0 = 0.88; // fibres start here (v = fraction of lash length)
+export const TAPER_START = 2 / 3; // default: taper begins at 2/3 of the fibre's own length
+export const widthAt = (t, w0, start = TAPER_START) => {
+  if (t <= start) return w0;
+  const k = Math.min(1, (t - start) / (1 - start));
   return w0 * (1 - k * k * (3 - 2 * k));
+};
+// Ambient occlusion along the fibre: dark at the tape (the fibres are packed and shadow each other there),
+// full brightness from about the middle of the lash. Shared by the ribbon and the fringe vertex colours.
+export const aoAt = (v) => {
+  const k = Math.min(1, Math.max(0, v / 0.75));
+  return 0.32 + 0.68 * k * k * (3 - 2 * k);
 };
 export const fibreWidth = (thickness) => (parseFloat(thickness) / 10) * 1.6; // cm: diameter x 1.6
 
@@ -47,16 +54,15 @@ function sampleAt(pts, v) {
  * Returns typed arrays plus the tip widths. Per fibre: (segments + 1) * 2 vertices, segments * 2 triangles.
  */
 export function buildFringeData({
-  curl, lengthMm, count, segments = 14, press = 1, thickness = '0.07', seed = 0,
-  x0 = -2.4, x1 = 2.6, warpSeed = seed,
+  curl, lengthMm, count, segments = 6, press = 1, thickness = '0.07', seed = 0,
+  x0 = -2.4, x1 = 2.6, warpSeed = seed, v0 = FRINGE_V0, taperStart = 0.45, width = 0,
 }) {
   const pts = lashCurve(curl, lengthMm, 200);
   const warp = ribbonWarp(warpSeed);
   const rand = rng(seed ^ 0x9e3779b9);
   const W = x1 - x0;
-  // Spec width is diameter x 1.6, but with only N fibres across the strip that leaves gaps where the tape and
-  // the card show through the body fade. Widen the fibre body to ~90 % of the pitch; the taper still ends in a point.
-  const w0 = Math.max(fibreWidth(thickness), (0.9 * W) / count);
+  // Diameter x 1.2, but at least 1.5 x the pitch so neighbouring strands overlap into a sheet until the taper.
+  const w0 = width || Math.max(fibreWidth(thickness) * 0.75, (1.5 * W) / count);
   const vpf = (segments + 1) * 2;
   const pos = new Float32Array(count * vpf * 3);
   const uv = new Float32Array(count * vpf * 2);
@@ -65,28 +71,29 @@ export function buildFringeData({
   let vi = 0, ii = 0;
   for (let f = 0; f < count; f++) {
     const xc = x0 + ((f + 0.5 + (rand() - 0.5) * 0.6) / count) * W; // +-0.3 spacing jitter
-    const vEnd = 1 + (rand() - 0.5) * 0.04; // +-2 % tip length
+    // +-2 % tip length, bell-shaped (mean of three uniforms): most tips are even, a few stray hairs stand out
+    const vEnd = 1 + ((rand() + rand() + rand()) / 3 - 0.5) * 0.04;
     const sway = (rand() - 0.5) * 0.02; // <= 0.01 cm
     const u = (xc - x0) / W;
     const base = vi;
     for (let k = 0; k <= segments; k++) {
       const t = k / segments;
-      const v = FRINGE_V0 + (vEnd - FRINGE_V0) * t;
+      const v = v0 + (vEnd - v0) * t;
       const [fw, up] = sampleAt(pts, v);
       const vw = Math.min(1, v);
       const y = (up / 10) * warp.heightK(u, vw) * press + 0.002;
       const z = (-fw / 10) * warp.lengthK(u, vw);
-      const hw = widthAt(t, w0) / 2;
+      const hw = widthAt(t, w0, taperStart) / 2;
       const cx = xc + sway * t * t;
       for (const side of [-1, 1]) {
         pos[vi * 3] = cx + side * hw;
         pos[vi * 3 + 1] = y;
         pos[vi * 3 + 2] = z;
-        uv[vi * 2] = u;
+        uv[vi * 2] = (cx + side * hw - x0) / W; // same u as the ribbon: the fibre gets the ribbon's normal/aniso frame
         uv[vi * 2 + 1] = Math.min(1, v);
         vi++;
       }
-      if (k === segments) tipWidths[f] = widthAt(t, w0);
+      if (k === segments) tipWidths[f] = widthAt(t, w0, taperStart);
     }
     for (let k = 0; k < segments; k++) {
       const a = base + k * 2, b = a + 1, c = a + 2, d = a + 3;
